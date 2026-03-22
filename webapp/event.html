@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZPZ Miami â Event Details</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #FFFFFF;
+      --bg-subtle:    #F9F8F6;
+      --border:       #EBEBEB;
+      --border-heavy: #111111;
+      --text-1:       #111111;
+      --text-2:       #6B6560;
+      --text-3:       #B0AAA5;
+      --accent:       #BE7A54;
+      --accent-bg:    #FAF1EB;
+      --free:         #2A7A47;
+      --free-bg:      #EAF4EE;
+      --header-h:     54px;
+      --cta-h:        80px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       TOP NAV
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .topnav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--header-h);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-2);
+      padding: 6px 0;
+      transition: color 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .back-btn:hover { color: var(--text-1); }
+    .back-btn svg { flex-shrink: 0; }
+    .nav-logo {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-1);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       HERO
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .hero-wrap {
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+      background: var(--accent-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .hero-placeholder {
+      font-size: 60px;
+      line-height: 1;
+    }
+    @media (min-width: 600px) {
+      .hero-wrap { height: 300px; }
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       PAGE
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px calc(var(--cta-h) + 24px);
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       TITLE BLOCK
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .title-block {
+      padding: 24px 0 22px;
+      border-bottom: 1px solid var(--border);
+    }
+    .event-date-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .event-title {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      color: var(--text-1);
+      margin-bottom: 10px;
+    }
+    .event-organizer {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-3);
+      margin-bottom: 16px;
+    }
+    /* Quick meta row right under title */
+    .title-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .title-meta-item {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .title-meta-sep {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .price-pill {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+    .price-pill.is-free { background: var(--free-bg); color: var(--free); }
+    .price-pill.is-paid { background: var(--accent-bg); color: var(--accent); }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       SECTIONS
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .section {
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .section:last-child { border-bottom: none; }
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-3);
+      margin-bottom: 14px;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       SUMMARY (AI-generated)
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .summary-text {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.75;
+      color: var(--text-1);
+      padding-left: 16px;
+      border-left: 2.5px solid var(--accent);
+    }
+    .practical-notes {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--text-2);
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--bg-subtle);
+      border-radius: 8px;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       INFO ROWS (plan your visit)
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .info-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-icon {
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .info-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .info-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-3);
+      margin-bottom: 3px;
+    }
+    .info-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1.35;
+    }
+    .info-value.accent { color: var(--accent); }
+    .info-value.green  { color: var(--free); }
+    .info-sub {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+    .map-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1.5px solid var(--accent);
+      border-radius: 8px;
+      transition: background 0.12s, color 0.12s;
+    }
+    .map-link:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       DESCRIPTION
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .description-text {
+      font-size: 14.5px;
+      line-height: 1.75;
+      color: var(--text-2);
+      white-space: pre-wrap;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       TAGS
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tag {
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg-subtle);
+      color: var(--text-2);
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       CTA BAR (sticky bottom)
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .cta-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      height: var(--cta-h);
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-primary {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      height: 48px;
+      background: var(--text-1);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-icon:hover { border-color: var(--text-1); }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       LOADING / ERROR
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 90px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-state {
+      text-align: center;
+      padding: 80px 24px;
+    }
+    .error-icon { font-size: 36px; margin-bottom: 16px; }
+    .error-state h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-1);
+      margin-bottom: 8px;
+    }
+    .error-state p {
+      font-size: 14px;
+      color: var(--text-2);
+      margin-bottom: 24px;
+    }
+    .error-link {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       RESPONSIVE
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    @media (max-width: 480px) {
+      .page { padding: 0 18px calc(var(--cta-h) + 20px); }
+      .event-title { font-size: 22px; }
+    }
+    @media (min-width: 600px) {
+      .topnav { padding: 0 28px; }
+      .page { padding: 0 28px calc(var(--cta-h) + 28px); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ââ Top nav ââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<nav class="topnav">
+  <a class="back-btn" href="index.html">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    All Events
+  </a>
+  <a class="nav-logo" href="index.html">ð´ EZPZ</a>
+</nav>
+
+<!-- ââ Main content ââââââââââââââââââââââââââââââââââââââââââ -->
+<div id="root">
+  <div class="spinner"></div>
+</div>
+
+<!-- ââ Sticky CTA bar ââââââââââââââââââââââââââââââââââââââââ -->
+<div class="cta-bar" id="cta-bar">
+  <a class="btn-primary" id="cta-link" href="#" target="_blank" rel="noopener">
+    View &amp; Get Tickets
+  </a>
+  <button class="btn-icon" title="Share" onclick="shareEvent()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+  </button>
+  <button class="btn-icon" title="Add to calendar" onclick="addToCalendar()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2.5"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+  </button>
+</div>
+
+<script>
+// âââ CONFIG ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+const SUPABASE_URL = 'https://pomjqbjxosbfozvbvgsj.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvbWpxYmp4b3NiZm96dmJ2Z3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NDk1NTIsImV4cCI6MjA4OTUyNTU1Mn0.csIFsMkappk45CLTfFVGM4b44sqewyhmlyqK8U_SF14';
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentEvent = null;
+
+// âââ LOAD âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+async function loadEvent() {
+  const id = new URLSearchParams(window.location.search).get('id');
+  if (!id) { renderError('No event ID provided.'); return; }
+
+  const { data, error } = await db.from('events').select('*').eq('id', id).single();
+  if (error || !data) { renderError('Event not found.'); return; }
+
+  currentEvent = data;
+  document.title = `${data.editorial_headline || data.title} â EZPZ Miami`;
+  renderEvent(data);
+}
+
+// âââ RENDER âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function renderEvent(ev) {
+  const root = document.getElementById('root');
+
+  // Hero
+  const heroHtml = ev.image_url
+    ? `<div class="hero-wrap">
+         <img src="${esc(ev.image_url)}" alt="${esc(ev.title)}"
+              onerror="this.parentNode.innerHTML='<div class=hero-placeholder>${srcIcon(ev.source)}</div>'" />
+       </div>`
+    : `<div class="hero-wrap"><div class="hero-placeholder">${srcIcon(ev.source)}</div></div>`;
+
+  // Date label
+  const dateLabel = fmtFullDate(ev.start_date);
+  const timeStr   = fmtTime(ev.start_date);
+  const endTime   = ev.end_date ? fmtTime(ev.end_date) : '';
+  const dur       = fmtDuration(ev.start_date, ev.end_date);
+
+  // Price
+  const priceHtml = (() => {
+    if (ev.is_free) return `<span class="price-pill is-free">Free</span>`;
+    const label = priceStr(ev);
+    if (label && label !== 'See event for pricing') return `<span class="price-pill is-paid">${esc(label)}</span>`;
+    return '';
+  })();
+
+  // Title meta row
+  const metaParts = [];
+  if (timeStr) metaParts.push(`<span class="title-meta-item">${timeStr}</span>`);
+  if (ev.venue_name) metaParts.push(`<span class="title-meta-item">ð ${esc(ev.venue_name)}</span>`);
+  if (priceHtml) metaParts.push(priceHtml);
+  const titleMeta = metaParts.length
+    ? `<div class="title-meta">${metaParts.join('<span class="title-meta-sep"></span>')}</div>`
+    : '';
+
+  // What to expect (AI summary)
+  const summarySection = (ev.parent_summary || ev.description) ? `
+    <div class="section">
+      <div class="section-label">What to expect</div>
+      <p class="summary-text">${esc(ev.parent_summary || ev.description)}</p>
+      ${ev.practical_notes ? `<div class="practical-notes">ð ${esc(ev.practical_notes)}</div>` : ''}
+    </div>` : '';
+
+  // Plan your visit
+  const infoRows = [];
+  infoRows.push(`
+    <div class="info-row">
+      <span class="info-icon">ð</span>
+      <div class="info-body">
+        <div class="info-label">Date</div>
+        <div class="info-value accent">${esc(dateLabel)}</div>
+      </div>
+    </div>`);
+
+  if (timeStr) infoRows.push(`
+    <div class="info-row">
+      <span class="info-icon">ð</span>
+      <div class="info-body">
+        <div class="info-label">Time</div>
+        <div class="info-value">${timeStr}${endTime ? ' â ' + endTime : ''}</div>
+        ${dur ? `<div class="info-sub">${dur}</div>` : ''}
+      </div>
+    </div>`);
+
+  infoRows.push(`
+    <div class="info-row">
+      <span class="info-icon">ð</span>
+      <div class="info-body">
+        <div class="info-label">Location</div>
+        <div class="info-value">${esc(ev.neighborhood || ev.venue_name || 'TBA')}</div>
+        ${ev.neighborhood && ev.venue_name ? `<div class="info-sub">${esc(ev.venue_name)}</div>` : ''}
+        ${ev.address ? `
+          <div class="info-sub" style="margin-top:4px">${esc(ev.address)}</div>
+          <a class="map-link" href="https://maps.google.com/?q=${encodeURIComponent(ev.address)}" target="_blank" rel="noopener">
+            Open in Maps â
+          </a>` : ''}
+      </div>
+    </div>`);
+
+  infoRows.push(`
+    <div class="info-row">
+      <span class="info-icon">ðµ</span>
+      <div class="info-body">
+        <div class="info-label">Cost</div>
+        <div class="info-value ${ev.is_free ? 'green' : ''}">${esc(priceStr(ev))}</div>
+      </div>
+    </div>`);
+
+  // Ages
+  const ageTxt = ageLabel(ev.age_min, ev.age_max);
+  infoRows.push(`
+    <div class="info-row">
+      <span class="info-icon">ð¶</span>
+      <div class="info-body">
+        <div class="info-label">Ages</div>
+        <div class="info-value">${esc(ageTxt)}</div>
+        ${ev.activity_type ? `<div class="info-sub" style="text-transform:capitalize">${esc(ev.activity_type)}</div>` : ''}
+      </div>
+    </div>`);
+
+  if (ev.indoor_outdoor) infoRows.push(`
+    <div class="info-row">
+      <span class="info-icon">${ev.indoor_outdoor === 'indoor' ? 'ð ' : ev.indoor_outdoor === 'outdoor' ? 'âï¸' : 'ð'}</span>
+      <div class="info-body">
+        <div class="info-label">Setting</div>
+        <div class="info-value" style="text-transform:capitalize">${esc(ev.indoor_outdoor)}</div>
+      </div>
+    </div>`);
+
+  const infoSection = `
+    <div class="section">
+      <div class="section-label">Plan your visit</div>
+      <div class="info-rows">${infoRows.join('')}</div>
+    </div>`;
+
+  // About (full description if different from summary)
+  const fullDesc = ev.full_description || (ev.parent_summary ? ev.description : '') || '';
+  const aboutSection = fullDesc ? `
+    <div class="section">
+      <div class="section-label">About this event</div>
+      <p class="description-text">${esc(fullDesc.trim())}</p>
+    </div>` : '';
+
+  // Tags
+  const tagsSection = (ev.tags || []).length > 0 ? `
+    <div class="section">
+      <div class="tags-row">${ev.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+    </div>` : '';
+
+  root.innerHTML = `
+    ${heroHtml}
+    <div class="page">
+      <div class="title-block">
+        <div class="event-date-label">${esc(dateLabel)}</div>
+        <h1 class="event-title">${esc(ev.editorial_headline || ev.title)}</h1>
+        ${ev.editorial_headline ? `<div class="event-organizer">${esc(ev.title)}</div>` : (ev.organizer_name ? `<div class="event-organizer">by ${esc(ev.organizer_name)}</div>` : '')}
+        ${titleMeta}
+      </div>
+      ${summarySection}
+      ${infoSection}
+      ${aboutSection}
+      ${tagsSection}
+    </div>`;
+
+  // CTA bar
+  if (ev.source_url) {
+    const ctaLink = document.getElementById('cta-link');
+    ctaLink.href = ev.source_url;
+    ctaLink.textContent = ev.is_free ? 'Register / RSVP' : 'View & Get Tickets';
+    document.getElementById('cta-bar').style.display = 'flex';
+  }
+}
+
+// âââ ACTIONS ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function shareEvent() {
+  const ev = currentEvent;
+  if (!ev) return;
+  const text = `${ev.title}\n${fmtFullDate(ev.start_date)}${ev.venue_name ? ' Â· ' + ev.venue_name : ''}\n${ev.source_url || window.location.href}`;
+  if (navigator.share) {
+    navigator.share({ title: ev.title, text, url: ev.source_url || window.location.href }).catch(() => {});
+  } else {
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = document.querySelector('.btn-icon[title="Share"]');
+      if (btn) { btn.textContent = 'â'; setTimeout(() => { btn.innerHTML = shareIconSvg(); }, 2000); }
+    });
+  }
+}
+
+function shareIconSvg() {
+  return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`;
+}
+
+function addToCalendar() {
+  const ev = currentEvent;
+  if (!ev) return;
+  const fmt = iso => iso ? new Date(iso).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z' : '';
+  const url = `https://calendar.google.com/calendar/render?action=TEMPLATE`
+    + `&text=${encodeURIComponent(ev.title)}`
+    + `&dates=${fmt(ev.start_date)}/${fmt(ev.end_date || ev.start_date)}`
+    + `&location=${encodeURIComponent(ev.address || ev.venue_name || '')}`
+    + `&details=${encodeURIComponent((ev.parent_summary || ev.description || '').slice(0,200))}`;
+  window.open(url, '_blank');
+}
+
+// âââ HELPERS ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function fmtFullDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  // Use UTC values â times are stored as Miami local time labeled as UTC
+  const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${days[d.getUTCDay()]}, ${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+}
+function fmtTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  // Read UTC values â times are stored as Miami local time labeled as UTC
+  const h = d.getUTCHours(), m = d.getUTCMinutes();
+  if (h === 0 && m === 0) return '';
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12  = h % 12 || 12;
+  const mm   = m === 0 ? '' : `:${String(m).padStart(2, '0')}`;
+  return `${h12}${mm} ${ampm}`;
+}
+function fmtDuration(start, end) {
+  if (!start || !end) return null;
+  const mins = Math.round((new Date(end) - new Date(start)) / 60000);
+  if (mins <= 0 || mins > 600) return null;
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
+function ageLabel(min, max) {
+  if (min == null && max == null) return 'All ages welcome';
+  if (min == null) min = 0;
+  if (min === 0 && (max == null || max >= 12)) return 'All ages welcome';
+  if (max == null) return `Ages ${min}+`;
+  return `Ages ${min}â${max}`;
+}
+function priceStr(ev) {
+  if (ev.is_free) return 'Free';
+  if (ev.price_min != null && ev.price_max != null && ev.price_min === ev.price_max) return `$${ev.price_min}`;
+  if (ev.price_min != null && ev.price_max != null) return `$${ev.price_min}â$${ev.price_max}`;
+  if (ev.price_min != null) return `From $${ev.price_min}`;
+  return 'See event page';
+}
+function srcIcon(source) {
+  const map = {
+    miami_dade_libraries: 'ð', eventbrite: 'ð', the_underline: 'ð¿',
+    miami_childrens_museum: 'ð¡', arsht_center: 'ð­',
+    deering_estate: 'ð', pinecrest_gardens: 'ðº', magic_13: 'â¨',
+  };
+  return map[source] || 'ð´';
+}
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function renderError(msg) {
+  document.getElementById('root').innerHTML = `
+    <div class="error-state">
+      <div class="error-icon">ð</div>
+      <h3>Event not found</h3>
+      <p>${esc(msg)}</p>
+      <a class="error-link" href="index.html">â Back to all events</a>
+    </div>`;
+}
+
+// âââ INIT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+loadEvent();
+</script>
+
+</body>
+</html>
