@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZPZ Miami â Weekend Playbook for Miami Parents</title>
+  <meta name="description" content="The easiest way to find kid-friendly events in Miami this weekend." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #FFFFFF;
+      --border:       #EBEBEB;
+      --border-heavy: #111111;
+      --text-1:       #111111;
+      --text-2:       #6B6560;
+      --text-3:       #B0AAA5;
+      --accent:       #BE7A54;     /* muted terracotta â Miami warmth */
+      --accent-bg:    #FAF1EB;
+      --free:         #2A7A47;
+      --free-bg:      #EAF4EE;
+      --header-h:     58px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       HEADER
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--header-h);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-decoration: none;
+      color: var(--text-1);
+    }
+    .logo-palm {
+      font-size: 21px;
+      line-height: 1;
+      display: block;
+    }
+    .logo-name {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-1);
+      line-height: 1;
+    }
+    .logo-tag {
+      font-size: 9.5px;
+      font-weight: 500;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      line-height: 1;
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* Calendar button â native date input overlays it */
+    .cal-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      color: var(--text-2);
+      transition: border-color 0.15s, color 0.15s;
+      overflow: hidden;
+    }
+    .cal-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .cal-btn svg {
+      pointer-events: none;
+      position: relative;
+      z-index: 0;
+    }
+    #date-picker {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      z-index: 1;
+      font-size: 16px; /* prevents iOS zoom */
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       PAGE WRAPPER
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 100px;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       DAY SECTION
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .day-section {
+      margin-top: 44px;
+    }
+    .day-section:first-child {
+      margin-top: 36px;
+    }
+    .day-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .day-headline {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .day-date {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1;
+      color: var(--text-1);
+    }
+    .day-count {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-3);
+    }
+    .day-rule {
+      border: none;
+      border-top: 1.5px solid var(--border-heavy);
+      margin-top: 12px;
+      margin-bottom: 0;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       EVENT ROW
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .event-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      padding: 22px 0;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .event-row:first-of-type {
+      border-top: 1px solid var(--border);
+    }
+    .event-row:active {
+      opacity: 0.65;
+    }
+    @media (hover: hover) {
+      .event-row:hover .event-title {
+        color: var(--accent);
+      }
+    }
+
+    /* Content side */
+    .event-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .event-title {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--text-1);
+      transition: color 0.12s ease;
+      /* 2-line clamp */
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .event-desc {
+      font-size: 13.5px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--text-2);
+      /* 3-line clamp */
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .event-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 3px;
+    }
+    .meta-time {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-3);
+    }
+    .meta-sep {
+      font-size: 11px;
+      color: var(--border);
+    }
+    .meta-venue {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 170px;
+    }
+    .price-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 2px 7px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .price-tag.is-free {
+      background: var(--free-bg);
+      color: var(--free);
+    }
+    .price-tag.is-paid {
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    /* Thumbnail side */
+    .event-thumb {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--accent-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .event-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       LOADING & EMPTY STATES
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 90px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state {
+      text-align: center;
+      padding: 90px 20px;
+    }
+    .empty-icon {
+      font-size: 38px;
+      margin-bottom: 18px;
+    }
+    .empty-state h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-1);
+      margin-bottom: 8px;
+    }
+    .empty-state p {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       FOOTER
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    .footer {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .footer-rule {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 24px;
+      max-width: 720px;
+    }
+    .footer-left {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-1);
+    }
+    .footer-right {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    /* âââââââââââââââââââââââââââââââââââââââââââââ
+       RESPONSIVE
+    âââââââââââââââââââââââââââââââââââââââââââââ */
+    @media (max-width: 480px) {
+      .page { padding: 0 18px 100px; }
+      .header-inner { padding: 0 18px; }
+      .footer { padding: 0 18px 48px; }
+      .footer-rule { margin: 0 18px; }
+      .event-thumb { width: 72px; height: 72px; }
+      .day-date { font-size: 21px; }
+      .meta-venue { max-width: 130px; }
+    }
+
+    @media (min-width: 721px) {
+      .day-date { font-size: 26px; }
+      .event-title { font-size: 17px; }
+      .event-desc { font-size: 14px; }
+      .event-thumb { width: 88px; height: 88px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ââ Header ââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <span class="logo-palm">ð´</span>
+      <div>
+        <span class="logo-name">EZPZ Miami</span>
+        <span class="logo-tag">Weekend Playbook</span>
+      </div>
+    </a>
+
+    <button class="cal-btn" aria-label="Jump to date">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2.5"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <input type="date" id="date-picker" onchange="jumpToDate(this.value)" tabindex="-1" aria-hidden="true" />
+    </button>
+  </div>
+</header>
+
+<!-- ââ Events feed ââââââââââââââââââââââââââââââââââââââââââââ -->
+<main class="page" id="content">
+  <div class="spinner"></div>
+</main>
+
+<!-- ââ Footer ââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<hr class="footer-rule" id="footer-rule" style="display:none" />
+<footer class="footer" id="footer" style="display:none">
+  <span class="footer-left">EZPZ Miami</span>
+  <span class="footer-right">Updated daily Â· Miami, FL</span>
+</footer>
+
+<script>
+// âââ CONFIG ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+const SUPABASE_URL = 'https://pomjqbjxosbfozvbvgsj.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvbWpxYmp4b3NiZm96dmJ2Z3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NDk1NTIsImV4cCI6MjA4OTUyNTU1Mn0.csIFsMkappk45CLTfFVGM4b44sqewyhmlyqK8U_SF14';
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// âââ LOAD âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+async function loadEvents() {
+  const { data, error } = await db
+    .from('events')
+    .select('id, title, editorial_headline, description, parent_summary, start_date, image_url, venue_name, neighborhood, is_free, price_min, price_max, source, activity_type')
+    .eq('is_past', false)
+    .eq('is_canceled', false)
+    .eq('is_kid_friendly', true)
+    .order('start_date', { ascending: true })
+    .limit(400);
+
+  if (error) {
+    showError(error.message);
+    return;
+  }
+
+  render(data || []);
+}
+
+// âââ RENDER âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function render(events) {
+  const content = document.getElementById('content');
+
+  if (events.length === 0) {
+    content.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">ð´</div>
+        <h3>No upcoming events</h3>
+        <p>New events are added every day â check back soon.</p>
+      </div>`;
+    return;
+  }
+
+  const groups = groupByDay(events);
+  let html = '';
+
+  Object.entries(groups).forEach(([dateKey, { label, dateStr, events: evs }]) => {
+    const count = evs.length;
+    html += `
+      <section class="day-section" data-date="${dateKey}">
+        <div class="day-label">${esc(label)}</div>
+        <div class="day-headline">
+          <span class="day-date">${esc(dateStr)}</span>
+          <span class="day-count">${count} event${count !== 1 ? 's' : ''}</span>
+        </div>
+        <hr class="day-rule" />
+        ${evs.map(eventRow).join('')}
+      </section>`;
+  });
+
+  content.innerHTML = html;
+  document.getElementById('footer').style.display = 'flex';
+  document.getElementById('footer-rule').style.display = 'block';
+}
+
+function groupByDay(events) {
+  // Times are stored as Miami local time (labeled UTC), so read raw UTC values
+  const now = new Date();
+  const todayKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-${String(now.getUTCDate()).padStart(2,'0')}`;
+  const tomorrowDate = new Date(now);
+  tomorrowDate.setUTCDate(now.getUTCDate() + 1);
+  const tomorrowKey = `${tomorrowDate.getUTCFullYear()}-${String(tomorrowDate.getUTCMonth()+1).padStart(2,'0')}-${String(tomorrowDate.getUTCDate()).padStart(2,'0')}`;
+
+  const groups = {};
+  const dayNames  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  events.forEach(ev => {
+    const d = new Date(ev.start_date);
+    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+
+    if (!groups[key]) {
+      const dow  = dayNames[d.getUTCDay()];
+      const mon  = monthNames[d.getUTCMonth()];
+      const dom  = d.getUTCDate();
+      let label, dateStr;
+      if (key === todayKey) {
+        label   = 'Today';
+        dateStr = `${dow}, ${mon} ${dom}`;
+      } else if (key === tomorrowKey) {
+        label   = 'Tomorrow';
+        dateStr = `${dow}, ${mon} ${dom}`;
+      } else {
+        label   = dow;
+        dateStr = `${mon} ${dom}`;
+      }
+      groups[key] = { label, dateStr, events: [] };
+    }
+    groups[key].events.push(ev);
+  });
+
+  return groups;
+}
+
+function eventRow(ev) {
+  const time     = fmtTime(ev.start_date);
+  // Prefer neighborhood for location; fall back to venue_name
+  const location = ev.neighborhood ? esc(ev.neighborhood) : (ev.venue_name ? esc(ev.venue_name) : '');
+  // Prefer editorial content; fall back to raw scraped content
+  const headline = ev.editorial_headline ? esc(ev.editorial_headline) : esc(ev.title);
+  const body     = ev.parent_summary    ? esc(ev.parent_summary)    : (ev.description ? esc(ev.description) : '');
+  const price    = priceTag(ev);
+
+  // Thumbnail
+  const thumbInner = ev.image_url
+    ? `<img src="${esc(ev.image_url)}" alt="" loading="lazy"
+           onerror="this.style.display='none';this.nextSibling.style.display='block'"
+       /><span class="thumb-icon" style="display:none">${srcIcon(ev.source)}</span>`
+    : `<span class="thumb-icon">${srcIcon(ev.source)}</span>`;
+
+  // Meta row: time Â· location Â· price
+  const metaParts = [];
+  if (time)     metaParts.push(`<span class="meta-time">${time}</span>`);
+  if (time && location) metaParts.push(`<span class="meta-sep">Â·</span>`);
+  if (location) metaParts.push(`<span class="meta-venue">${location}</span>`);
+  if (price)    metaParts.push(price);
+
+  return `
+    <a class="event-row" href="event.html?id=${esc(ev.id)}">
+      <div class="event-content">
+        <div class="event-title">${headline}</div>
+        ${body ? `<p class="event-desc">${body}</p>` : ''}
+        ${metaParts.length ? `<div class="event-meta">${metaParts.join('')}</div>` : ''}
+      </div>
+      <div class="event-thumb">${thumbInner}</div>
+    </a>`;
+}
+
+// âââ CALENDAR JUMP ââââââââââââââââââââââââââââââââââââââââââââââââ
+function jumpToDate(val) {
+  if (!val) return;
+  // Find exact section, or nearest section on/after that date
+  const all = [...document.querySelectorAll('.day-section[data-date]')];
+  let target = all.find(s => s.dataset.date === val)
+            || all.find(s => s.dataset.date >= val);
+  if (target) {
+    const offset = 58 + 12; // header height + gap
+    const y = target.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+}
+
+// âââ HELPERS ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function fmtTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  // Read UTC values â times are stored as Miami local time labeled as UTC
+  const h = d.getUTCHours(), m = d.getUTCMinutes();
+  if (h === 0 && m === 0) return ''; // all-day / no time set
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12  = h % 12 || 12;
+  const mm   = m === 0 ? '' : `:${String(m).padStart(2, '0')}`;
+  return `${h12}${mm} ${ampm}`;
+}
+
+function priceTag(ev) {
+  if (ev.is_free) return `<span class="price-tag is-free">Free</span>`;
+  if (ev.price_min != null) {
+    const lo = ev.price_min, hi = ev.price_max;
+    const label = (lo === hi || hi == null) ? `$${lo}` : `$${lo}â$${hi}`;
+    return `<span class="price-tag is-paid">${label}</span>`;
+  }
+  return '';
+}
+
+function srcIcon(source) {
+  const map = {
+    miami_dade_libraries:   'ð',
+    eventbrite:             'ð',
+    the_underline:          'ð¿',
+    miami_childrens_museum: 'ð¡',
+    arsht_center:           'ð­',
+    deering_estate:         'ð',
+    pinecrest_gardens:      'ðº',
+    magic_13:               'â¨',
+  };
+  return map[source] || 'ð´';
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function showError(msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">â ï¸</div>
+      <h3>Could not load events</h3>
+      <p>${esc(msg)}</p>
+    </div>`;
+}
+
+// âââ INIT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+loadEvents();
+</script>
+
+</body>
+</html>
