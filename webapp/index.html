@@ -429,9 +429,9 @@ async function loadEvents() {
   const { data, error } = await db
     .from('events')
     .select('id, title, description, parent_summary, start_date, image_url, venue_name, neighborhood, is_free, price_min, price_max, source, activity_type')
-    .eq('is_past', false)
     .eq('is_canceled', false)
     .eq('is_kid_friendly', true)
+    .gte('start_date', new Date().toISOString().slice(0, 10))
     .order('start_date', { ascending: true })
     .limit(400);
 
