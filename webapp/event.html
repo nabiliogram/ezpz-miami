@@ -527,7 +527,7 @@ function renderEvent(ev) {
     <div class="section">
       <div class="section-label">What to expect</div>
       <p class="summary-text">${esc(ev.parent_summary || ev.description)}</p>
-      ${ev.practical_notes ? `<div class="practical-notes">📋 ${esc(ev.practical_notes)}</div>` : ''}
+      ${ev.practical_notes ? `<div class="practical-notes">📋 ${renderNotes(ev.practical_notes)}</div>` : ''}
     </div>` : '';
 
   // Plan your visit
@@ -737,6 +737,18 @@ function esc(str) {
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Render practical_notes — handles plain strings and JSON arrays stored as text
+function renderNotes(notes) {
+  if (!notes) return '';
+  try {
+    const parsed = JSON.parse(notes);
+    if (Array.isArray(parsed)) {
+      return parsed.map(item => esc(item)).join('<br>');
+    }
+  } catch (e) { /* not JSON — fall through */ }
+  return esc(notes);
 }
 
 function renderError(msg) {
