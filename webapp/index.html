@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EZPZ Miami â Weekend Playbook for Miami Parents</title>
+  <title>EZPZ Miami — Weekend Playbook for Miami Parents</title>
   <meta name="description" content="The easiest way to find kid-friendly events in Miami this weekend." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,12 +14,13 @@
 
     :root {
       --bg:           #FFFFFF;
+      --bg-subtle:    #F9F8F6;
       --border:       #EBEBEB;
       --border-heavy: #111111;
       --text-1:       #111111;
       --text-2:       #6B6560;
       --text-3:       #B0AAA5;
-      --accent:       #BE7A54;     /* muted terracotta â Miami warmth */
+      --accent:       #BE7A54;     /* muted terracotta — Miami warmth */
       --accent-bg:    #FAF1EB;
       --free:         #2A7A47;
       --free-bg:      #EAF4EE;
@@ -37,9 +38,9 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* âââââââââââââââââââââââââââââââââââââââââââââ
+    /* ─────────────────────────────────────────────
        HEADER
-    âââââââââââââââââââââââââââââââââââââââââââââ */
+    ───────────────────────────────────────────── */
     .header {
       position: sticky;
       top: 0;
@@ -89,7 +90,7 @@
       margin-top: 2px;
     }
 
-    /* Calendar button â native date input overlays it */
+    /* Calendar button — native date input overlays it */
     .cal-btn {
       position: relative;
       display: flex;
@@ -125,18 +126,18 @@
       font-size: 16px; /* prevents iOS zoom */
     }
 
-    /* âââââââââââââââââââââââââââââââââââââââââââââ
+    /* ─────────────────────────────────────────────
        PAGE WRAPPER
-    âââââââââââââââââââââââââââââââââââââââââââââ */
+    ───────────────────────────────────────────── */
     .page {
       max-width: 720px;
       margin: 0 auto;
       padding: 0 24px 100px;
     }
 
-    /* âââââââââââââââââââââââââââââââââââââââââââââ
+    /* ─────────────────────────────────────────────
        DAY SECTION
-    âââââââââââââââââââââââââââââââââââââââââââââ */
+    ───────────────────────────────────────────── */
     .day-section {
       margin-top: 44px;
     }
@@ -175,9 +176,9 @@
       margin-bottom: 0;
     }
 
-    /* âââââââââââââââââââââââââââââââââââââââââââââ
+    /* ─────────────────────────────────────────────
        EVENT ROW
-    âââââââââââââââââââââââââââââââââââââââââââââ */
+    ───────────────────────────────────────────── */
     .event-row {
       display: flex;
       align-items: flex-start;
@@ -296,9 +297,9 @@
       line-height: 1;
     }
 
-    /* âââââââââââââââââââââââââââââââââââââââââââââ
+    /* ─────────────────────────────────────────────
        LOADING & EMPTY STATES
-    âââââââââââââââââââââââââââââââââââââââââââââ */
+    ───────────────────────────────────────────── */
     .spinner {
       width: 30px;
       height: 30px;
@@ -330,9 +331,9 @@
       line-height: 1.6;
     }
 
-    /* âââââââââââââââââââââââââââââââââââââââââââââ
+    /* ─────────────────────────────────────────────
        FOOTER
-    âââââââââââââââââââââââââââââââââââââââââââââ */
+    ───────────────────────────────────────────── */
     .footer {
       max-width: 720px;
       margin: 0 auto;
@@ -358,9 +359,9 @@
       color: var(--text-3);
     }
 
-    /* âââââââââââââââââââââââââââââââââââââââââââââ
+    /* ─────────────────────────────────────────────
        RESPONSIVE
-    âââââââââââââââââââââââââââââââââââââââââââââ */
+    ───────────────────────────────────────────── */
     @media (max-width: 480px) {
       .page { padding: 0 18px 100px; }
       .header-inner { padding: 0 18px; }
@@ -377,15 +378,289 @@
       .event-desc { font-size: 14px; }
       .event-thumb { width: 88px; height: 88px; }
     }
+
+    /* ─────────────────────────────────────────────
+       MODAL OVERLAY
+    ───────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.26s ease;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-sheet {
+      background: var(--bg);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-height: 93dvh;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      overflow: hidden;
+    }
+    .modal-overlay.open .modal-sheet {
+      transform: translateY(0);
+    }
+    @media (min-width: 640px) {
+      .modal-overlay { align-items: center; }
+      .modal-sheet {
+        border-radius: 16px;
+        max-width: 660px;
+        width: calc(100% - 48px);
+        max-height: 88dvh;
+        transform: scale(0.94);
+        opacity: 0;
+        transition: transform 0.26s ease, opacity 0.26s ease;
+      }
+      .modal-overlay.open .modal-sheet {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Modal handle + topbar */
+    .modal-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 10px auto 0;
+      flex-shrink: 0;
+    }
+    @media (min-width: 640px) { .modal-handle { display: none; } }
+
+    .modal-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 10px 14px 0;
+      flex-shrink: 0;
+    }
+    .modal-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-subtle);
+      color: var(--text-2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.12s;
+    }
+    .modal-close:hover { background: var(--border); color: var(--text-1); }
+
+    /* Modal scroll area */
+    .modal-scroll {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Modal hero */
+    .m-hero {
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      background: var(--accent-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .m-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .m-hero-icon { font-size: 52px; line-height: 1; }
+    @media (min-width: 640px) { .m-hero { height: 260px; } }
+
+    /* Modal body */
+    .m-body {
+      padding: 20px 22px 24px;
+    }
+    .m-date-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      margin-bottom: 7px;
+    }
+    .m-title {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      color: var(--text-1);
+      margin-bottom: 8px;
+    }
+    .m-organizer {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-3);
+      margin-bottom: 12px;
+    }
+    .m-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .m-meta-item {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+    .m-meta-sep {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    .m-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
+    .m-pill.free { background: var(--free-bg); color: var(--free); }
+    .m-pill.paid { background: var(--accent-bg); color: var(--accent); }
+
+    /* Summary + practical */
+    .m-summary-wrap {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-bottom: 16px;
+    }
+    .m-summary {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.75;
+      color: var(--text-1);
+      padding-left: 14px;
+      border-left: 2.5px solid var(--accent);
+    }
+    .m-practical {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--text-2);
+      margin-top: 12px;
+      padding: 10px 13px;
+      background: var(--bg-subtle);
+      border-radius: 8px;
+    }
+
+    /* Info rows */
+    .m-info {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .m-info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .m-info-row:last-child { border-bottom: none; }
+    .m-info-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; line-height: 1; }
+    .m-info-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-3);
+      margin-bottom: 2px;
+    }
+    .m-info-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1.35;
+    }
+    .m-info-value.accent { color: var(--accent); }
+    .m-info-value.green  { color: var(--free); }
+    .m-info-sub {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 1px;
+    }
+
+    /* Modal CTA bar */
+    .modal-cta {
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .m-btn-primary {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      background: var(--text-1);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .m-btn-primary:hover { opacity: 0.85; }
+    .m-btn-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+      text-decoration: none;
+      color: var(--text-2);
+      transition: border-color 0.12s, background 0.12s, color 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .m-btn-icon:hover { border-color: var(--text-1); color: var(--text-1); }
+    .m-btn-icon.wa { color: #25D366; border-color: #25D366; }
+    .m-btn-icon.wa:hover { background: #25D366; color: white; }
   </style>
 </head>
 <body>
 
-<!-- ââ Header ââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ── Header ──────────────────────────────────────────────── -->
 <header class="header">
   <div class="header-inner">
     <a class="logo" href="#">
-      <span class="logo-palm">ð´</span>
+      <span class="logo-palm">🌴</span>
       <div>
         <span class="logo-name">EZPZ Miami</span>
         <span class="logo-tag">Weekend Playbook</span>
@@ -404,27 +679,68 @@
   </div>
 </header>
 
-<!-- ââ Events feed ââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ── Events feed ──────────────────────────────────────────── -->
 <main class="page" id="content">
   <div class="spinner"></div>
 </main>
 
-<!-- ââ Footer ââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ── Footer ──────────────────────────────────────────────── -->
 <hr class="footer-rule" id="footer-rule" style="display:none" />
 <footer class="footer" id="footer" style="display:none">
   <span class="footer-left">EZPZ Miami</span>
-  <span class="footer-right">Updated daily Â· Miami, FL</span>
+  <span class="footer-right">Updated daily · Miami, FL</span>
 </footer>
 
+<!-- ── Event Modal ──────────────────────────────────────────────── -->
+<div id="modal-overlay" class="modal-overlay" onclick="onOverlayClick(event)">
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-topbar">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-scroll" id="modal-content">
+      <div class="spinner"></div>
+    </div>
+    <div class="modal-cta" id="modal-cta">
+      <a class="m-btn-primary" id="modal-cta-link" href="#" target="_blank" rel="noopener">
+        View &amp; Get Tickets
+      </a>
+      <a class="m-btn-icon" id="modal-maps-btn" href="#" target="_blank" rel="noopener" title="Open in Maps" style="display:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </a>
+      <button class="m-btn-icon wa" onclick="shareWhatsApp()" title="Share on WhatsApp">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.5 3.5A11.95 11.95 0 0012 0C5.37 0 0 5.37 0 12c0 2.12.55 4.19 1.61 6.01L0 24l6.15-1.61A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.22-3.5-8.5zM12 22c-1.85 0-3.66-.5-5.23-1.44l-.38-.22-3.92 1.03 1.05-3.83-.24-.4A10 10 0 012 12C2 6.48 6.48 2 12 2c2.67 0 5.19 1.04 7.07 2.93A9.95 9.95 0 0122 12c0 5.52-4.48 10-10 10zm5.5-7.5c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.22 5.12 4.52.72.31 1.28.49 1.72.63.72.23 1.38.2 1.9.12.58-.09 1.77-.73 2.02-1.43.25-.7.25-1.3.17-1.43-.07-.13-.27-.2-.57-.35z"/>
+        </svg>
+      </button>
+      <button class="m-btn-icon" onclick="calendarModal()" title="Add to calendar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2.5"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
-// âââ CONFIG ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── CONFIG ──────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://pomjqbjxosbfozvbvgsj.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvbWpxYmp4b3NiZm96dmJ2Z3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NDk1NTIsImV4cCI6MjA4OTUyNTU1Mn0.csIFsMkappk45CLTfFVGM4b44sqewyhmlyqK8U_SF14';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvbWpxYmp4b3NiZm96dmJ2Z3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NDk1NTIsImV4cCI6MjA4OTUyNTU1mn0.csIFsMkappk45CLTfFVGM4b44sqewyhmlyqK8U_SF14';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// âââ LOAD âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── LOAD ─────────────────────────────────────────────────────────
 async function loadEvents() {
   const { data, error } = await db
     .from('events')
@@ -443,16 +759,16 @@ async function loadEvents() {
   render(data || []);
 }
 
-// âââ RENDER âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── RENDER ───────────────────────────────────────────────────────
 function render(events) {
   const content = document.getElementById('content');
 
   if (events.length === 0) {
     content.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">ð´</div>
+        <div class="empty-icon">🌴</div>
         <h3>No upcoming events</h3>
-        <p>New events are added every day â check back soon.</p>
+        <p>New events are added every day — check back soon.</p>
       </div>`;
     return;
   }
@@ -534,15 +850,15 @@ function eventRow(ev) {
        /><span class="thumb-icon" style="display:none">${srcIcon(ev.source)}</span>`
     : `<span class="thumb-icon">${srcIcon(ev.source)}</span>`;
 
-  // Meta row: time Â· location Â· price
+  // Meta row: time · location · price
   const metaParts = [];
   if (time)     metaParts.push(`<span class="meta-time">${time}</span>`);
-  if (time && location) metaParts.push(`<span class="meta-sep">Â·</span>`);
+  if (time && location) metaParts.push(`<span class="meta-sep">·</span>`);
   if (location) metaParts.push(`<span class="meta-venue">${location}</span>`);
   if (price)    metaParts.push(price);
 
   return `
-    <a class="event-row" href="event.html?id=${esc(ev.id)}">
+    <a class="event-row" href="event.html?id=${esc(ev.id)}" onclick="openModal('${esc(ev.id)}', event)">
       <div class="event-content">
         <div class="event-title">${headline}</div>
         ${body ? `<p class="event-desc">${body}</p>` : ''}
@@ -552,7 +868,7 @@ function eventRow(ev) {
     </a>`;
 }
 
-// âââ CALENDAR JUMP ââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── CALENDAR JUMP ────────────────────────────────────────────────
 function jumpToDate(val) {
   if (!val) return;
   // Find exact section, or nearest section on/after that date
@@ -566,11 +882,11 @@ function jumpToDate(val) {
   }
 }
 
-// âââ HELPERS ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── HELPERS ──────────────────────────────────────────────────────
 function fmtTime(iso) {
   if (!iso) return '';
   const d = new Date(iso);
-  // Read UTC values â times are stored as Miami local time labeled as UTC
+  // Read UTC values — times are stored as Miami local time labeled as UTC
   const h = d.getUTCHours(), m = d.getUTCMinutes();
   if (h === 0 && m === 0) return ''; // all-day / no time set
   const ampm = h >= 12 ? 'PM' : 'AM';
@@ -583,7 +899,7 @@ function priceTag(ev) {
   if (ev.is_free) return `<span class="price-tag is-free">Free</span>`;
   if (ev.price_min != null) {
     const lo = ev.price_min, hi = ev.price_max;
-    const label = (lo === hi || hi == null) ? `$${lo}` : `$${lo}â$${hi}`;
+    const label = (lo === hi || hi == null) ? `$${lo}` : `$${lo}–$${hi}`;
     return `<span class="price-tag is-paid">${label}</span>`;
   }
   return '';
@@ -591,16 +907,16 @@ function priceTag(ev) {
 
 function srcIcon(source) {
   const map = {
-    miami_dade_libraries:   'ð',
-    eventbrite:             'ð',
-    the_underline:          'ð¿',
-    miami_childrens_museum: 'ð¡',
-    arsht_center:           'ð­',
-    deering_estate:         'ð',
-    pinecrest_gardens:      'ðº',
-    magic_13:               'â¨',
+    miami_dade_libraries:   '📚',
+    eventbrite:             '🎟',
+    the_underline:          '🌿',
+    miami_childrens_museum: '🎡',
+    arsht_center:           '🎭',
+    deering_estate:         '🏛',
+    pinecrest_gardens:      '🌺',
+    magic_13:               '✨',
   };
-  return map[source] || 'ð´';
+  return map[source] || '🌴';
 }
 
 function esc(str) {
@@ -616,14 +932,226 @@ function esc(str) {
 function showError(msg) {
   document.getElementById('content').innerHTML = `
     <div class="empty-state">
-      <div class="empty-icon">â ï¸</div>
+      <div class="empty-icon">⚠️</div>
       <h3>Could not load events</h3>
       <p>${esc(msg)}</p>
     </div>`;
 }
 
-// âââ INIT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── MODAL ────────────────────────────────────────────────────────
+let _modalEvent = null;
+
+function openModal(id, e) {
+  if (e) {
+    // Allow Ctrl/Cmd+click, middle-click to open in new tab normally
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+    e.preventDefault();
+  }
+  history.pushState({ modalId: id }, '', '?id=' + id);
+  _showModal(id);
+}
+
+function _showModal(id) {
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modal-content').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('modal-cta').style.display = 'none';
+  fetchAndRenderModal(id);
+}
+
+function closeModal() {
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.remove('open');
+  setTimeout(() => { document.body.style.overflow = ''; }, 300);
+  if (history.state && history.state.modalId) {
+    history.pushState({}, '', location.pathname);
+  }
+}
+
+function onOverlayClick(e) {
+  if (e.target === e.currentTarget) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+window.addEventListener('popstate', e => {
+  const overlay = document.getElementById('modal-overlay');
+  if (e.state && e.state.modalId) {
+    // Navigating forward to a modal state
+    _showModal(e.state.modalId);
+  } else if (overlay.classList.contains('open')) {
+    overlay.classList.remove('open');
+    setTimeout(() => { document.body.style.overflow = ''; }, 300);
+  }
+});
+
+async function fetchAndRenderModal(id) {
+  const { data, error } = await db
+    .from('events')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error || !data) {
+    document.getElementById('modal-content').innerHTML =
+      '<div class="m-body"><p style="color:var(--text-2);padding:16px 0">Event not found.</p></div>';
+    return;
+  }
+
+  _modalEvent = data;
+  document.getElementById('modal-content').innerHTML = renderModal(data);
+
+  // CTA link
+  const ctaLink = document.getElementById('modal-cta-link');
+  if (data.source_url) {
+    ctaLink.href = data.source_url;
+    ctaLink.textContent = data.is_free ? 'Register / RSVP' : 'View & Get Tickets';
+    ctaLink.style.display = 'flex';
+  } else {
+    ctaLink.style.display = 'none';
+  }
+
+  // Maps button
+  const mapsBtn = document.getElementById('modal-maps-btn');
+  const mq = data.address
+    ? data.address
+    : (data.venue_name ? data.venue_name + ', Miami, FL' : '');
+  if (mq) {
+    mapsBtn.href = 'https://maps.google.com/?q=' + encodeURIComponent(mq);
+    mapsBtn.style.display = 'flex';
+  } else {
+    mapsBtn.style.display = 'none';
+  }
+
+  document.getElementById('modal-cta').style.display = 'flex';
+  // Scroll back to top of modal content after render
+  document.getElementById('modal-content').scrollTop = 0;
+}
+
+function renderModal(ev) {
+  const hero = ev.image_url
+    ? `<div class="m-hero"><img src="${esc(ev.image_url)}" alt=""
+         onerror="this.parentNode.innerHTML='<div class=m-hero-icon>${srcIcon(ev.source)}</div>'"></div>`
+    : `<div class="m-hero"><div class="m-hero-icon">${srcIcon(ev.source)}</div></div>`;
+
+  const dateLabel = fmtFullDate(ev.start_date);
+  const timeStr   = fmtTime(ev.start_date);
+
+  const priceHtml = ev.is_free
+    ? `<span class="m-pill free">Free</span>`
+    : (ev.price_min != null ? `<span class="m-pill paid">${esc(mPriceStr(ev))}</span>` : '');
+
+  const metaParts = [];
+  if (timeStr)      metaParts.push(`<span class="m-meta-item">${timeStr}</span>`);
+  if (ev.venue_name) metaParts.push(`<span class="m-meta-item">📍 ${esc(ev.neighborhood || ev.venue_name)}</span>`);
+  if (priceHtml)    metaParts.push(priceHtml);
+  const metaRow = metaParts.length
+    ? `<div class="m-meta">${metaParts.join('<span class="m-meta-sep"></span>')}</div>`
+    : '';
+
+  const summary = ev.parent_summary || ev.description || '';
+  const summaryBlock = summary ? `
+    <div class="m-summary-wrap">
+      <p class="m-summary">${esc(summary)}</p>
+      ${ev.practical_notes ? `<div class="m-practical">📋 ${esc(ev.practical_notes)}</div>` : ''}
+    </div>` : '';
+
+  const infoRows = [];
+  infoRows.push(`<div class="m-info-row">
+    <span class="m-info-icon">📅</span>
+    <div><div class="m-info-label">Date</div><div class="m-info-value accent">${esc(dateLabel)}</div></div>
+  </div>`);
+  if (timeStr) infoRows.push(`<div class="m-info-row">
+    <span class="m-info-icon">🕐</span>
+    <div><div class="m-info-label">Time</div><div class="m-info-value">${timeStr}</div></div>
+  </div>`);
+  infoRows.push(`<div class="m-info-row">
+    <span class="m-info-icon">📍</span>
+    <div>
+      <div class="m-info-label">Location</div>
+      <div class="m-info-value">${esc(ev.neighborhood || ev.venue_name || 'Miami, FL')}</div>
+      ${ev.neighborhood && ev.venue_name ? `<div class="m-info-sub">${esc(ev.venue_name)}</div>` : ''}
+    </div>
+  </div>`);
+  infoRows.push(`<div class="m-info-row">
+    <span class="m-info-icon">💵</span>
+    <div><div class="m-info-label">Cost</div>
+    <div class="m-info-value ${ev.is_free ? 'green' : ''}">${esc(mPriceStr(ev))}</div></div>
+  </div>`);
+  infoRows.push(`<div class="m-info-row" style="border-bottom:none">
+    <span class="m-info-icon">👶</span>
+    <div><div class="m-info-label">Ages</div><div class="m-info-value">${esc(mAgeLabel(ev.age_min, ev.age_max))}</div>
+    ${ev.activity_type ? `<div class="m-info-sub" style="text-transform:capitalize">${esc(ev.activity_type)}</div>` : ''}
+    </div>
+  </div>`);
+
+  return `
+    ${hero}
+    <div class="m-body">
+      <div class="m-date-label">${esc(dateLabel)}</div>
+      <h2 class="m-title">${esc(ev.editorial_headline || ev.title)}</h2>
+      ${ev.editorial_headline ? `<div class="m-organizer">${esc(ev.title)}</div>` : ''}
+      ${metaRow}
+      ${summaryBlock}
+      <div class="m-info">${infoRows.join('')}</div>
+    </div>`;
+}
+
+function shareWhatsApp() {
+  const ev = _modalEvent;
+  if (!ev) return;
+  const title = ev.editorial_headline || ev.title;
+  const date  = fmtFullDate(ev.start_date);
+  const time  = fmtTime(ev.start_date);
+  const venue = ev.venue_name ? '📍 ' + ev.venue_name : '';
+  const url   = ev.source_url || (location.origin + location.pathname + '?id=' + ev.id);
+  const text  = [title, date + (time ? ' at ' + time : ''), venue, '', 'Found on EZPZ Miami 🌴', url]
+    .filter(Boolean).join('\n');
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function calendarModal() {
+  const ev = _modalEvent;
+  if (!ev) return;
+  const fmt = iso => iso ? new Date(iso).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z' : '';
+  const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    + '&text=' + encodeURIComponent(ev.title)
+    + '&dates=' + fmt(ev.start_date) + '/' + fmt(ev.end_date || ev.start_date)
+    + '&location=' + encodeURIComponent(ev.address || ev.venue_name || '')
+    + '&details=' + encodeURIComponent((ev.parent_summary || ev.description || '').slice(0, 200));
+  window.open(url, '_blank');
+}
+
+// Modal-specific helpers (avoid polluting existing helpers)
+function fmtFullDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${days[d.getUTCDay()]}, ${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+}
+function mPriceStr(ev) {
+  if (ev.is_free) return 'Free';
+  if (ev.price_min != null && ev.price_max != null && ev.price_min === ev.price_max) return `$${ev.price_min}`;
+  if (ev.price_min != null && ev.price_max != null) return `$${ev.price_min}–$${ev.price_max}`;
+  if (ev.price_min != null) return `From $${ev.price_min}`;
+  return 'See event page';
+}
+function mAgeLabel(min, max) {
+  if (min == null && max == null) return 'All ages welcome';
+  if (min == null) min = 0;
+  if (min === 0 && (max == null || max >= 12)) return 'All ages welcome';
+  if (max == null) return `Ages ${min}+`;
+  return `Ages ${min}–${max}`;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
 loadEvents();
+
+// Auto-open modal if URL has ?id= on initial load (shared link)
+const _initId = new URLSearchParams(location.search).get('id');
+if (_initId) _showModal(_initId);
 </script>
 
 </body>
