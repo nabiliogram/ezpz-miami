@@ -840,7 +840,7 @@ function eventRow(ev) {
   const location = ev.neighborhood ? esc(ev.neighborhood) : (ev.venue_name ? esc(ev.venue_name) : '');
   // Prefer editorial content; fall back to raw scraped content
   const headline = ev.editorial_headline ? esc(ev.editorial_headline) : esc(ev.title);
-  const body     = ev.parent_summary     ? esc(ev.parent_summary)    : (ev.description ? esc(ev.description) : '');
+  const body     = ev.parent_summary    ? esc(ev.parent_summary)    : (ev.description ? esc(ev.description) : '');
   const price    = priceTag(ev);
 
   // Thumbnail
@@ -863,4 +863,296 @@ function eventRow(ev) {
         <div class="event-title">${headline}</div>
         ${body ? `<p class="event-desc">${body}</p>` : ''}
         ${metaParts.length ? `<div class="event-meta">${metaParts.join('')}</div>` : ''}
-    ��F�c��F�b6�73�&WfV�B�F�V�"#�G�F�V�$���W'���F�c������Р���)H)H)H4�T�D"�T�)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H �gV�7F����V�F�FFR�f���b�f&WGW&㰢��f��BW�7B6V7F�����"�V&W7B6V7F������gFW"F�BFFP�6��7B�������F�7V�V�B�VW'�6V�V7F�$�r�F��6V7F���FF�FFU�r�Ӱ��WBF&vWB����f��B�2��2�FF6WB�FFR���f������f��B�2��2�FF6WB�FFR��f���b�F&vWB���6��7B�fg6WB�S��#����VFW"�V�v�B�v �6��7B��F&vWB�vWD&�V�F��t6ƖV�E&V7B���F��v��F�r�67&��Œ��fg6WC��v��F�r�67&���F�F����&V�f��#�w6���F�rғ��ЧР���)H)H)H�T�U%2)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H �gV�7F���f�EF��R��6����b��6�&WGW&�rs��6��7BB��WrFFR��6򓰢��&VBUD2f�VW2(	BF��W2&R7F�&VB2֖֒��6�F��R�&V�VB2UD0�6��7B��B�vWEUD4��W'2�����B�vWEUD4֖�WFW2�����b�����bb�����&WGW&�rs������F����F��R6W@�6��7B������"�u�r�t�s��6��7B�"��R"��#��6��7B��������rr��G�7G&��r�Ғ�E7F'B�"�sr����&WGW&�G��'�G����G������Р�gV�7F���&�6UFr�Wb����b�Wb�5�g&VR�&WGW&��7�6�73�'&�6R�Fr�2�g&VR#�g&VS��7�����b�Wb�&�6U�֖���V���6��7B���Wb�&�6U�֖�����Wb�&�6U�����6��7B�&V�����������������V��BG�����BG����(	2BG������&WGW&��7�6�73�'&�6R�Fr�2��B#�G��&V����7����Т&WGW&�rs��Р�gV�7F���7&4�6��6�W&6R���6��7B����֖֕�FFU�Ɩ'&&�W3�	�9�r��WfV�F'&�FS�	���r��F�U�V�FW&Ɩ�S�	���r��֖֕�6���G&V�5��W6WVӢ	��r��'6�E�6V�FW#�	���r��FVW&��u�W7FFS�	���r����V7&W7E�v&FV�3�	�ˢr���v�5�3�~)ʂr��Ӱ�&WGW&���6�W&6U���	��Bs��Р�gV�7F���W62�7G"����b�7G"�&WGW&�rs��&WGW&�7G&��r�7G"���&W�6R��b�r�rf��r���&W�6R����r�rf�C�r���&W�6R����r�rfwC�r���&W�6R��"�r�rgV�C�r���&W�6R��r�r�rb33��r���Р�gV�7F���6��tW'&�"��6r���F�7V�V�B�vWDV�V�V�D'��B�v6��FV�Br����W$�D��� ��F�b6�73�&V�G��7FFR#��F�b6�73�&V�G�֖6��#�)������F�c�ƃ3�6�V�B��B��BWfV�G3���3���G�W62��6r�������F�c���Р���)H)H)H��D�)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H ��WB���F�WfV�B��V�ð��gV�7F����V���F�B�R����b�R��������r7G&��6�B�6Ɩ6��֖FF�R�6Ɩ6�F��V����WrF"��&��ǐ��b�R��WF�W���R�7G&ĶW���R�6��gD�W���R�'WGF������&WGW&㰢R�&WfV�DFVfV�B����Т��7F�'��W6�7FFR����FĖC��B��rr�s��C�r��B����6��t��F�B���Р�gV�7F����6��t��F�B���6��7B�fW&���F�7V�V�B�vWDV�V�V�D'��B�v��F���fW&��r����fW&���6�74Ɨ7B�FB�v�V�r���F�7V�V�B�&�G��7G��R��fW&f��r�v��FFV�s��F�7V�V�B�vWDV�V�V�D'��B�v��F��6��FV�Br����W$�D���s�F�b6�73�'7���W"#���F�c�s��F�7V�V�B�vWDV�V�V�D'��B�v��F��7Fr��7G��R�F�7���v���Rs��fWF6��E&V�FW$��F�B���Р�gV�7F���6��6T��F���6��7B�fW&���F�7V�V�B�vWDV�V�V�D'��B�v��F���fW&��r����fW&���6�74Ɨ7B�&V��fR�v�V�r���6WEF��V�WB������F�7V�V�B�&�G��7G��R��fW&f��r�rs���3����b���7F�'��7FFRbb��7F�'��7FFR���FĖB�����7F�'��W6�7FFR����rr���6F����F���R���ЧР�gV�7F������fW&��6Ɩ6��R����b�R�F&vWB���R�7W'&V�EF&vWB�6��6T��F���Р�F�7V�V�B�FDWfV�DƗ7FV�W"�v�W�F�v�r�R����b�R�W����tW66Rr�6��6T��F��ғ���v��F�r�FDWfV�DƗ7FV�W"�w�7FFRr�R����6��7B�fW&���F�7V�V�B�vWDV�V�V�D'��B�v��F���fW&��r����b�R�7FFRbbR�7FFR���FĖB������f�vF��rf�'v&BF���F�7FFP��6��t��FR�7FFR���FĖB����V�6R�b��fW&���6�74Ɨ7B�6��F��2�v�V�r�����fW&���6�74Ɨ7B�&V��fR�v�V�r���6WEF��V�WB������F�7V�V�B�&�G��7G��R��fW&f��r�rs���3���Чғ���7��2gV�7F���fWF6��E&V�FW$��F�B���6��7B�FF�W'&�"��v�BF ��g&�҂vWfV�G2r���6V�V7B�r�r���W�v�Br��B���6��v�R������b�W'&�"��FF���F�7V�V�B�vWDV�V�V�D'��B�v��F��6��FV�Br����W$�D��Тs�F�b6�73�&��&�G�#��7G��S�&6���#�f"���FW�B�"��FF��s�g�#�WfV�B��Bf�V�B������F�c�s��&WGW&㰢Р����F�WfV�B�FF��F�7V�V�B�vWDV�V�V�D'��B�v��F��6��FV�Br����W$�D���&V�FW$��FFF������5DƖ氢6��7B7FƖ��F�7V�V�B�vWDV�V�V�D'��B�v��F��7F�Ɩ�r����b�FF�6�W&6U�W&��7FƖ��&Vb�FF�6�W&6U�W&ð�7FƖ��FW�D6��FV�B�FF�5�g&VR�u&Vv�7FW"�%5er�uf�WrbvWBF�6�WG2s��7FƖ��7G��R�F�7���vf�W�s���V�6R��7FƖ��7G��R�F�7���v���Rs��Р����2'WGF��6��7B�4'F��F�7V�V�B�vWDV�V�V�D'��B�v��F���2�'F�r���6��7B��FF�FG&W70��FF�FG&W70���FF�fV�VU���R�FF�fV�VU���R�r�֖֒�d�r�rr����b������4'F��&Vb�v�GG3����2�v��v�R�6�����r�V�6�FUU$�6����V�B������4'F��7G��R�F�7���vf�W�s���V�6R���4'F��7G��R�F�7���v���Rs��Р�F�7V�V�B�vWDV�V�V�D'��B�v��F��7Fr��7G��R�F�7���vf�W�s����67&���&6�F�F��b��F�6��FV�BgFW"&V�FW �F�7V�V�B�vWDV�V�V�D'��B�v��F��6��FV�Br��67&���F����Р�gV�7F���&V�FW$��FWb���6��7B�W&��Wb��vU�W&����F�b6�73�&�ֆW&�#�Ɩ�r7&3�"G�W62�Wb��vU�W&�"�C�" ���W'&�#�'F��2�&V�D��FR���W$�D���s�F�b6�73��ֆW&�֖6���G�7&4�6��Wb�6�W&6R����F�c�r#���F�c� ���F�b6�73�&�ֆW&�#��F�b6�73�&�ֆW&�֖6��#�G�7&4�6��Wb�6�W&6R����F�c���F�c����6��7BFFT�&V��f�DgV��FFR�Wb�7F'E�FFR���6��7BF��U7G"�f�EF��R�Wb�7F'E�FFR����6��7B&�6T�F���Wb�5�g&VP���7�6�73�&�����g&VR#�g&VS��7�� ���Wb�&�6U�֖���V����7�6�73�&������B#�G�W62��&�6U7G"�Wb�����7���rr����6��7B�WF'G2��Ӱ��b�F��U7G"��WF'G2�W6���7�6�73�&���WF֗FV�#�G�F��U7G'���7������b�Wb�fV�VU���R��WF'G2�W6���7�6�73�&���WF֗FV�#�	�8�G�W62�Wb��V�v�&�&���B��Wb�fV�VU���R����7������b�&�6T�F��WF'G2�W6��&�6T�F���6��7B�WF&�r��WF'G2��V�wF����F�b6�73�&���WF#�G��WF'G2����s�7�6�73�&���WF�6W#���7��r����F�c� ��rs���6��7B7V��'��Wb�&V�E�7V��'���Wb�FW67&�F�����rs��6��7B7V��'�&��6��7V��'�� ��F�b6�73�&��7V��'��w&#��6�73�&��7V��'�#�G�W62�7V��'������G�Wb�&7F�6����FW2��F�b6�73�&��&7F�6�#�	�8�G�W62�Wb�&7F�6����FW2����F�c��rwТ��F�c��rs���6��7B��f�&�w2��Ӱ���f�&�w2�W6���F�b6�73�&�֖�f��&�r#��7�6�73�&�֖�f�֖6��#�	�8S��7���F�c��F�b6�73�&�֖�f���&V�#�FFS��F�c��F�b6�73�&�֖�f��f�VR66V�B#�G�W62�FFT�&V���F�c���F�c���F�c�����b�F��U7G"���f�&�w2�W6���F�b6�73�&�֖�f��&�r#��7�6�73�&�֖�f�֖6��#�	�Y��7���F�c��F�b6�73�&�֖�f���&V�#�F��S��F�c��F�b6�73�&�֖�f��f�VR#�G�F��U7G'���F�c���F�c���F�c������f�&�w2�W6���F�b6�73�&�֖�f��&�r#��7�6�73�&�֖�f�֖6��#�	�8���7���F�c��F�b6�73�&�֖�f���&V�#���6F�����F�c��F�b6�73�&�֖�f��f�VR#�G�W62�Wb��V�v�&�&���B��Wb�fV�VU���R��t֖֒�d�r����F�c�G�Wb��V�v�&�&���BbbWb�fV�VU���R��F�b6�73�&�֖�f��7V"#�G�W62�Wb�fV�VU���R����F�c��rwТ��F�c���F�c������f�&�w2�W6���F�b6�73�&�֖�f��&�r#��7�6�73�&�֖�f�֖6��#�	�+S��7���F�c��F�b6�73�&�֖�f���&V�#�6�7C��F�c��F�b6�73�&�֖�f��f�VRG�Wb�5�g&VR�vw&VV�r�rw�#�G�W62��&�6U7G"�Wb�����F�c���F�c���F�c������f�&�w2�W6���F�b6�73�&�֖�f��&�r"7G��S�&&�&FW"�&�GF�Ӧ���R#��7�6�73�&�֖�f�֖6��#�	�c��7���F�c��F�b6�73�&�֖�f���&V�#�vW3��F�c��F�b6�73�&�֖�f��f�VR#�G�W62��vT�&VWb�vU�֖��Wb�vU��������F�c�G�Wb�7F�f�G��G�R��F�b6�73�&�֖�f��7V""7G��S�'FW�B�G&�6f�&Ӧ6�FƗ�R#�G�W62�Wb�7F�f�G��G�R����F�c��rwТ��F�c���F�c�����&WGW&� �G��W&�Т�F�b6�73�&��&�G�#��F�b6�73�&��FFR��&V�#�G�W62�FFT�&V���F�c�ƃ"6�73�&��F�F�R#�G�W62�Wb�VF�F�&����VFƖ�R��Wb�F�F�R�����#�G�Wb�VF�F�&����VFƖ�R��F�b6�73�&���&v旦W"#�G�W62�Wb�F�F�R����F�c��rwТG��WF&�wТG�7V��'�&��6�Т�F�b6�73�&�֖�f�#�G���f�&�w2����rr����F�c���F�c���Р�gV�7F���6�&Uv�G4����6��7BWb����F�WfV�C���b�Wb�&WGW&㰢6��7BF�F�R�Wb�VF�F�&����VFƖ�R��Wb�F�F�S��6��7BFFR�f�DgV��FFR�Wb�7F'E�FFR���6��7BF��R�f�EF��R�Wb�7F'E�FFR���6��7BfV�VR�Wb�fV�VU���R�	�8�r�Wb�fV�VU���R�rs��6��7BW&��Wb�6�W&6U�W&������6F�����&�v�����6F����F���R�s��C�r�Wb�B���6��7BFW�B��F�F�R�FFR��F��R�rBr�F��R�rr��fV�VR�rr�tf�V�B��U��֖֒	��Br�W&�Т�f��FW"�&���V�����u��r���v��F�r��V�v�GG3���v��R��FW�C�r�V�6�FUU$�6����V�B�FW�B��u�&��r���Р�gV�7F���6�V�F$��F���6��7BWb����F�WfV�C���b�Wb�&WGW&㰢6��7Bf�B��6����6���WrFFR��6��F��4�7G&��r���&W�6R���ӥ��r�rr��7ƗB�r�r��Ҳu�r�rs��6��7BW&��v�GG3���6�V�F"�v��v�R�6���6�V�F"�&V�FW#�7F����DT��DRp��rgFW�C�r�V�6�FUU$�6����V�B�Wb�F�F�R���rfFFW3�r�f�B�Wb�7F'E�FFR��r�r�f�B�Wb�V�E�FFR��Wb�7F'E�FFR���rf��6F����r�V�6�FUU$�6����V�B�Wb�FG&W72��Wb�fV�VU���R��rr���rfFWF��3�r�V�6�FUU$�6����V�B��Wb�&V�E�7V��'���Wb�FW67&�F�����rr��6Ɩ6R��#����v��F�r��V�W&��u�&��r���Р�����F��7V6�f�2�V�W'2�f��B���WF��rW��7F��r�V�W'2��gV�7F���f�DgV��FFR��6����b��6�&WGW&�rs��6��7BB��WrFFR��6򓰢6��7BF�2��u7V�F�r�t���F�r�uGVW6F�r�uvVF�W6F�r�uF�W'6F�r�tg&�F�r�u6GW&F�uӰ�6��7B���F�2��t��V'�r�tfV''V'�r�t�&6�r�t&��r�t��r�t�V�Rr�t�Vǒr�tVwW7Br�u6WFV�&W"r�t�7F�&W"r�t��fV�&W"r�tFV6V�&W"uӰ�&WGW&�G�F�5�B�vWEUD4F������G����F�5�B�vWEUD4���F�����G�B�vWEUD4FFR����G�B�vWEUD4gV�ŖV"�����ЦgV�7F����&�6U7G"�Wb����b�Wb�5�g&VR�&WGW&�tg&VRs���b�Wb�&�6U�֖���V��bbWb�&�6U�����V��bbWb�&�6U�֖����Wb�&�6U����&WGW&�BG�Wb�&�6U�֖�����b�Wb�&�6U�֖���V��bbWb�&�6U�����V�&WGW&�BG�Wb�&�6U�֖��(	2BG�Wb�&�6U�������b�Wb�&�6U�֖���V�&WGW&�g&��BG�Wb�&�6U�֖����&WGW&�u6VRWfV�BvRs��ЦgV�7F����vT�&V֖��������b�֖����V��bb�����V�&WGW&�t��vW2vV�6��Rs���b�֖����V�֖�����b�֖����bb������V��������"��&WGW&�t��vW2vV�6��Rs���b������V�&WGW&�vW2G�֖�Ҷ��&WGW&�vW2G�֖��(	2G������Р���)H)H)H��B)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H ���DWfV�G2�������WF���V���F��bU$��2��C�����F����B�6�&VBƖ沐�6��7B���D�B��WrU$�6V&6�&�2���6F����6V&6���vWB�v�Br����b����D�B��6��t��F���D�B�����67&�Cࠣ��&�G�����F���
+      </div>
+      <div class="event-thumb">${thumbInner}</div>
+    </a>`;
+}
+
+// ─── CALENDAR JUMP ────────────────────────────────────────────────
+function jumpToDate(val) {
+  if (!val) return;
+  // Find exact section, or nearest section on/after that date
+  const all = [...document.querySelectorAll('.day-section[data-date]')];
+  let target = all.find(s => s.dataset.date === val)
+            || all.find(s => s.dataset.date >= val);
+  if (target) {
+    const offset = 58 + 12; // header height + gap
+    const y = target.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────
+function fmtTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  // Read UTC values — times are stored as Miami local time labeled as UTC
+  const h = d.getUTCHours(), m = d.getUTCMinutes();
+  if (h === 0 && m === 0) return ''; // all-day / no time set
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12  = h % 12 || 12;
+  const mm   = m === 0 ? '' : `:${String(m).padStart(2, '0')}`;
+  return `${h12}${mm} ${ampm}`;
+}
+
+function priceTag(ev) {
+  if (ev.is_free) return `<span class="price-tag is-free">Free</span>`;
+  if (ev.price_min != null) {
+    const lo = ev.price_min, hi = ev.price_max;
+    const label = (lo === hi || hi == null) ? `$${lo}` : `$${lo}–$${hi}`;
+    return `<span class="price-tag is-paid">${label}</span>`;
+  }
+  return '';
+}
+
+function srcIcon(source) {
+  const map = {
+    miami_dade_libraries:   '📚',
+    eventbrite:             '🎟',
+    the_underline:          '🌿',
+    miami_childrens_museum: '🎡',
+    arsht_center:           '🎭',
+    deering_estate:         '🏛',
+    pinecrest_gardens:      '🌺',
+    magic_13:               '✨',
+  };
+  return map[source] || '🌴';
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function showError(msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">⚠️</div>
+      <h3>Could not load events</h3>
+      <p>${esc(msg)}</p>
+    </div>`;
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────
+let _modalEvent = null;
+
+function openModal(id, e) {
+  if (e) {
+    // Allow Ctrl/Cmd+click, middle-click to open in new tab normally
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+    e.preventDefault();
+  }
+  history.pushState({ modalId: id }, '', '?id=' + id);
+  _showModal(id);
+}
+
+function _showModal(id) {
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modal-content').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('modal-cta').style.display = 'none';
+  fetchAndRenderModal(id);
+}
+
+function closeModal() {
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.remove('open');
+  setTimeout(() => { document.body.style.overflow = ''; }, 300);
+  if (history.state && history.state.modalId) {
+    history.pushState({}, '', location.pathname);
+  }
+}
+
+function onOverlayClick(e) {
+  if (e.target === e.currentTarget) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+window.addEventListener('popstate', e => {
+  const overlay = document.getElementById('modal-overlay');
+  if (e.state && e.state.modalId) {
+    // Navigating forward to a modal state
+    _showModal(e.state.modalId);
+  } else if (overlay.classList.contains('open')) {
+    overlay.classList.remove('open');
+    setTimeout(() => { document.body.style.overflow = ''; }, 300);
+  }
+});
+
+async function fetchAndRenderModal(id) {
+  const { data, error } = await db
+    .from('events')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error || !data) {
+    document.getElementById('modal-content').innerHTML =
+      '<div class="m-body"><p style="color:var(--text-2);padding:16px 0">Event not found.</p></div>';
+    return;
+  }
+
+  _modalEvent = data;
+  document.getElementById('modal-content').innerHTML = renderModal(data);
+
+  // CTA link
+  const ctaLink = document.getElementById('modal-cta-link');
+  if (data.source_url) {
+    ctaLink.href = data.source_url;
+    ctaLink.textContent = data.is_free ? 'Register / RSVP' : 'View & Get Tickets';
+    ctaLink.style.display = 'flex';
+  } else {
+    ctaLink.style.display = 'none';
+  }
+
+  // Maps button
+  const mapsBtn = document.getElementById('modal-maps-btn');
+  const mq = data.address
+    ? data.address
+    : (data.venue_name ? data.venue_name + ', Miami, FL' : '');
+  if (mq) {
+    mapsBtn.href = 'https://maps.google.com/?q=' + encodeURIComponent(mq);
+    mapsBtn.style.display = 'flex';
+  } else {
+    mapsBtn.style.display = 'none';
+  }
+
+  document.getElementById('modal-cta').style.display = 'flex';
+  // Scroll back to top of modal content after render
+  document.getElementById('modal-content').scrollTop = 0;
+}
+
+function renderModal(ev) {
+  const hero = ev.image_url
+    ? `<div class="m-hero"><img src="${esc(ev.image_url)}" alt=""
+         onerror="this.parentNode.innerHTML='<div class=m-hero-icon>${srcIcon(ev.source)}</div>'"></div>`
+    : `<div class="m-hero"><div class="m-hero-icon">${srcIcon(ev.source)}</div></div>`;
+
+  const dateLabel = fmtFullDate(ev.start_date);
+  const timeStr   = fmtTime(ev.start_date);
+
+  const priceHtml = ev.is_free
+    ? `<span class="m-pill free">Free</span>`
+    : (ev.price_min != null ? `<span class="m-pill paid">${esc(mPriceStr(ev))}</span>` : '');
+
+  const metaParts = [];
+  if (timeStr)      metaParts.push(`<span class="m-meta-item">${timeStr}</span>`);
+  if (ev.venue_name) metaParts.push(`<span class="m-meta-item">📍 ${esc(ev.neighborhood || ev.venue_name)}</span>`);
+  if (priceHtml)    metaParts.push(priceHtml);
+  const metaRow = metaParts.length
+    ? `<div class="m-meta">${metaParts.join('<span class="m-meta-sep"></span>')}</div>`
+    : '';
+
+  const summary = ev.parent_summary || ev.description || '';
+  const summaryBlock = summary ? `
+    <div class="m-summary-wrap">
+      <p class="m-summary">${esc(summary)}</p>
+      ${ev.practical_notes ? `<div class="m-practical">📋 ${esc(ev.practical_notes)}</div>` : ''}
+    </div>` : '';
+
+  const infoRows = [];
+  infoRows.push(`<div class="m-info-row">
+    <span class="m-info-icon">📅</span>
+    <div><div class="m-info-label">Date</div><div class="m-info-value accent">${esc(dateLabel)}</div></div>
+  </div>`);
+  if (timeStr) infoRows.push(`<div class="m-info-row">
+    <span class="m-info-icon">🕐</span>
+    <div><div class="m-info-label">Time</div><div class="m-info-value">${timeStr}</div></div>
+  </div>`);
+  infoRows.push(`<div class="m-info-row">
+    <span class="m-info-icon">📍</span>
+    <div>
+      <div class="m-info-label">Location</div>
+      <div class="m-info-value">${esc(ev.neighborhood || ev.venue_name || 'Miami, FL')}</div>
+      ${ev.neighborhood && ev.venue_name ? `<div class="m-info-sub">${esc(ev.venue_name)}</div>` : ''}
+    </div>
+  </div>`);
+  infoRows.push(`<div class="m-info-row">
+    <span class="m-info-icon">💵</span>
+    <div><div class="m-info-label">Cost</div>
+    <div class="m-info-value ${ev.is_free ? 'green' : ''}">${esc(mPriceStr(ev))}</div></div>
+  </div>`);
+  infoRows.push(`<div class="m-info-row" style="border-bottom:none">
+    <span class="m-info-icon">👶</span>
+    <div><div class="m-info-label">Ages</div><div class="m-info-value">${esc(mAgeLabel(ev.age_min, ev.age_max))}</div>
+    ${ev.activity_type ? `<div class="m-info-sub" style="text-transform:capitalize">${esc(ev.activity_type)}</div>` : ''}
+    </div>
+  </div>`);
+
+  return `
+    ${hero}
+    <div class="m-body">
+      <div class="m-date-label">${esc(dateLabel)}</div>
+      <h2 class="m-title">${esc(ev.editorial_headline || ev.title)}</h2>
+      ${ev.editorial_headline ? `<div class="m-organizer">${esc(ev.title)}</div>` : ''}
+      ${metaRow}
+      ${summaryBlock}
+      <div class="m-info">${infoRows.join('')}</div>
+    </div>`;
+}
+
+function shareWhatsApp() {
+  const ev = _modalEvent;
+  if (!ev) return;
+  const title = ev.editorial_headline || ev.title;
+  const date  = fmtFullDate(ev.start_date);
+  const time  = fmtTime(ev.start_date);
+  const venue = ev.venue_name ? '📍 ' + ev.venue_name : '';
+  const url   = ev.source_url || (location.origin + location.pathname + '?id=' + ev.id);
+  const text  = [title, date + (time ? ' at ' + time : ''), venue, '', 'Found on EZPZ Miami 🌴', url]
+    .filter(Boolean).join('\n');
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function calendarModal() {
+  const ev = _modalEvent;
+  if (!ev) return;
+  const fmt = iso => iso ? new Date(iso).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z' : '';
+  const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    + '&text=' + encodeURIComponent(ev.title)
+    + '&dates=' + fmt(ev.start_date) + '/' + fmt(ev.end_date || ev.start_date)
+    + '&location=' + encodeURIComponent(ev.address || ev.venue_name || '')
+    + '&details=' + encodeURIComponent((ev.parent_summary || ev.description || '').slice(0, 200));
+  window.open(url, '_blank');
+}
+
+// Modal-specific helpers (avoid polluting existing helpers)
+function fmtFullDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${days[d.getUTCDay()]}, ${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+}
+function mPriceStr(ev) {
+  if (ev.is_free) return 'Free';
+  if (ev.price_min != null && ev.price_max != null && ev.price_min === ev.price_max) return `$${ev.price_min}`;
+  if (ev.price_min != null && ev.price_max != null) return `$${ev.price_min}–$${ev.price_max}`;
+  if (ev.price_min != null) return `From $${ev.price_min}`;
+  return 'See event page';
+}
+function mAgeLabel(min, max) {
+  if (min == null && max == null) return 'All ages welcome';
+  if (min == null) min = 0;
+  if (min === 0 && (max == null || max >= 12)) return 'All ages welcome';
+  if (max == null) return `Ages ${min}+`;
+  return `Ages ${min}–${max}`;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+loadEvents();
+
+// Auto-open modal if URL has ?id= on initial load (shared link)
+const _initId = new URLSearchParams(location.search).get('id');
+if (_initId) _showModal(_initId);
+</script>
+
+</body>
+</html>
