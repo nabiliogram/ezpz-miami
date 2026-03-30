@@ -236,12 +236,12 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 3px;
+      gap: 8px;
+      margin-top: 6px;
     }
     .meta-time {
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-3);
     }
     .meta-sep {
@@ -922,9 +922,9 @@ function ageTag(min, max) {
   if (min == null && max == null) return '';
   if (min == null) min = 0;
   if (min === 0 && (max == null || max >= 12)) label = 'All ages';
-  else if (max == null) label = `${min}+`;
-  else if (min === 0) label = `0–${max}`;
-  else label = `${min}–${max}`;
+  else if (max == null) label = `Ages: ${min}+`;
+  else if (min === 0) label = `Ages: 0–${max}`;
+  else label = `Ages: ${min}–${max}`;
   return `<span class="age-tag">${label}</span>`;
 }
 
