@@ -1069,7 +1069,7 @@ function renderModal(ev) {
     : `<div class="m-hero"><div class="m-hero-icon">${srcIcon(ev.source)}</div></div>`;
 
   const dateLabel = fmtFullDate(ev.start_date);
-  const timeStr   = fmtTime(ev.start_date);
+  const timeStr   = fmtTimeRange(ev.start_date, ev.end_date);
 
   const priceHtml = ev.is_free
     ? `<span class="m-pill free">Free</span>`
