@@ -754,7 +754,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 async function loadEvents() {
   const { data, error } = await db
     .from('events')
-    .select('id, title, description, parent_summary, start_date, end_date, age_min, age_max, image_url, venue_name, neighborhood, is_free, price_min, price_max, source, activity_type')
+    .select('id, title, editorial_headline, description, parent_summary, start_date, end_date, age_min, age_max, image_url, venue_name, neighborhood, is_free, price_min, price_max, source, activity_type')
     .eq('is_canceled', false)
     .eq('is_kid_friendly', true)
     .gte('start_date', new Date().toISOString().slice(0, 10))
