@@ -921,6 +921,8 @@ function ageTag(min, max) {
   let label;
   if (min == null && max == null) return '';
   if (min == null) min = 0;
+  // Degenerate range (e.g. 1–1 from bad API data): treat as "X+"
+  if (min === max) max = null;
   if (min === 0 && (max == null || max >= 12)) label = 'All ages';
   else if (max == null) label = `Ages: ${min}+`;
   else if (min === 0) label = `Ages: 0–${max}`;
@@ -1172,6 +1174,8 @@ function mPriceStr(ev) {
 function mAgeLabel(min, max) {
   if (min == null && max == null) return 'All ages welcome';
   if (min == null) min = 0;
+  // Degenerate range (e.g. 1–1 from bad API data): treat as "X+"
+  if (min === max) max = null;
   if (min === 0 && (max == null || max >= 12)) return 'All ages welcome';
   if (max == null) return `Ages ${min}+`;
   return `Ages ${min}–${max}`;
