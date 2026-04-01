@@ -853,7 +853,7 @@ function eventRow(group) {
   const time = fmtTimeRange(ev.start_date, ev.end_date);
 
   const headline = isGroup
-    ? esc(cleanProgramTitle(ev.title))
+    ? esc(groupTitle(group))
     : (ev.editorial_headline ? esc(ev.editorial_headline) : esc(ev.title));
 
   const body = isGroup
@@ -988,10 +988,31 @@ function esc(str) {
 }
 
 // ─── PROGRAM GROUPING ─────────────────────────────────────────────
+// PROGRAM_FAMILIES: semantically equivalent library programs that should
+// collapse into one card even when their exact titles differ.
+// e.g. "Family Storytime", "Hora de los cuentos", "Furry Tales" → "Storytime at the Library"
+const PROGRAM_FAMILIES = [
+  { key: 'storytime',  label: 'Storytime at the Library', pattern: /\bstoryt(ime|elling)\b|story time|hora de los cuentos|furry tales/i },
+  { key: 'chess',      label: 'Chess Club',               pattern: /\bchess\b/i },
+  { key: 'scavenger',  label: 'Scavenger Hunt',           pattern: /scavenger hunt/i },
+  { key: 'craft-kits', label: 'Take-Home Craft Kits',     pattern: /craft kit|take and make/i },
+];
+
+function familyMatch(title) {
+  for (const f of PROGRAM_FAMILIES) {
+    if (f.pattern.test(title)) return f;
+  }
+  return null;
+}
+
 // Strips age-qualifier suffixes so variant titles like
 // "Talking is Teaching … for Toddlers" and "… for Preschoolers"
 // collapse to the same program key.
 function programKey(title) {
+  // Semantic family takes priority — merges related but non-identical programs
+  const fam = familyMatch(title);
+  if (fam) return fam.key;
+
   return title
     .toLowerCase()
     .replace(/^online event:\s*/i, '')
@@ -1014,6 +1035,15 @@ function cleanProgramTitle(title) {
     .replace(/\s+en dos idiomas.*$/i, '')
     .replace(/\s+y\s+m[aá]s.*$/i, '')
     .trim();
+}
+
+// Best display title for a group:
+// - If events belong to a semantic family → use the family label
+// - Otherwise → cleaned title of the first event
+function groupTitle(group) {
+  const fam = familyMatch(group[0].title);
+  if (fam) return fam.label;
+  return cleanProgramTitle(group[0].title);
 }
 
 // Group an array of events into sub-arrays by program key

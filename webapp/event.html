@@ -480,6 +480,17 @@
       margin-left: auto;
     }
     .session-link:hover { text-decoration: underline; }
+    /* Program column — shown for heterogeneous family groups */
+    .session-program {
+      font-weight: 600;
+      color: var(--text-1);
+      flex: 0 1 130px;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sessions-header .session-program { flex: 0 1 130px; }
     .sessions-header .session-age  { min-width: 82px; flex-shrink: 0; }
     .sessions-header .session-venue { flex: 1; }
     .sessions-header .session-time { flex-shrink: 0; }
@@ -557,7 +568,10 @@ async function loadEvent() {
     if (error || !data?.length) { renderError('Event not found.'); return; }
     // Sort sessions by age_min so youngest first
     data.sort((a, b) => (a.age_min ?? 99) - (b.age_min ?? 99));
-    document.title = `${cleanProgramTitle(data[0].title)} — EZPZ Miami`;
+    const _repTitle = data[0].title;
+    const _fam = familyMatch(_repTitle);
+    const _isHetero = _fam && data.some(e => cleanProgramTitle(e.title) !== cleanProgramTitle(_repTitle));
+    document.title = `${_isHetero ? _fam.label : cleanProgramTitle(_repTitle)} — EZPZ Miami`;
     renderGroup(data);
     return;
   }
@@ -849,6 +863,22 @@ function cleanProgramTitle(title) {
     .trim();
 }
 
+// ─── PROGRAM FAMILIES ────────────────────────────────────────────
+// Semantic equivalence map — same as index.html (keep in sync)
+const PROGRAM_FAMILIES = [
+  { key: 'storytime',  label: 'Storytime at the Library', pattern: /\bstoryt(ime|elling)\b|story time|hora de los cuentos|furry tales/i },
+  { key: 'chess',      label: 'Chess Club',               pattern: /\bchess\b/i },
+  { key: 'scavenger',  label: 'Scavenger Hunt',           pattern: /scavenger hunt/i },
+  { key: 'craft-kits', label: 'Take-Home Craft Kits',     pattern: /craft kit|take and make/i },
+];
+
+function familyMatch(title) {
+  for (const f of PROGRAM_FAMILIES) {
+    if (f.pattern.test(title)) return f;
+  }
+  return null;
+}
+
 // ─── GROUP RENDER (multi-session programs) ────────────────────────
 function renderGroup(events) {
   const root = document.getElementById('root');
@@ -863,8 +893,12 @@ function renderGroup(events) {
        </div>`
     : `<div class="hero-wrap"><div class="hero-placeholder">${srcIcon(rep.source)}</div></div>`;
 
-  const dateLabel    = fmtFullDate(rep.start_date);
-  const programTitle = cleanProgramTitle(rep.title);
+  const dateLabel = fmtFullDate(rep.start_date);
+
+  // Detect heterogeneous family group (same semantic family, different program names)
+  const famMatch        = familyMatch(rep.title);
+  const isHeteroFamily  = famMatch && events.some(e => cleanProgramTitle(e.title) !== cleanProgramTitle(rep.title));
+  const programTitle    = isHeteroFamily ? famMatch.label : cleanProgramTitle(rep.title);
 
   // Price: show Free if all free, else first event's price
   const allFree  = events.every(e => e.is_free);
@@ -883,21 +917,26 @@ function renderGroup(events) {
   const summary     = summaryEv?.parent_summary || rep.description || '';
 
   // Sessions table: decide which columns to show
-  const ageKeys   = new Set(events.map(e => `${e.age_min ?? ''}-${e.age_max ?? ''}`));
-  const timeKeys  = new Set(events.map(e => fmtTime(e.start_date)));
-  const showAges  = ageKeys.size  > 1;
-  const showTimes = timeKeys.size > 1;
+  // Heterogeneous family → show "Program" column (individual program names)
+  // Homogeneous group    → show "Age group" column if ages differ
+  const ageKeys     = new Set(events.map(e => `${e.age_min ?? ''}-${e.age_max ?? ''}`));
+  const timeKeys    = new Set(events.map(e => fmtTime(e.start_date)));
+  const showProgram = isHeteroFamily;
+  const showAges    = !isHeteroFamily && ageKeys.size > 1;
+  const showTimes   = timeKeys.size > 1;
 
   const sessionRows = events.map(e => {
     const ageTxt  = ageLabel(e.age_min, e.age_max);
+    const progTxt = cleanProgramTitle(e.title);
     const venue   = e.venue_name || e.neighborhood || '—';
     const timeStr = fmtTime(e.start_date) || '—';
     const label   = e.is_free ? 'Register' : 'Tickets';
     return `
       <div class="session-row">
-        ${showAges  ? `<div class="session-age">${esc(ageTxt)}</div>` : ''}
+        ${showProgram ? `<div class="session-program">${esc(progTxt)}</div>` : ''}
+        ${showAges    ? `<div class="session-age">${esc(ageTxt)}</div>` : ''}
         <div class="session-venue">${esc(venue)}</div>
-        ${showTimes ? `<div class="session-time">${esc(timeStr)}</div>` : ''}
+        ${showTimes   ? `<div class="session-time">${esc(timeStr)}</div>` : ''}
         <a class="session-link" href="${esc(e.source_url || '#')}" target="_blank" rel="noopener">${esc(label)} →</a>
       </div>`;
   }).join('');
@@ -907,9 +946,10 @@ function renderGroup(events) {
       <div class="section-label">Sessions</div>
       <div class="sessions-list">
         <div class="sessions-header">
-          ${showAges  ? '<div class="session-age sh-label">Age group</div>' : ''}
+          ${showProgram ? '<div class="session-program sh-label">Program</div>' : ''}
+          ${showAges    ? '<div class="session-age sh-label">Age group</div>' : ''}
           <div class="session-venue sh-label">Location</div>
-          ${showTimes ? '<div class="session-time sh-label">Time</div>' : ''}
+          ${showTimes   ? '<div class="session-time sh-label">Time</div>' : ''}
           <div class="session-link sh-label"></div>
         </div>
         ${sessionRows}
@@ -955,7 +995,7 @@ function renderGroup(events) {
           <span class="info-icon">👶</span>
           <div class="info-body">
             <div class="info-label">Ages</div>
-            <div class="info-value">${showAges ? 'Multiple age groups — see sessions above' : esc(ageLabel(rep.age_min, rep.age_max))}</div>
+            <div class="info-value">${(showAges || showProgram) ? 'Multiple age groups — see sessions above' : esc(ageLabel(rep.age_min, rep.age_max))}</div>
           </div>
         </div>
       </div>
