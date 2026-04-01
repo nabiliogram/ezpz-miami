@@ -846,8 +846,8 @@ function groupByDay(events) {
 
 function eventRow(ev) {
   const time     = fmtTimeRange(ev.start_date, ev.end_date);
-  // Prefer neighborhood for location; fall back to venue_name
-  const location = ev.neighborhood ? esc(ev.neighborhood) : (ev.venue_name ? esc(ev.venue_name) : '');
+  // Prefer neighborhood for location; fall back to venue_name; always title-case
+  const location = ev.neighborhood ? esc(titleCase(ev.neighborhood)) : (ev.venue_name ? esc(ev.venue_name) : '');
   // Prefer editorial content; fall back to raw scraped content
   const headline = ev.editorial_headline ? esc(ev.editorial_headline) : esc(ev.title);
   const body     = ev.parent_summary    ? esc(ev.parent_summary)    : (ev.description ? esc(ev.description) : '');
@@ -895,6 +895,13 @@ function jumpToDate(val) {
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────
+
+// Title-case a neighbourhood string: "coral gables" → "Coral Gables"
+function titleCase(str) {
+  if (!str) return str;
+  return str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+}
+
 function fmtTime(iso) {
   if (!iso) return '';
   const d = new Date(iso);
@@ -1077,7 +1084,7 @@ function renderModal(ev) {
 
   const metaParts = [];
   if (timeStr)      metaParts.push(`<span class="m-meta-item">${timeStr}</span>`);
-  if (ev.venue_name) metaParts.push(`<span class="m-meta-item">📍 ${esc(ev.neighborhood || ev.venue_name)}</span>`);
+  if (ev.venue_name) metaParts.push(`<span class="m-meta-item">📍 ${esc(titleCase(ev.neighborhood) || ev.venue_name)}</span>`);
   if (priceHtml)    metaParts.push(priceHtml);
   const metaRow = metaParts.length
     ? `<div class="m-meta">${metaParts.join('<span class="m-meta-sep"></span>')}</div>`
@@ -1103,7 +1110,7 @@ function renderModal(ev) {
     <span class="m-info-icon">📍</span>
     <div>
       <div class="m-info-label">Location</div>
-      <div class="m-info-value">${esc(ev.neighborhood || ev.venue_name || 'Miami, FL')}</div>
+      <div class="m-info-value">${esc(titleCase(ev.neighborhood) || ev.venue_name || 'Miami, FL')}</div>
       ${ev.neighborhood && ev.venue_name ? `<div class="m-info-sub">${esc(ev.venue_name)}</div>` : ''}
     </div>
   </div>`);
