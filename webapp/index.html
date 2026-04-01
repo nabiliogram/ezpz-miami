@@ -1521,6 +1521,7 @@ function selectDate(key) {
   const activeBtn = document.querySelector(`.date-btn[data-date="${key}"]`);
   if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   renderContent();
+  updateAllBadges();
 }
 
 function jumpToDate(val) {
@@ -1544,7 +1545,18 @@ async function loadEvents() {
   _allEvents = data || [];
   buildDateStrip();
   selectDate(toDateKey(new Date()));
+  updateAllBadges();
   setTimeout(() => updateTabUnderline(), 100);
+}
+
+function updateAllBadges() {
+  const dayEvents = _allEvents.filter(ev => toDateKey(new Date(ev.start_date)) === _activeDate);
+  const localEvents = dayEvents.filter(ev => ev.source !== 'miami_dade_libraries');
+  const libraryEvents = dayEvents.filter(ev => ev.source === 'miami_dade_libraries');
+  const programGroups = groupByProgram(libraryEvents);
+  updateTabBadge('events', localEvents.length);
+  updateTabBadge('library', programGroups.length);
+  updateTabBadge('places', 15);
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────
