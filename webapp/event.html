@@ -6,25 +6,27 @@
   <title>EZPZ Miami — Event Details</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Montserrat:wght@800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #FFFFFF;
-      --bg-subtle:    #F9F8F6;
-      --border:       #EBEBEB;
-      --border-heavy: #111111;
-      --text-1:       #111111;
-      --text-2:       #6B6560;
-      --text-3:       #B0AAA5;
-      --accent:       #BE7A54;
-      --accent-bg:    #FAF1EB;
-      --free:         #2A7A47;
-      --free-bg:      #EAF4EE;
+      --flamingo:     #FF4477;
+      --coral:        #FF8C70;
+      --violet:       #8B5CF6;
+      --yellow:       #FACC15;
+      --bg:           #FDFCFB;
+      --bg-white:     #FFFFFF;
+      --text-1:       #0F172A;
+      --text-2:       #475569;
+      --text-3:       #94A3B8;
+      --border:       #F1F5F9;
+      --border-med:   #E2E8F0;
+      --free:         #059669;
+      --free-bg:      #ECFDF5;
       --header-h:     54px;
-      --cta-h:        80px;
+      --cta-h:        76px;
     }
 
     html { scroll-behavior: smooth; }
@@ -38,6 +40,8 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
+    .display { font-family: 'Montserrat', sans-serif; }
+
     /* ─────────────────────────────────────────────
        TOP NAV
     ───────────────────────────────────────────── */
@@ -46,7 +50,7 @@
       top: 0;
       z-index: 100;
       height: var(--header-h);
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
@@ -62,46 +66,125 @@
       text-decoration: none;
       font-size: 14px;
       font-weight: 600;
-      color: var(--text-2);
+      color: var(--text-3);
       padding: 6px 0;
       transition: color 0.12s ease;
       -webkit-tap-highlight-color: transparent;
     }
-    .back-btn:hover { color: var(--text-1); }
+    .back-btn:hover { color: var(--flamingo); }
     .back-btn svg { flex-shrink: 0; }
     .nav-logo {
+      font-family: 'Montserrat', sans-serif;
       font-size: 15px;
-      font-weight: 800;
-      color: var(--text-1);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+      color: var(--flamingo);
       text-decoration: none;
-      letter-spacing: -0.01em;
     }
 
     /* ─────────────────────────────────────────────
-       HERO
+       BILLBOARD HERO (compact, no image)
     ───────────────────────────────────────────── */
-    .hero-wrap {
+    .hero-billboard {
       width: 100%;
-      height: 220px;
+      position: relative;
       overflow: hidden;
-      background: var(--accent-bg);
+      background: var(--text-1);
+      padding: 28px 24px 24px;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: flex-end;
     }
-    .hero-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+    .hero-billboard::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.08;
+      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect width="28" height="28" fill="none"/><rect x="0" y="0" width="14" height="14" fill="white" fill-opacity="0.15"/><rect x="14" y="14" width="14" height="14" fill="white" fill-opacity="0.15"/></svg>');
+      background-size: 28px 28px;
     }
-    .hero-placeholder {
-      font-size: 60px;
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+    .hero-date {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 10px;
+    }
+    .hero-category {
+      display: inline-block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 3px;
+      background: var(--bg-white);
+      color: var(--text-1);
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-image: linear-gradient(to right, var(--coral), var(--flamingo));
+    }
+    .hero-organizer {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.4);
+      margin-top: 8px;
+    }
+    .hero-ghost {
+      position: absolute;
+      bottom: -12px;
+      right: -12px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 80px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.03);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
       line-height: 1;
     }
-    @media (min-width: 600px) {
-      .hero-wrap { height: 300px; }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
     }
+    .hero-meta-item {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .hero-meta-item svg { opacity: 0.5; }
+    .hero-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
+    .hero-pill.free { background: var(--free-bg); color: var(--free); }
+    .hero-pill.paid { background: rgba(255,140,112,0.15); color: var(--coral); }
 
     /* ─────────────────────────────────────────────
        PAGE
@@ -113,66 +196,6 @@
     }
 
     /* ─────────────────────────────────────────────
-       TITLE BLOCK
-    ───────────────────────────────────────────── */
-    .title-block {
-      padding: 24px 0 22px;
-      border-bottom: 1px solid var(--border);
-    }
-    .event-date-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .event-title {
-      font-size: 26px;
-      font-weight: 800;
-      line-height: 1.25;
-      letter-spacing: -0.02em;
-      color: var(--text-1);
-      margin-bottom: 10px;
-    }
-    .event-organizer {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-3);
-      margin-bottom: 16px;
-    }
-    /* Quick meta row right under title */
-    .title-meta {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .title-meta-item {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-2);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .title-meta-sep {
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: var(--border);
-      flex-shrink: 0;
-    }
-    .price-pill {
-      font-size: 11.5px;
-      font-weight: 700;
-      padding: 3px 9px;
-      border-radius: 6px;
-    }
-    .price-pill.is-free { background: var(--free-bg); color: var(--free); }
-    .price-pill.is-paid { background: var(--accent-bg); color: var(--accent); }
-
-    /* ─────────────────────────────────────────────
        SECTIONS
     ───────────────────────────────────────────── */
     .section {
@@ -181,24 +204,23 @@
     }
     .section:last-child { border-bottom: none; }
     .section-label {
-      font-size: 10px;
-      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.15em;
       color: var(--text-3);
       margin-bottom: 14px;
     }
 
-    /* ─────────────────────────────────────────────
-       SUMMARY (AI-generated)
-    ───────────────────────────────────────────── */
+    /* Summary */
     .summary-text {
       font-size: 16px;
       font-weight: 400;
       line-height: 1.75;
       color: var(--text-1);
       padding-left: 16px;
-      border-left: 2.5px solid var(--accent);
+      border-left: 3px solid var(--flamingo);
     }
     .practical-notes {
       font-size: 13.5px;
@@ -206,17 +228,15 @@
       color: var(--text-2);
       margin-top: 14px;
       padding: 12px 14px;
-      background: var(--bg-subtle);
-      border-radius: 8px;
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
     }
 
-    /* ─────────────────────────────────────────────
-       INFO ROWS (plan your visit)
-    ───────────────────────────────────────────── */
+    /* Info rows */
     .info-rows {
       display: flex;
       flex-direction: column;
-      gap: 0;
     }
     .info-row {
       display: flex;
@@ -226,21 +246,14 @@
       border-bottom: 1px solid var(--border);
     }
     .info-row:last-child { border-bottom: none; }
-    .info-icon {
-      font-size: 18px;
-      line-height: 1;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .info-body {
-      flex: 1;
-      min-width: 0;
-    }
+    .info-icon { font-size: 18px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+    .info-body { flex: 1; min-width: 0; }
     .info-label {
-      font-size: 10px;
-      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       color: var(--text-3);
       margin-bottom: 3px;
     }
@@ -250,7 +263,7 @@
       color: var(--text-1);
       line-height: 1.35;
     }
-    .info-value.accent { color: var(--accent); }
+    .info-value.accent { color: var(--flamingo); }
     .info-value.green  { color: var(--free); }
     .info-sub {
       font-size: 12.5px;
@@ -265,30 +278,16 @@
       margin-top: 8px;
       font-size: 13px;
       font-weight: 700;
-      color: var(--accent);
+      color: var(--flamingo);
       text-decoration: none;
       padding: 6px 14px;
-      border: 1.5px solid var(--accent);
+      border: 1.5px solid var(--flamingo);
       border-radius: 8px;
       transition: background 0.12s, color 0.12s;
     }
-    .map-link:hover {
-      background: var(--accent);
-      color: white;
-    }
-    .btn-icon.wa {
-      color: #25D366;
-      border-color: #25D366;
-    }
-    .btn-icon.wa:hover {
-      background: #25D366;
-      color: white;
-      border-color: #25D366;
-    }
+    .map-link:hover { background: var(--flamingo); color: white; }
 
-    /* ─────────────────────────────────────────────
-       DESCRIPTION
-    ───────────────────────────────────────────── */
+    /* Description */
     .description-text {
       font-size: 14.5px;
       line-height: 1.75;
@@ -296,9 +295,7 @@
       white-space: pre-wrap;
     }
 
-    /* ─────────────────────────────────────────────
-       TAGS
-    ───────────────────────────────────────────── */
+    /* Tags */
     .tags-row {
       display: flex;
       flex-wrap: wrap;
@@ -307,15 +304,58 @@
     .tag {
       font-size: 12px;
       font-weight: 600;
-      background: var(--bg-subtle);
+      background: var(--bg-white);
       color: var(--text-2);
       padding: 5px 12px;
       border-radius: 999px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-med);
     }
 
+    /* Sessions table */
+    .sessions-list {
+      border: 1px solid var(--border-med);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .sessions-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+    }
+    .sh-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-3);
+    }
+    .session-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+    }
+    .session-row:last-child { border-bottom: none; }
+    .session-age { font-weight: 600; color: var(--text-1); min-width: 82px; flex-shrink: 0; }
+    .session-venue { flex: 1; color: var(--text-2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .session-time { color: var(--text-2); white-space: nowrap; flex-shrink: 0; }
+    .session-link { color: var(--flamingo); font-weight: 700; text-decoration: none; white-space: nowrap; flex-shrink: 0; font-size: 13px; margin-left: auto; }
+    .session-link:hover { text-decoration: underline; }
+    .session-program { font-weight: 600; color: var(--text-1); flex: 0 1 130px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sessions-header .session-program { flex: 0 1 130px; }
+    .sessions-header .session-age  { min-width: 82px; flex-shrink: 0; }
+    .sessions-header .session-venue { flex: 1; }
+    .sessions-header .session-time { flex-shrink: 0; }
+    .sessions-header .session-link { margin-left: auto; }
+
     /* ─────────────────────────────────────────────
-       CTA BAR (sticky bottom)
+       CTA BAR
     ───────────────────────────────────────────── */
     .cta-bar {
       position: fixed;
@@ -329,6 +369,7 @@
       -webkit-backdrop-filter: blur(12px);
       border-top: 1px solid var(--border);
       padding: 12px 20px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
       display: none;
       align-items: center;
       gap: 10px;
@@ -359,142 +400,55 @@
       justify-content: center;
       width: 48px;
       height: 48px;
-      background: var(--bg-subtle);
-      border: 1.5px solid var(--border);
+      background: var(--bg-white);
+      border: 1.5px solid var(--border-med);
       border-radius: 12px;
       font-size: 18px;
       cursor: pointer;
       flex-shrink: 0;
-      transition: border-color 0.12s;
+      color: var(--text-2);
+      text-decoration: none;
+      transition: border-color 0.12s, background 0.12s, color 0.12s;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn-icon:hover { border-color: var(--text-1); }
+    .btn-icon:hover { border-color: var(--text-1); color: var(--text-1); }
+    .btn-icon.wa { color: #25D366; border-color: #25D366; }
+    .btn-icon.wa:hover { background: #25D366; color: white; }
 
     /* ─────────────────────────────────────────────
        LOADING / ERROR
     ───────────────────────────────────────────── */
+    .spinner-wrap { display: flex; justify-content: center; padding: 80px 0; }
     .spinner {
-      width: 30px;
-      height: 30px;
-      border: 2.5px solid var(--border);
-      border-top-color: var(--accent);
+      width: 30px; height: 30px;
+      border: 3px solid var(--border-med);
+      border-top-color: var(--flamingo);
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
-      margin: 90px auto;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .error-state {
-      text-align: center;
-      padding: 80px 24px;
-    }
+    .error-state { text-align: center; padding: 80px 24px; }
     .error-icon { font-size: 36px; margin-bottom: 16px; }
-    .error-state h3 {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-1);
-      margin-bottom: 8px;
-    }
-    .error-state p {
-      font-size: 14px;
-      color: var(--text-2);
-      margin-bottom: 24px;
-    }
-    .error-link {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--accent);
-      text-decoration: none;
-    }
+    .error-state h3 { font-size: 17px; font-weight: 700; color: var(--text-1); margin-bottom: 8px; }
+    .error-state p { font-size: 14px; color: var(--text-2); margin-bottom: 24px; }
+    .error-link { font-size: 14px; font-weight: 700; color: var(--flamingo); text-decoration: none; }
 
     /* ─────────────────────────────────────────────
        RESPONSIVE
     ───────────────────────────────────────────── */
     @media (max-width: 480px) {
       .page { padding: 0 18px calc(var(--cta-h) + 20px); }
-      .event-title { font-size: 22px; }
+      .hero-billboard { padding: 24px 18px 20px; }
+      .hero-title { font-size: 26px; }
+      .hero-ghost { font-size: 60px; }
     }
     @media (min-width: 600px) {
       .topnav { padding: 0 28px; }
       .page { padding: 0 28px calc(var(--cta-h) + 28px); }
+      .hero-billboard { padding: 32px 28px 28px; }
+      .hero-title { font-size: 36px; }
     }
-
-    /* ─────────────────────────────────────────────
-       SESSIONS TABLE (grouped multi-location events)
-    ───────────────────────────────────────────── */
-    .sessions-list {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .sessions-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 14px;
-      background: var(--bg-subtle);
-      border-bottom: 1px solid var(--border);
-    }
-    .sh-label {
-      font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--text-3);
-    }
-    .session-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 11px 14px;
-      border-bottom: 1px solid var(--border);
-      font-size: 13.5px;
-    }
-    .session-row:last-child { border-bottom: none; }
-    .session-age {
-      font-weight: 600;
-      color: var(--text-1);
-      min-width: 82px;
-      flex-shrink: 0;
-    }
-    .session-venue {
-      flex: 1;
-      color: var(--text-2);
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .session-time {
-      color: var(--text-2);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .session-link {
-      color: var(--accent);
-      font-weight: 700;
-      text-decoration: none;
-      white-space: nowrap;
-      flex-shrink: 0;
-      font-size: 13px;
-      margin-left: auto;
-    }
-    .session-link:hover { text-decoration: underline; }
-    /* Program column — shown for heterogeneous family groups */
-    .session-program {
-      font-weight: 600;
-      color: var(--text-1);
-      flex: 0 1 130px;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .sessions-header .session-program { flex: 0 1 130px; }
-    .sessions-header .session-age  { min-width: 82px; flex-shrink: 0; }
-    .sessions-header .session-venue { flex: 1; }
-    .sessions-header .session-time { flex-shrink: 0; }
-    .sessions-header .session-link { margin-left: auto; }
     @media (max-width: 380px) {
       .session-age { min-width: 70px; }
       .sessions-header .session-age { min-width: 70px; }
@@ -503,7 +457,7 @@
 </head>
 <body>
 
-<!-- ── Top nav ──────────────────────────────────────────────── -->
+<!-- Top nav -->
 <nav class="topnav">
   <a class="back-btn" href="index.html">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -511,15 +465,15 @@
     </svg>
     All Events
   </a>
-  <a class="nav-logo" href="index.html">🌴 EZPZ</a>
+  <a class="nav-logo" href="index.html">EZPZ</a>
 </nav>
 
-<!-- ── Main content ────────────────────────────────────────── -->
+<!-- Main content -->
 <div id="root">
-  <div class="spinner"></div>
+  <div class="spinner-wrap"><div class="spinner"></div></div>
 </div>
 
-<!-- ── Sticky CTA bar ──────────────────────────────────────── -->
+<!-- Sticky CTA bar -->
 <div class="cta-bar" id="cta-bar">
   <a class="btn-primary" id="cta-link" href="#" target="_blank" rel="noopener">
     View &amp; Get Tickets
@@ -553,6 +507,13 @@ const SUPABASE_KEY = 'sb_publishable_8-9VIQPLrYfqxsoyGWjf8A_BO7UCLso';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Gradient palette for hero titles
+const GRADIENTS = [
+  'linear-gradient(to right, #FF8C70, #FF4477)',
+  'linear-gradient(to right, #FF4477, #8B5CF6)',
+  'linear-gradient(to right, #FACC15, #FF8C70)',
+];
+
 let currentEvent = null;
 
 // ─── LOAD ─────────────────────────────────────────────────────────
@@ -561,12 +522,10 @@ async function loadEvent() {
   const ids    = params.get('ids');
   const id     = params.get('id');
 
-  // ── Grouped event (multiple sessions) ──
   if (ids) {
     const idList = ids.split(',').filter(Boolean);
     const { data, error } = await db.from('events').select('*').in('id', idList);
     if (error || !data?.length) { renderError('Event not found.'); return; }
-    // Sort sessions by age_min so youngest first
     data.sort((a, b) => (a.age_min ?? 99) - (b.age_min ?? 99));
     const _repTitle = data[0].title;
     const _fam = familyMatch(_repTitle);
@@ -576,7 +535,6 @@ async function loadEvent() {
     return;
   }
 
-  // ── Single event ──
   if (!id) { renderError('No event ID provided.'); return; }
   const { data, error } = await db.from('events').select('*').eq('id', id).single();
   if (error || !data) { renderError('Event not found.'); return; }
@@ -585,149 +543,73 @@ async function loadEvent() {
   renderEvent(data);
 }
 
-// ─── RENDER ───────────────────────────────────────────────────────
+// ─── RENDER SINGLE EVENT ─────────────────────────────────────────
 function renderEvent(ev) {
   const root = document.getElementById('root');
+  const gradient = pickGradient(ev.activity_type);
 
-  // Hero
-  const heroHtml = ev.image_url
-    ? `<div class="hero-wrap">
-         <img src="${esc(ev.image_url)}" alt="${esc(ev.title)}"
-              onerror="this.parentNode.innerHTML='<div class=hero-placeholder>${srcIcon(ev.source)}</div>'" />
-       </div>`
-    : `<div class="hero-wrap"><div class="hero-placeholder">${srcIcon(ev.source)}</div></div>`;
-
-  // Date label
   const dateLabel = fmtFullDate(ev.start_date);
   const timeStr   = fmtTime(ev.start_date);
   const endTime   = ev.end_date ? fmtTime(ev.end_date) : '';
   const dur       = fmtDuration(ev.start_date, ev.end_date);
+  const category  = ev.activity_type ? titleCase(ev.activity_type) : 'Event';
+  const headline  = ev.editorial_headline || ev.title;
 
-  // Price
+  // Price pill for hero
   const priceHtml = (() => {
-    if (ev.is_free) return `<span class="price-pill is-free">Free</span>`;
+    if (ev.is_free) return `<span class="hero-pill free">Free</span>`;
     const label = priceStr(ev);
-    if (label && label !== 'See event for pricing') return `<span class="price-pill is-paid">${esc(label)}</span>`;
+    if (label && label !== 'See event for pricing') return `<span class="hero-pill paid">${esc(label)}</span>`;
     return '';
   })();
 
-  // Title meta row
+  // Hero meta items
   const metaParts = [];
-  if (timeStr) metaParts.push(`<span class="title-meta-item">${timeStr}</span>`);
-  if (ev.venue_name) metaParts.push(`<span class="title-meta-item">📍 ${esc(ev.venue_name)}</span>`);
+  if (timeStr) metaParts.push(`<span class="hero-meta-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${timeStr}${endTime ? ' – ' + endTime : ''}</span>`);
+  if (ev.venue_name) metaParts.push(`<span class="hero-meta-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(ev.venue_name)}</span>`);
   if (priceHtml) metaParts.push(priceHtml);
-  const titleMeta = metaParts.length
-    ? `<div class="title-meta">${metaParts.join('<span class="title-meta-sep"></span>')}</div>`
-    : '';
 
-  // What to expect (AI summary)
+  // Billboard hero
+  const heroHtml = `
+    <div class="hero-billboard">
+      <div class="hero-content">
+        <div class="hero-date">${esc(dateLabel)}</div>
+        <span class="hero-category">${esc(category)}</span>
+        <h1 class="hero-title" style="background-image: ${gradient}">${esc(headline)}</h1>
+        ${ev.editorial_headline ? `<div class="hero-organizer">${esc(ev.title)}</div>` : (ev.organizer_name ? `<div class="hero-organizer">by ${esc(ev.organizer_name)}</div>` : '')}
+        ${metaParts.length ? `<div class="hero-meta">${metaParts.join('')}</div>` : ''}
+      </div>
+      <span class="hero-ghost">${esc(headline)}</span>
+    </div>`;
+
+  // What to expect
   const summarySection = (ev.parent_summary || ev.description) ? `
     <div class="section">
       <div class="section-label">What to expect</div>
       <p class="summary-text">${esc(ev.parent_summary || ev.description)}</p>
-      ${ev.practical_notes ? `<div class="practical-notes">📋 ${renderNotes(ev.practical_notes)}</div>` : ''}
+      ${ev.practical_notes ? `<div class="practical-notes">${renderNotes(ev.practical_notes)}</div>` : ''}
     </div>` : '';
 
   // Plan your visit
   const infoRows = [];
-  infoRows.push(`
-    <div class="info-row">
-      <span class="info-icon">📅</span>
-      <div class="info-body">
-        <div class="info-label">Date</div>
-        <div class="info-value accent">${esc(dateLabel)}</div>
-      </div>
-    </div>`);
-
-  if (timeStr) infoRows.push(`
-    <div class="info-row">
-      <span class="info-icon">🕐</span>
-      <div class="info-body">
-        <div class="info-label">Time</div>
-        <div class="info-value">${timeStr}${endTime ? ' – ' + endTime : ''}</div>
-        ${dur ? `<div class="info-sub">${dur}</div>` : ''}
-      </div>
-    </div>`);
-
-  infoRows.push(`
-    <div class="info-row">
-      <span class="info-icon">📍</span>
-      <div class="info-body">
-        <div class="info-label">Location</div>
-        <div class="info-value">${esc(ev.neighborhood || ev.venue_name || 'TBA')}</div>
-        ${ev.neighborhood && ev.venue_name ? `<div class="info-sub">${esc(ev.venue_name)}</div>` : ''}
-        ${(ev.address || ev.venue_name) ? `
-          ${ev.address ? `<div class="info-sub" style="margin-top:4px">${esc(ev.address)}</div>` : ''}
-          <a class="map-link" href="${mapsUrl(ev)}" target="_blank" rel="noopener">
-            Open in Maps →
-          </a>` : ''}
-      </div>
-    </div>`);
-
-  infoRows.push(`
-    <div class="info-row">
-      <span class="info-icon">💵</span>
-      <div class="info-body">
-        <div class="info-label">Cost</div>
-        <div class="info-value ${ev.is_free ? 'green' : ''}">${esc(priceStr(ev))}</div>
-      </div>
-    </div>`);
-
-  // Ages
+  infoRows.push(`<div class="info-row"><span class="info-icon">📅</span><div class="info-body"><div class="info-label">Date</div><div class="info-value accent">${esc(dateLabel)}</div></div></div>`);
+  if (timeStr) infoRows.push(`<div class="info-row"><span class="info-icon">🕐</span><div class="info-body"><div class="info-label">Time</div><div class="info-value">${timeStr}${endTime ? ' – ' + endTime : ''}</div>${dur ? `<div class="info-sub">${dur}</div>` : ''}</div></div>`);
+  infoRows.push(`<div class="info-row"><span class="info-icon">📍</span><div class="info-body"><div class="info-label">Location</div><div class="info-value">${esc(ev.neighborhood || ev.venue_name || 'TBA')}</div>${ev.neighborhood && ev.venue_name ? `<div class="info-sub">${esc(ev.venue_name)}</div>` : ''}${(ev.address || ev.venue_name) ? `${ev.address ? `<div class="info-sub" style="margin-top:4px">${esc(ev.address)}</div>` : ''}<a class="map-link" href="${mapsUrl(ev)}" target="_blank" rel="noopener">Open in Maps →</a>` : ''}</div></div>`);
+  infoRows.push(`<div class="info-row"><span class="info-icon">💵</span><div class="info-body"><div class="info-label">Cost</div><div class="info-value ${ev.is_free ? 'green' : ''}">${esc(priceStr(ev))}</div></div></div>`);
   const ageTxt = ageLabel(ev.age_min, ev.age_max);
-  infoRows.push(`
-    <div class="info-row">
-      <span class="info-icon">👶</span>
-      <div class="info-body">
-        <div class="info-label">Ages</div>
-        <div class="info-value">${esc(ageTxt)}</div>
-        ${ev.activity_type ? `<div class="info-sub" style="text-transform:capitalize">${esc(ev.activity_type)}</div>` : ''}
-      </div>
-    </div>`);
+  infoRows.push(`<div class="info-row"><span class="info-icon">👶</span><div class="info-body"><div class="info-label">Ages</div><div class="info-value">${esc(ageTxt)}</div>${ev.activity_type ? `<div class="info-sub" style="text-transform:capitalize">${esc(ev.activity_type)}</div>` : ''}</div></div>`);
+  if (ev.indoor_outdoor) infoRows.push(`<div class="info-row"><span class="info-icon">${ev.indoor_outdoor === 'indoor' ? '🏠' : ev.indoor_outdoor === 'outdoor' ? '☀️' : '🔄'}</span><div class="info-body"><div class="info-label">Setting</div><div class="info-value" style="text-transform:capitalize">${esc(ev.indoor_outdoor)}</div></div></div>`);
 
-  if (ev.indoor_outdoor) infoRows.push(`
-    <div class="info-row">
-      <span class="info-icon">${ev.indoor_outdoor === 'indoor' ? '🏠' : ev.indoor_outdoor === 'outdoor' ? '☀️' : '🔄'}</span>
-      <div class="info-body">
-        <div class="info-label">Setting</div>
-        <div class="info-value" style="text-transform:capitalize">${esc(ev.indoor_outdoor)}</div>
-      </div>
-    </div>`);
+  const infoSection = `<div class="section"><div class="section-label">Plan your visit</div><div class="info-rows">${infoRows.join('')}</div></div>`;
 
-  const infoSection = `
-    <div class="section">
-      <div class="section-label">Plan your visit</div>
-      <div class="info-rows">${infoRows.join('')}</div>
-    </div>`;
-
-  // About (full description if different from summary)
+  // About
   const fullDesc = ev.full_description || (ev.parent_summary ? ev.description : '') || '';
-  const aboutSection = fullDesc ? `
-    <div class="section">
-      <div class="section-label">About this event</div>
-      <p class="description-text">${esc(fullDesc.trim())}</p>
-    </div>` : '';
+  const aboutSection = fullDesc ? `<div class="section"><div class="section-label">About this event</div><p class="description-text">${esc(fullDesc.trim())}</p></div>` : '';
 
   // Tags
-  const tagsSection = (ev.tags || []).length > 0 ? `
-    <div class="section">
-      <div class="tags-row">${ev.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
-    </div>` : '';
+  const tagsSection = (ev.tags || []).length > 0 ? `<div class="section"><div class="tags-row">${ev.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div></div>` : '';
 
-  root.innerHTML = `
-    ${heroHtml}
-    <div class="page">
-      <div class="title-block">
-        <div class="event-date-label">${esc(dateLabel)}</div>
-        <h1 class="event-title">${esc(ev.editorial_headline || ev.title)}</h1>
-        ${ev.editorial_headline ? `<div class="event-organizer">${esc(ev.title)}</div>` : (ev.organizer_name ? `<div class="event-organizer">by ${esc(ev.organizer_name)}</div>` : '')}
-        ${titleMeta}
-      </div>
-      ${summarySection}
-      ${infoSection}
-      ${aboutSection}
-      ${tagsSection}
-    </div>`;
+  root.innerHTML = `${heroHtml}<div class="page">${summarySection}${infoSection}${aboutSection}${tagsSection}</div>`;
 
   // CTA bar
   const ctaLink = document.getElementById('cta-link');
@@ -737,15 +619,81 @@ function renderEvent(ev) {
   } else {
     ctaLink.style.display = 'none';
   }
-
-  // Maps button
   const mapsBtn = document.getElementById('maps-btn');
   if (ev.address || ev.venue_name) {
     mapsBtn.href = mapsUrl(ev);
     mapsBtn.style.display = 'flex';
   }
-
   document.getElementById('cta-bar').style.display = 'flex';
+}
+
+// ─── RENDER GROUP ────────────────────────────────────────────────
+function renderGroup(events) {
+  const root = document.getElementById('root');
+  const rep  = events[0];
+  const gradient = pickGradient(rep.activity_type);
+
+  const dateLabel = fmtFullDate(rep.start_date);
+  const famMatch  = familyMatch(rep.title);
+  const isHeteroFamily = famMatch && events.some(e => cleanProgramTitle(e.title) !== cleanProgramTitle(rep.title));
+  const programTitle   = isHeteroFamily ? famMatch.label : cleanProgramTitle(rep.title);
+  const category = rep.activity_type ? titleCase(rep.activity_type) : 'Event';
+
+  const allFree = events.every(e => e.is_free);
+  const priceHtml = allFree
+    ? `<span class="hero-pill free">Free</span>`
+    : (() => { const l = priceStr(rep); return (l && l !== 'See event page') ? `<span class="hero-pill paid">${esc(l)}</span>` : ''; })();
+
+  const heroHtml = `
+    <div class="hero-billboard">
+      <div class="hero-content">
+        <div class="hero-date">${esc(dateLabel)}</div>
+        <span class="hero-category">${esc(category)}</span>
+        <h1 class="hero-title" style="background-image: ${gradient}">${esc(programTitle)}</h1>
+        ${priceHtml ? `<div class="hero-meta">${priceHtml}</div>` : ''}
+      </div>
+      <span class="hero-ghost">${esc(programTitle)}</span>
+    </div>`;
+
+  // Summary
+  const ageWords = /\btoddler|\bpreschooler|\bbabies?\b|\binfant|\bteen|\btween|\byour\s+\d/i;
+  const withSummary = events.filter(e => e.parent_summary);
+  const summaryEv = withSummary.find(e => !ageWords.test(e.parent_summary)) || withSummary[0];
+  const summary = summaryEv?.parent_summary || rep.description || '';
+  const summarySection = summary ? `<div class="section"><div class="section-label">What to expect</div><p class="summary-text">${esc(summary)}</p></div>` : '';
+
+  // Sessions table
+  const ageKeys  = new Set(events.map(e => `${e.age_min ?? ''}-${e.age_max ?? ''}`));
+  const timeKeys = new Set(events.map(e => fmtTime(e.start_date)));
+  const showProgram = isHeteroFamily;
+  const showAges    = !isHeteroFamily && ageKeys.size > 1;
+  const showTimes   = timeKeys.size > 1;
+
+  const sessionRows = events.map(e => {
+    const ageTxt  = ageLabel(e.age_min, e.age_max);
+    const progTxt = cleanProgramTitle(e.title);
+    const venue   = e.venue_name || e.neighborhood || '—';
+    const timeStr = fmtTime(e.start_date) || '—';
+    const label   = e.is_free ? 'Register' : 'Tickets';
+    return `<div class="session-row">${showProgram ? `<div class="session-program">${esc(progTxt)}</div>` : ''}${showAges ? `<div class="session-age">${esc(ageTxt)}</div>` : ''}<div class="session-venue">${esc(venue)}</div>${showTimes ? `<div class="session-time">${esc(timeStr)}</div>` : ''}<a class="session-link" href="${esc(e.source_url || '#')}" target="_blank" rel="noopener">${esc(label)} →</a></div>`;
+  }).join('');
+
+  const sessionsSection = `<div class="section"><div class="section-label">Sessions</div><div class="sessions-list"><div class="sessions-header">${showProgram ? '<div class="session-program sh-label">Program</div>' : ''}${showAges ? '<div class="session-age sh-label">Age group</div>' : ''}<div class="session-venue sh-label">Location</div>${showTimes ? '<div class="session-time sh-label">Time</div>' : ''}<div class="session-link sh-label"></div></div>${sessionRows}</div></div>`;
+
+  // Plan your visit
+  const locationNote = events.length === 1
+    ? esc(rep.neighborhood || rep.venue_name || 'TBA')
+    : `${events.length} Miami-Dade locations — see sessions above`;
+
+  const infoSection = `<div class="section"><div class="section-label">Plan your visit</div><div class="info-rows">
+    <div class="info-row"><span class="info-icon">📅</span><div class="info-body"><div class="info-label">Date</div><div class="info-value accent">${esc(dateLabel)}</div></div></div>
+    <div class="info-row"><span class="info-icon">📍</span><div class="info-body"><div class="info-label">Location</div><div class="info-value">${locationNote}</div></div></div>
+    <div class="info-row"><span class="info-icon">💵</span><div class="info-body"><div class="info-label">Cost</div><div class="info-value ${allFree ? 'green' : ''}">${allFree ? 'Free' : esc(priceStr(rep))}</div></div></div>
+    <div class="info-row"><span class="info-icon">👶</span><div class="info-body"><div class="info-label">Ages</div><div class="info-value">${(showAges || showProgram) ? 'Multiple age groups — see sessions above' : esc(ageLabel(rep.age_min, rep.age_max))}</div></div></div>
+  </div></div>`;
+
+  root.innerHTML = `${heroHtml}<div class="page">${summarySection}${sessionsSection}${infoSection}</div>`;
+  document.getElementById('cta-bar').style.display = 'none';
 }
 
 // ─── ACTIONS ──────────────────────────────────────────────────────
@@ -781,18 +729,31 @@ function addToCalendar() {
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────
+function pickGradient(activityType) {
+  const map = {
+    'craft': GRADIENTS[0], 'workshop': GRADIENTS[0],
+    'performance': GRADIENTS[1], 'storytime': GRADIENTS[1], 'music': GRADIENTS[1],
+    'outdoor': GRADIENTS[2], 'sports': GRADIENTS[2], 'festival': GRADIENTS[2],
+  };
+  return map[(activityType || '').toLowerCase()] || GRADIENTS[0];
+}
+
+function titleCase(str) {
+  if (!str) return str;
+  return str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+}
+
 function fmtFullDate(iso) {
   if (!iso) return '';
   const d = new Date(iso);
-  // Use UTC values — times are stored as Miami local time labeled as UTC
   const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   return `${days[d.getUTCDay()]}, ${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
 }
+
 function fmtTime(iso) {
   if (!iso) return '';
   const d = new Date(iso);
-  // Read UTC values — times are stored as Miami local time labeled as UTC
   const h = d.getUTCHours(), m = d.getUTCMinutes();
   if (h === 0 && m === 0) return '';
   const ampm = h >= 12 ? 'PM' : 'AM';
@@ -800,6 +761,7 @@ function fmtTime(iso) {
   const mm   = m === 0 ? '' : `:${String(m).padStart(2, '0')}`;
   return `${h12}${mm} ${ampm}`;
 }
+
 function fmtDuration(start, end) {
   if (!start || !end) return null;
   const mins = Math.round((new Date(end) - new Date(start)) / 60000);
@@ -808,15 +770,16 @@ function fmtDuration(start, end) {
   const h = Math.floor(mins / 60), m = mins % 60;
   return m ? `${h}h ${m}m` : `${h}h`;
 }
+
 function ageLabel(min, max) {
   if (min == null && max == null) return 'All ages welcome';
   if (min == null) min = 0;
-  // Degenerate range (e.g. 1–1 from bad API data): treat as "X+"
   if (min === max) max = null;
   if (min === 0 && (max == null || max >= 12)) return 'All ages welcome';
   if (max == null) return `Ages ${min}+`;
   return `Ages ${min}–${max}`;
 }
+
 function priceStr(ev) {
   if (ev.is_free) return 'Free';
   if (ev.price_min != null && ev.price_max != null && ev.price_min === ev.price_max) return `$${ev.price_min}`;
@@ -824,14 +787,7 @@ function priceStr(ev) {
   if (ev.price_min != null) return `From $${ev.price_min}`;
   return 'See event page';
 }
-function srcIcon(source) {
-  const map = {
-    miami_dade_libraries: '📚', eventbrite: '🎟', the_underline: '🌿',
-    miami_childrens_museum: '🎡', arsht_center: '🎭',
-    deering_estate: '🏛', pinecrest_gardens: '🌺', magic_13: '✨',
-  };
-  return map[source] || '🌴';
-}
+
 function esc(str) {
   if (!str) return '';
   return String(str)
@@ -839,19 +795,28 @@ function esc(str) {
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-// Render practical_notes — handles plain strings and JSON arrays stored as text
 function renderNotes(notes) {
   if (!notes) return '';
   try {
     const parsed = JSON.parse(notes);
-    if (Array.isArray(parsed)) {
-      return parsed.map(item => esc(item)).join('<br>');
-    }
-  } catch (e) { /* not JSON — fall through */ }
+    if (Array.isArray(parsed)) return parsed.map(item => esc(item)).join('<br>');
+  } catch (e) {}
   return esc(notes);
 }
 
-// ─── PROGRAM TITLE HELPER ─────────────────────────────────────────
+// ─── PROGRAM FAMILIES ────────────────────────────────────────────
+const PROGRAM_FAMILIES = [
+  { key: 'storytime',  label: 'Storytime at the Library', pattern: /\bstoryt(ime|elling)\b|story time|hora de los cuentos|furry tales/i },
+  { key: 'chess',      label: 'Chess Club',               pattern: /\bchess\b/i },
+  { key: 'scavenger',  label: 'Scavenger Hunt',           pattern: /scavenger hunt/i },
+  { key: 'craft-kits', label: 'Take-Home Craft Kits',     pattern: /craft kit|take and make/i },
+];
+
+function familyMatch(title) {
+  for (const f of PROGRAM_FAMILIES) { if (f.pattern.test(title)) return f; }
+  return null;
+}
+
 function cleanProgramTitle(title) {
   if (!title) return '';
   return title
@@ -861,161 +826,6 @@ function cleanProgramTitle(title) {
     .replace(/\s+en dos idiomas.*$/i, '')
     .replace(/\s+y\s+m[aá]s.*$/i, '')
     .trim();
-}
-
-// ─── PROGRAM FAMILIES ────────────────────────────────────────────
-// Semantic equivalence map — same as index.html (keep in sync)
-const PROGRAM_FAMILIES = [
-  { key: 'storytime',  label: 'Storytime at the Library', pattern: /\bstoryt(ime|elling)\b|story time|hora de los cuentos|furry tales/i },
-  { key: 'chess',      label: 'Chess Club',               pattern: /\bchess\b/i },
-  { key: 'scavenger',  label: 'Scavenger Hunt',           pattern: /scavenger hunt/i },
-  { key: 'craft-kits', label: 'Take-Home Craft Kits',     pattern: /craft kit|take and make/i },
-];
-
-function familyMatch(title) {
-  for (const f of PROGRAM_FAMILIES) {
-    if (f.pattern.test(title)) return f;
-  }
-  return null;
-}
-
-// ─── GROUP RENDER (multi-session programs) ────────────────────────
-function renderGroup(events) {
-  const root = document.getElementById('root');
-  const rep  = events[0];
-
-  // Hero: first event with an image
-  const imgEv    = events.find(e => e.image_url) || rep;
-  const heroHtml = imgEv.image_url
-    ? `<div class="hero-wrap">
-         <img src="${esc(imgEv.image_url)}" alt=""
-              onerror="this.parentNode.innerHTML='<div class=hero-placeholder>${srcIcon(rep.source)}</div>'" />
-       </div>`
-    : `<div class="hero-wrap"><div class="hero-placeholder">${srcIcon(rep.source)}</div></div>`;
-
-  const dateLabel = fmtFullDate(rep.start_date);
-
-  // Detect heterogeneous family group (same semantic family, different program names)
-  const famMatch        = familyMatch(rep.title);
-  const isHeteroFamily  = famMatch && events.some(e => cleanProgramTitle(e.title) !== cleanProgramTitle(rep.title));
-  const programTitle    = isHeteroFamily ? famMatch.label : cleanProgramTitle(rep.title);
-
-  // Price: show Free if all free, else first event's price
-  const allFree  = events.every(e => e.is_free);
-  const priceHtml = allFree
-    ? `<span class="price-pill is-free">Free</span>`
-    : (() => {
-        const label = priceStr(rep);
-        return (label && label !== 'See event page')
-          ? `<span class="price-pill is-paid">${esc(label)}</span>` : '';
-      })();
-
-  // Summary: prefer one that doesn't mention a specific age group
-  const ageWords    = /\btoddler|\bpreschooler|\bbabies?\b|\binfant|\bteen|\btween|\byour\s+\d/i;
-  const withSummary = events.filter(e => e.parent_summary);
-  const summaryEv   = withSummary.find(e => !ageWords.test(e.parent_summary)) || withSummary[0];
-  const summary     = summaryEv?.parent_summary || rep.description || '';
-
-  // Sessions table: decide which columns to show
-  // Heterogeneous family → show "Program" column (individual program names)
-  // Homogeneous group    → show "Age group" column if ages differ
-  const ageKeys     = new Set(events.map(e => `${e.age_min ?? ''}-${e.age_max ?? ''}`));
-  const timeKeys    = new Set(events.map(e => fmtTime(e.start_date)));
-  const showProgram = isHeteroFamily;
-  const showAges    = !isHeteroFamily && ageKeys.size > 1;
-  const showTimes   = timeKeys.size > 1;
-
-  const sessionRows = events.map(e => {
-    const ageTxt  = ageLabel(e.age_min, e.age_max);
-    const progTxt = cleanProgramTitle(e.title);
-    const venue   = e.venue_name || e.neighborhood || '—';
-    const timeStr = fmtTime(e.start_date) || '—';
-    const label   = e.is_free ? 'Register' : 'Tickets';
-    return `
-      <div class="session-row">
-        ${showProgram ? `<div class="session-program">${esc(progTxt)}</div>` : ''}
-        ${showAges    ? `<div class="session-age">${esc(ageTxt)}</div>` : ''}
-        <div class="session-venue">${esc(venue)}</div>
-        ${showTimes   ? `<div class="session-time">${esc(timeStr)}</div>` : ''}
-        <a class="session-link" href="${esc(e.source_url || '#')}" target="_blank" rel="noopener">${esc(label)} →</a>
-      </div>`;
-  }).join('');
-
-  const sessionsSection = `
-    <div class="section">
-      <div class="section-label">Sessions</div>
-      <div class="sessions-list">
-        <div class="sessions-header">
-          ${showProgram ? '<div class="session-program sh-label">Program</div>' : ''}
-          ${showAges    ? '<div class="session-age sh-label">Age group</div>' : ''}
-          <div class="session-venue sh-label">Location</div>
-          ${showTimes   ? '<div class="session-time sh-label">Time</div>' : ''}
-          <div class="session-link sh-label"></div>
-        </div>
-        ${sessionRows}
-      </div>
-    </div>`;
-
-  const summarySection = summary ? `
-    <div class="section">
-      <div class="section-label">What to expect</div>
-      <p class="summary-text">${esc(summary)}</p>
-    </div>` : '';
-
-  const locationNote = events.length === 1
-    ? esc(rep.neighborhood || rep.venue_name || 'TBA')
-    : `${events.length} Miami-Dade locations — see sessions above`;
-
-  const infoSection = `
-    <div class="section">
-      <div class="section-label">Plan your visit</div>
-      <div class="info-rows">
-        <div class="info-row">
-          <span class="info-icon">📅</span>
-          <div class="info-body">
-            <div class="info-label">Date</div>
-            <div class="info-value accent">${esc(dateLabel)}</div>
-          </div>
-        </div>
-        <div class="info-row">
-          <span class="info-icon">📍</span>
-          <div class="info-body">
-            <div class="info-label">Location</div>
-            <div class="info-value">${locationNote}</div>
-          </div>
-        </div>
-        <div class="info-row">
-          <span class="info-icon">💵</span>
-          <div class="info-body">
-            <div class="info-label">Cost</div>
-            <div class="info-value ${allFree ? 'green' : ''}">${allFree ? 'Free' : esc(priceStr(rep))}</div>
-          </div>
-        </div>
-        <div class="info-row">
-          <span class="info-icon">👶</span>
-          <div class="info-body">
-            <div class="info-label">Ages</div>
-            <div class="info-value">${(showAges || showProgram) ? 'Multiple age groups — see sessions above' : esc(ageLabel(rep.age_min, rep.age_max))}</div>
-          </div>
-        </div>
-      </div>
-    </div>`;
-
-  root.innerHTML = `
-    ${heroHtml}
-    <div class="page">
-      <div class="title-block">
-        <div class="event-date-label">${esc(dateLabel)}</div>
-        <h1 class="event-title">${esc(programTitle)}</h1>
-        ${priceHtml ? `<div style="margin-top:8px">${priceHtml}</div>` : ''}
-      </div>
-      ${summarySection}
-      ${sessionsSection}
-      ${infoSection}
-    </div>`;
-
-  // Hide the single CTA bar — each session row has its own link
-  document.getElementById('cta-bar').style.display = 'none';
 }
 
 function renderError(msg) {

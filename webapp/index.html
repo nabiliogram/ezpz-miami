@@ -7,24 +7,28 @@
   <meta name="description" content="The easiest way to find kid-friendly events in Miami this weekend." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Montserrat:wght@800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #FFFFFF;
-      --bg-subtle:    #F9F8F6;
-      --border:       #EBEBEB;
-      --border-heavy: #111111;
-      --text-1:       #111111;
-      --text-2:       #6B6560;
-      --text-3:       #B0AAA5;
-      --accent:       #BE7A54;     /* muted terracotta — Miami warmth */
-      --accent-bg:    #FAF1EB;
-      --free:         #2A7A47;
-      --free-bg:      #EAF4EE;
-      --header-h:     58px;
+      --flamingo:     #FF4477;
+      --coral:        #FF8C70;
+      --violet:       #8B5CF6;
+      --yellow:       #FACC15;
+      --bg:           #FDFCFB;
+      --bg-white:     #FFFFFF;
+      --bg-date:      #FFFBEB;
+      --text-1:       #0F172A;
+      --text-2:       #475569;
+      --text-3:       #94A3B8;
+      --border:       #F1F5F9;
+      --border-med:   #E2E8F0;
+      --free:         #059669;
+      --free-bg:      #ECFDF5;
+      --header-h:     68px;
+      --date-h:       72px;
     }
 
     html { scroll-behavior: smooth; }
@@ -38,6 +42,8 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
+    .display { font-family: 'Montserrat', sans-serif; }
+
     /* ─────────────────────────────────────────────
        HEADER
     ───────────────────────────────────────────── */
@@ -46,7 +52,7 @@
       top: 0;
       z-index: 100;
       height: var(--header-h);
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
@@ -54,7 +60,7 @@
     .header-inner {
       max-width: 720px;
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 0 20px;
       height: 100%;
       display: flex;
       align-items: center;
@@ -62,35 +68,28 @@
     }
     .logo {
       display: flex;
-      align-items: center;
-      gap: 9px;
+      flex-direction: column;
       text-decoration: none;
-      color: var(--text-1);
-    }
-    .logo-palm {
-      font-size: 21px;
-      line-height: 1;
-      display: block;
     }
     .logo-name {
-      font-size: 17px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--text-1);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      color: var(--flamingo);
       line-height: 1;
     }
     .logo-tag {
-      font-size: 9.5px;
-      font-weight: 500;
-      color: var(--text-3);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      font-weight: 800;
+      color: var(--yellow);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.25em;
       line-height: 1;
-      display: block;
-      margin-top: 2px;
+      margin-top: 3px;
     }
-
-    /* Calendar button — native date input overlays it */
     .cal-btn {
       position: relative;
       display: flex;
@@ -99,225 +98,283 @@
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      border: 1.5px solid var(--border);
+      border: none;
       background: transparent;
       cursor: pointer;
-      color: var(--text-2);
-      transition: border-color 0.15s, color 0.15s;
+      color: var(--flamingo);
+      transition: opacity 0.15s;
       overflow: hidden;
     }
-    .cal-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .cal-btn svg {
-      pointer-events: none;
-      position: relative;
-      z-index: 0;
-    }
+    .cal-btn:hover { opacity: 0.7; }
+    .cal-btn svg { pointer-events: none; position: relative; z-index: 0; }
     #date-picker {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-      z-index: 1;
-      font-size: 16px; /* prevents iOS zoom */
+      position: absolute; inset: 0; opacity: 0;
+      width: 100%; height: 100%; cursor: pointer; z-index: 1; font-size: 16px;
     }
 
     /* ─────────────────────────────────────────────
-       PAGE WRAPPER
+       DATE PICKER STRIP
+    ───────────────────────────────────────────── */
+    .date-strip {
+      position: sticky;
+      top: var(--header-h);
+      z-index: 90;
+      background: var(--bg-date);
+      border-bottom: 1px solid #FDE68A;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .date-strip::-webkit-scrollbar { display: none; }
+    .date-strip-inner {
+      display: flex;
+      min-width: max-content;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 4px;
+    }
+    .date-btn {
+      flex-shrink: 0;
+      width: 56px;
+      padding: 10px 0 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-radius: 0;
+    }
+    .date-btn:hover { background: rgba(255, 255, 255, 0.5); }
+    .date-btn.active { background: rgba(255, 255, 255, 0.6); }
+    .date-btn .day-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      color: var(--text-3);
+    }
+    .date-btn.active .day-name { color: var(--text-2); }
+    .date-btn .day-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text-3);
+    }
+    .date-btn.active .day-num { color: var(--flamingo); }
+    .date-btn .day-dot {
+      width: 16px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--flamingo);
+      opacity: 0;
+      margin-top: 1px;
+    }
+    .date-btn.active .day-dot { opacity: 1; }
+
+    /* ─────────────────────────────────────────────
+       PAGE & SECTION HEADER
     ───────────────────────────────────────────── */
     .page {
       max-width: 720px;
       margin: 0 auto;
-      padding: 0 24px 100px;
+      padding: 0 12px 100px;
     }
-
-    /* ─────────────────────────────────────────────
-       DAY SECTION
-    ───────────────────────────────────────────── */
-    .day-section {
-      margin-top: 44px;
+    .section-header {
+      padding: 28px 12px 0;
     }
-    .day-section:first-child {
-      margin-top: 36px;
-    }
-    .day-label {
-      font-size: 10px;
-      font-weight: 700;
+    .section-date {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--accent);
-      margin-bottom: 4px;
-    }
-    .day-headline {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-    }
-    .day-date {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.025em;
+      letter-spacing: -0.04em;
       line-height: 1;
       color: var(--text-1);
     }
-    .day-count {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-3);
+    .section-bar {
+      width: 56px;
+      height: 6px;
+      background: var(--flamingo);
+      margin-top: 10px;
     }
-    .day-rule {
-      border: none;
-      border-top: 1.5px solid var(--border-heavy);
-      margin-top: 12px;
-      margin-bottom: 0;
+    .section-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-3);
+      margin-top: 6px;
     }
 
     /* ─────────────────────────────────────────────
-       EVENT ROW
+       EVENT CARD
     ───────────────────────────────────────────── */
-    .event-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 18px;
-      padding: 22px 0;
-      border-bottom: 1px solid var(--border);
-      text-decoration: none;
-      color: inherit;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .event-row:first-of-type {
-      border-top: 1px solid var(--border);
-    }
-    .event-row:active {
-      opacity: 0.65;
-    }
-    @media (hover: hover) {
-      .event-row:hover .event-title {
-        color: var(--accent);
-      }
-    }
-
-    /* Content side */
-    .event-content {
-      flex: 1;
-      min-width: 0;
+    .events-list {
+      padding: 16px 0;
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 16px;
     }
-    .event-title {
-      font-size: 16px;
-      font-weight: 700;
-      line-height: 1.4;
+    .event-card {
+      background: var(--bg-white);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .event-card:active { opacity: 0.85; }
+    @media (hover: hover) {
+      .event-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    }
+
+    /* Billboard header */
+    .card-billboard {
+      height: 112px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background: var(--text-1);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+    }
+    .card-billboard::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.08;
+      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect width="28" height="28" fill="none"/><rect x="0" y="0" width="14" height="14" fill="white" fill-opacity="0.15"/><rect x="14" y="14" width="14" height="14" fill="white" fill-opacity="0.15"/></svg>');
+      background-size: 28px 28px;
+    }
+    .billboard-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+    }
+    .category-pill {
+      display: inline-block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: var(--bg-white);
       color: var(--text-1);
-      transition: color 0.12s ease;
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      /* default gradient, overridden per card */
+      background-image: linear-gradient(to right, var(--coral), var(--flamingo));
       /* 2-line clamp */
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .event-desc {
-      font-size: 13.5px;
-      font-weight: 400;
+    .billboard-ghost {
+      position: absolute;
+      bottom: -8px;
+      right: -8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 72px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.03);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      line-height: 1;
+    }
+
+    /* Card body */
+    .card-body {
+      padding: 20px 24px 24px;
+    }
+    .card-summary {
+      font-size: 14px;
+      font-weight: 500;
+      font-style: italic;
       line-height: 1.65;
       color: var(--text-2);
+      margin-bottom: 24px;
       /* 3-line clamp */
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .event-meta {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .meta-time {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-3);
-    }
-    .meta-sep {
-      font-size: 11px;
-      color: var(--border);
-    }
-    .meta-venue {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-3);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 170px;
-    }
-    .price-tag {
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      padding: 2px 7px;
-      border-radius: 5px;
-      white-space: nowrap;
-    }
-    .price-tag.is-free {
-      background: var(--free-bg);
-      color: var(--free);
-    }
-    .price-tag.is-paid {
-      background: var(--accent-bg);
-      color: var(--accent);
-    }
-    .age-tag {
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      padding: 2px 7px;
-      border-radius: 5px;
-      white-space: nowrap;
-      background: #EEF2F7;
-      color: #4A6280;
-    }
 
-    /* Thumbnail side */
-    .event-thumb {
-      flex-shrink: 0;
-      width: 80px;
-      height: 80px;
-      border-radius: 10px;
-      overflow: hidden;
-      background: var(--accent-bg);
+    /* Metadata grid */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 28px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+    .meta-item {
       display: flex;
-      align-items: center;
-      justify-content: center;
+      align-items: flex-start;
+      gap: 8px;
     }
-    .event-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+    .meta-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--text-3);
     }
-    .thumb-icon {
-      font-size: 26px;
-      line-height: 1;
+    .meta-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-3);
     }
+    .meta-value {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      color: var(--text-1);
+      margin-top: 1px;
+    }
+    .meta-value.is-free { color: var(--free); }
 
     /* ─────────────────────────────────────────────
        LOADING & EMPTY STATES
     ───────────────────────────────────────────── */
+    .spinner-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 80px 0;
+    }
     .spinner {
       width: 30px;
       height: 30px;
-      border: 2.5px solid var(--border);
-      border-top-color: var(--accent);
+      border: 3px solid var(--border-med);
+      border-top-color: var(--flamingo);
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
-      margin: 90px auto;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -325,360 +382,55 @@
       text-align: center;
       padding: 90px 20px;
     }
-    .empty-icon {
-      font-size: 38px;
-      margin-bottom: 18px;
-    }
-    .empty-state h3 {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-1);
-      margin-bottom: 8px;
-    }
-    .empty-state p {
-      font-size: 14px;
-      color: var(--text-2);
-      line-height: 1.6;
-    }
+    .empty-icon { font-size: 38px; margin-bottom: 18px; }
+    .empty-state h3 { font-size: 17px; font-weight: 700; color: var(--text-1); margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; color: var(--text-2); line-height: 1.6; }
 
     /* ─────────────────────────────────────────────
        FOOTER
     ───────────────────────────────────────────── */
     .footer {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 24px 48px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      padding: 48px 0;
+      text-align: center;
     }
-    .footer-rule {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0 24px;
-      max-width: 720px;
-    }
-    .footer-left {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-1);
-    }
-    .footer-right {
-      font-size: 11px;
-      color: var(--text-3);
+    .footer-text {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.35em;
+      color: var(--border-med);
+      font-style: italic;
     }
 
     /* ─────────────────────────────────────────────
        RESPONSIVE
     ───────────────────────────────────────────── */
     @media (max-width: 480px) {
-      .page { padding: 0 18px 100px; }
-      .header-inner { padding: 0 18px; }
-      .footer { padding: 0 18px 48px; }
-      .footer-rule { margin: 0 18px; }
-      .event-thumb { width: 72px; height: 72px; }
-      .day-date { font-size: 21px; }
-      .meta-venue { max-width: 130px; }
+      .section-date { font-size: 30px; }
+      .card-billboard { height: 100px; }
+      .card-title { font-size: 24px; }
+      .billboard-ghost { font-size: 56px; }
     }
-
     @media (min-width: 721px) {
-      .day-date { font-size: 26px; }
-      .event-title { font-size: 17px; }
-      .event-desc { font-size: 14px; }
-      .event-thumb { width: 88px; height: 88px; }
+      .section-date { font-size: 40px; }
+      .card-billboard { height: 120px; padding: 0 28px; }
+      .card-title { font-size: 32px; }
+      .card-body { padding: 24px 28px 28px; }
     }
-
-    /* ─────────────────────────────────────────────
-       MODAL OVERLAY
-    ───────────────────────────────────────────── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      background: rgba(0, 0, 0, 0.45);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.26s ease;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .modal-overlay.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-    .modal-sheet {
-      background: var(--bg);
-      border-radius: 20px 20px 0 0;
-      width: 100%;
-      max-height: 93dvh;
-      display: flex;
-      flex-direction: column;
-      transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-      overflow: hidden;
-    }
-    .modal-overlay.open .modal-sheet {
-      transform: translateY(0);
-    }
-    @media (min-width: 640px) {
-      .modal-overlay { align-items: center; }
-      .modal-sheet {
-        border-radius: 16px;
-        max-width: 660px;
-        width: calc(100% - 48px);
-        max-height: 88dvh;
-        transform: scale(0.94);
-        opacity: 0;
-        transition: transform 0.26s ease, opacity 0.26s ease;
-      }
-      .modal-overlay.open .modal-sheet {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    /* Modal handle + topbar */
-    .modal-handle {
-      width: 36px;
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      margin: 10px auto 0;
-      flex-shrink: 0;
-    }
-    @media (min-width: 640px) { .modal-handle { display: none; } }
-
-    .modal-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding: 10px 14px 0;
-      flex-shrink: 0;
-    }
-    .modal-close {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      border: none;
-      background: var(--bg-subtle);
-      color: var(--text-2);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.12s;
-    }
-    .modal-close:hover { background: var(--border); color: var(--text-1); }
-
-    /* Modal scroll area */
-    .modal-scroll {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    /* Modal hero */
-    .m-hero {
-      width: 100%;
-      height: 200px;
-      overflow: hidden;
-      background: var(--accent-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .m-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .m-hero-icon { font-size: 52px; line-height: 1; }
-    @media (min-width: 640px) { .m-hero { height: 260px; } }
-
-    /* Modal body */
-    .m-body {
-      padding: 20px 22px 24px;
-    }
-    .m-date-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--accent);
-      margin-bottom: 7px;
-    }
-    .m-title {
-      font-size: 22px;
-      font-weight: 800;
-      line-height: 1.25;
-      letter-spacing: -0.02em;
-      color: var(--text-1);
-      margin-bottom: 8px;
-    }
-    .m-organizer {
-      font-size: 12.5px;
-      font-weight: 500;
-      color: var(--text-3);
-      margin-bottom: 12px;
-    }
-    .m-meta {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 18px;
-    }
-    .m-meta-item {
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--text-2);
-    }
-    .m-meta-sep {
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: var(--border);
-    }
-    .m-pill {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 5px;
-    }
-    .m-pill.free { background: var(--free-bg); color: var(--free); }
-    .m-pill.paid { background: var(--accent-bg); color: var(--accent); }
-
-    /* Summary + practical */
-    .m-summary-wrap {
-      border-top: 1px solid var(--border);
-      padding-top: 16px;
-      margin-bottom: 16px;
-    }
-    .m-summary {
-      font-size: 15px;
-      font-weight: 400;
-      line-height: 1.75;
-      color: var(--text-1);
-      padding-left: 14px;
-      border-left: 2.5px solid var(--accent);
-    }
-    .m-practical {
-      font-size: 13px;
-      line-height: 1.65;
-      color: var(--text-2);
-      margin-top: 12px;
-      padding: 10px 13px;
-      background: var(--bg-subtle);
-      border-radius: 8px;
-    }
-
-    /* Info rows */
-    .m-info {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .m-info-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
-    }
-    .m-info-row:last-child { border-bottom: none; }
-    .m-info-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; line-height: 1; }
-    .m-info-label {
-      font-size: 9.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-3);
-      margin-bottom: 2px;
-    }
-    .m-info-value {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-1);
-      line-height: 1.35;
-    }
-    .m-info-value.accent { color: var(--accent); }
-    .m-info-value.green  { color: var(--free); }
-    .m-info-sub {
-      font-size: 12px;
-      color: var(--text-3);
-      margin-top: 1px;
-    }
-
-    /* Modal CTA bar */
-    .modal-cta {
-      flex-shrink: 0;
-      background: rgba(255,255,255,0.97);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border);
-      padding: 12px 20px;
-      padding-bottom: max(12px, env(safe-area-inset-bottom));
-      display: none;
-      align-items: center;
-      gap: 8px;
-    }
-    .m-btn-primary {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 48px;
-      background: var(--text-1);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 700;
-      text-decoration: none;
-      cursor: pointer;
-      transition: opacity 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .m-btn-primary:hover { opacity: 0.85; }
-    .m-btn-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      background: var(--bg-subtle);
-      border: 1.5px solid var(--border);
-      border-radius: 12px;
-      font-size: 16px;
-      cursor: pointer;
-      flex-shrink: 0;
-      text-decoration: none;
-      color: var(--text-2);
-      transition: border-color 0.12s, background 0.12s, color 0.12s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .m-btn-icon:hover { border-color: var(--text-1); color: var(--text-1); }
-    .m-btn-icon.wa { color: #25D366; border-color: #25D366; }
-    .m-btn-icon.wa:hover { background: #25D366; color: white; }
   </style>
 </head>
 <body>
 
-<!-- ── Header ──────────────────────────────────────────────── -->
+<!-- Header -->
 <header class="header">
   <div class="header-inner">
     <a class="logo" href="#">
-      <span class="logo-palm">🌴</span>
-      <div>
-        <span class="logo-name">EZPZ Miami</span>
-        <span class="logo-tag">Weekend Playbook</span>
-      </div>
+      <span class="logo-name">EZPZ Miami</span>
+      <span class="logo-tag">The Play &mdash; Book</span>
     </a>
-
     <button class="cal-btn" aria-label="Jump to date">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2.5"/>
         <line x1="16" y1="2" x2="16" y2="6"/>
         <line x1="8" y1="2" x2="8" y2="6"/>
@@ -689,58 +441,17 @@
   </div>
 </header>
 
-<!-- ── Events feed ──────────────────────────────────────────── -->
-<main class="page" id="content">
-  <div class="spinner"></div>
-</main>
-
-<!-- ── Footer ──────────────────────────────────────────────── -->
-<hr class="footer-rule" id="footer-rule" style="display:none" />
-<footer class="footer" id="footer" style="display:none">
-  <span class="footer-left">EZPZ Miami</span>
-  <span class="footer-right">Updated daily · Miami, FL</span>
-</footer>
-
-<!-- ── Event Modal ──────────────────────────────────────────────── -->
-<div id="modal-overlay" class="modal-overlay" onclick="onOverlayClick(event)">
-  <div class="modal-sheet" id="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-topbar">
-      <button class="modal-close" onclick="closeModal()" aria-label="Close">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </div>
-    <div class="modal-scroll" id="modal-content">
-      <div class="spinner"></div>
-    </div>
-    <div class="modal-cta" id="modal-cta">
-      <a class="m-btn-primary" id="modal-cta-link" href="#" target="_blank" rel="noopener">
-        View &amp; Get Tickets
-      </a>
-      <a class="m-btn-icon" id="modal-maps-btn" href="#" target="_blank" rel="noopener" title="Open in Maps" style="display:none">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
-          <circle cx="12" cy="10" r="3"/>
-        </svg>
-      </a>
-      <button class="m-btn-icon wa" onclick="shareWhatsApp()" title="Share on WhatsApp">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20.5 3.5A11.95 11.95 0 0012 0C5.37 0 0 5.37 0 12c0 2.12.55 4.19 1.61 6.01L0 24l6.15-1.61A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.22-3.5-8.5zM12 22c-1.85 0-3.66-.5-5.23-1.44l-.38-.22-3.92 1.03 1.05-3.83-.24-.4A10 10 0 012 12C2 6.48 6.48 2 12 2c2.67 0 5.19 1.04 7.07 2.93A9.95 9.95 0 0122 12c0 5.52-4.48 10-10 10zm5.5-7.5c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.22 5.12 4.52.72.31 1.28.49 1.72.63.72.23 1.38.2 1.9.12.58-.09 1.77-.73 2.02-1.43.25-.7.25-1.3.17-1.43-.07-.13-.27-.2-.57-.35z"/>
-        </svg>
-      </button>
-      <button class="m-btn-icon" onclick="calendarModal()" title="Add to calendar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2.5"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-      </button>
-    </div>
+<!-- Date picker strip -->
+<nav class="date-strip" id="date-strip">
+  <div class="date-strip-inner" id="date-strip-inner">
+    <!-- populated by JS -->
   </div>
-</div>
+</nav>
+
+<!-- Events feed -->
+<main class="page" id="content">
+  <div class="spinner-wrap"><div class="spinner"></div></div>
+</main>
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────
@@ -749,6 +460,76 @@ const SUPABASE_KEY = 'sb_publishable_8-9VIQPLrYfqxsoyGWjf8A_BO7UCLso';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Gradient palette — cycles per card
+const GRADIENTS = [
+  'linear-gradient(to right, #FF8C70, #FF4477)',  // coral → flamingo
+  'linear-gradient(to right, #FF4477, #8B5CF6)',  // flamingo → violet
+  'linear-gradient(to right, #FACC15, #FF8C70)',  // yellow → coral
+  'linear-gradient(to right, #8B5CF6, #FF4477)',  // violet → flamingo
+  'linear-gradient(to right, #FF4477, #FACC15)',  // flamingo → yellow
+  'linear-gradient(to right, #FF8C70, #8B5CF6)',  // coral → violet
+];
+
+let _allEvents = [];
+let _activeDate = null; // ISO string yyyy-mm-dd
+
+// ─── DATE STRIP ──────────────────────────────────────────────────
+function buildDateStrip() {
+  const inner = document.getElementById('date-strip-inner');
+  const today = new Date();
+  const dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const monthShort = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let html = '';
+
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const key = toDateKey(d);
+    const dn = dayNames[d.getDay()];
+    const num = String(d.getDate()).padStart(2, '0');
+    html += `<button class="date-btn" data-date="${key}" onclick="selectDate('${key}')">
+      <span class="day-name">${dn}</span>
+      <span class="day-num">${num}</span>
+      <span class="day-dot"></span>
+    </button>`;
+  }
+  inner.innerHTML = html;
+}
+
+function selectDate(key) {
+  _activeDate = key;
+
+  // Update active state
+  document.querySelectorAll('.date-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.date === key);
+  });
+
+  // Scroll the active button into view in the strip
+  const activeBtn = document.querySelector(`.date-btn[data-date="${key}"]`);
+  if (activeBtn) {
+    activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+
+  renderForDate(key);
+}
+
+function jumpToDate(val) {
+  if (!val) return;
+  // If date is in the strip, select it
+  const btn = document.querySelector(`.date-btn[data-date="${val}"]`);
+  if (btn) {
+    selectDate(val);
+  } else {
+    // Scroll to nearest date section if outside strip range
+    const section = document.querySelector(`.day-section[data-date="${val}"]`);
+    if (section) {
+      const offset = 68 + 72 + 12;
+      const y = section.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }
+}
 
 // ─── LOAD ─────────────────────────────────────────────────────────
 async function loadEvents() {
@@ -766,91 +547,68 @@ async function loadEvents() {
     return;
   }
 
-  render(data || []);
+  _allEvents = data || [];
+
+  // Default to today
+  const todayKey = toDateKey(new Date());
+  buildDateStrip();
+  selectDate(todayKey);
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────
-function render(events) {
+function renderForDate(dateKey) {
   const content = document.getElementById('content');
 
-  if (events.length === 0) {
+  // Filter events to selected date
+  const dayEvents = _allEvents.filter(ev => {
+    const d = new Date(ev.start_date);
+    return toDateKey(d) === dateKey;
+  });
+
+  if (dayEvents.length === 0) {
+    const dateObj = parseDateKey(dateKey);
+    const label = fmtDisplayDate(dateObj);
     content.innerHTML = `
+      <div class="section-header">
+        <div class="section-date display">${esc(label)}</div>
+        <div class="section-bar"></div>
+      </div>
       <div class="empty-state">
         <div class="empty-icon">🌴</div>
-        <h3>No upcoming events</h3>
-        <p>New events are added every day — check back soon.</p>
+        <h3>Nothing listed yet</h3>
+        <p>No events on this day — try another date or check back soon.</p>
       </div>`;
     return;
   }
 
-  const groups = groupByDay(events);
-  let html = '';
+  const programGroups = groupByProgram(dayEvents);
+  const dateObj = parseDateKey(dateKey);
+  const label = fmtDisplayDate(dateObj);
 
-  Object.entries(groups).forEach(([dateKey, { label, dateStr, events: evs }]) => {
-    const programGroups = groupByProgram(evs);
-    const count = programGroups.length;
-    html += `
-      <section class="day-section" data-date="${dateKey}">
-        <div class="day-label">${esc(label)}</div>
-        <div class="day-headline">
-          <span class="day-date">${esc(dateStr)}</span>
-          <span class="day-count">${count} event${count !== 1 ? 's' : ''}</span>
-        </div>
-        <hr class="day-rule" />
-        ${programGroups.map(eventRow).join('')}
-      </section>`;
+  let html = `
+    <div class="section-header" data-date="${dateKey}">
+      <div class="section-date display">${esc(label)}</div>
+      <div class="section-bar"></div>
+      <div class="section-count">${programGroups.length} event${programGroups.length !== 1 ? 's' : ''}</div>
+    </div>
+    <div class="events-list">`;
+
+  programGroups.forEach((group, idx) => {
+    html += eventCard(group, idx);
   });
+
+  html += `</div>
+    <div class="footer"><span class="footer-text display">Miami &middot; Playbook</span></div>`;
 
   content.innerHTML = html;
-  document.getElementById('footer').style.display = 'flex';
-  document.getElementById('footer-rule').style.display = 'block';
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
-function groupByDay(events) {
-  // Times are stored as Miami local time (labeled UTC), so read raw UTC values
-  const now = new Date();
-  const todayKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-${String(now.getUTCDate()).padStart(2,'0')}`;
-  const tomorrowDate = new Date(now);
-  tomorrowDate.setUTCDate(now.getUTCDate() + 1);
-  const tomorrowKey = `${tomorrowDate.getUTCFullYear()}-${String(tomorrowDate.getUTCMonth()+1).padStart(2,'0')}-${String(tomorrowDate.getUTCDate()).padStart(2,'0')}`;
-
-  const groups = {};
-  const dayNames  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-  events.forEach(ev => {
-    const d = new Date(ev.start_date);
-    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
-
-    if (!groups[key]) {
-      const dow  = dayNames[d.getUTCDay()];
-      const mon  = monthNames[d.getUTCMonth()];
-      const dom  = d.getUTCDate();
-      let label, dateStr;
-      if (key === todayKey) {
-        label   = 'Today';
-        dateStr = `${dow}, ${mon} ${dom}`;
-      } else if (key === tomorrowKey) {
-        label   = 'Tomorrow';
-        dateStr = `${dow}, ${mon} ${dom}`;
-      } else {
-        label   = dow;
-        dateStr = `${mon} ${dom}`;
-      }
-      groups[key] = { label, dateStr, events: [] };
-    }
-    groups[key].events.push(ev);
-  });
-
-  return groups;
-}
-
-function eventRow(group) {
-  // group is always an array; single events arrive as [ev]
-  const ev      = group[0];
+function eventCard(group, idx) {
+  const ev = group[0];
   const isGroup = group.length > 1;
-
-  const time = fmtTimeRange(ev.start_date, ev.end_date);
+  const gradient = GRADIENTS[idx % GRADIENTS.length];
 
   const headline = isGroup
     ? esc(groupTitle(group))
@@ -860,61 +618,79 @@ function eventRow(group) {
     ? esc(neutralSummary(group))
     : (ev.parent_summary ? esc(ev.parent_summary) : (ev.description ? esc(ev.description) : ''));
 
-  const price    = priceTag(ev);
-  const ages     = isGroup ? groupAgeTag(group) : ageTag(ev.age_min, ev.age_max);
+  const time = fmtTimeRange(ev.start_date, ev.end_date);
   const location = isGroup
     ? esc(groupLocation(group))
     : (ev.neighborhood ? esc(titleCase(ev.neighborhood)) : (ev.venue_name ? esc(ev.venue_name) : ''));
+  const price = priceLabel(ev);
+  const priceClass = ev.is_free ? ' is-free' : '';
+  const ages = isGroup ? groupAgeLabel(group) : ageLabel(ev.age_min, ev.age_max);
+  const category = ev.activity_type ? esc(titleCase(ev.activity_type)) : 'Event';
 
-  // Thumbnail: prefer first event that has an image
-  const imgEv = group.find(e => e.image_url) || ev;
-  const thumbInner = imgEv.image_url
-    ? `<img src="${esc(imgEv.image_url)}" alt="" loading="lazy"
-           onerror="this.style.display='none';this.nextSibling.style.display='block'"
-       /><span class="thumb-icon" style="display:none">${srcIcon(ev.source)}</span>`
-    : `<span class="thumb-icon">${srcIcon(ev.source)}</span>`;
-
-  // Meta row: time · location · price · ages
-  const metaParts = [];
-  if (time)              metaParts.push(`<span class="meta-time">${time}</span>`);
-  if (time && location)  metaParts.push(`<span class="meta-sep">·</span>`);
-  if (location)          metaParts.push(`<span class="meta-venue">${location}</span>`);
-  if (price)             metaParts.push(price);
-  if (ages)              metaParts.push(ages);
-
-  // Groups link to detail page with all IDs; singles use the modal
-  const ids     = group.map(e => e.id).join(',');
-  const href    = isGroup ? `event.html?ids=${ids}` : `event.html?id=${esc(ev.id)}`;
-  const onclick = isGroup ? '' : `onclick="openModal('${esc(ev.id)}', event)"`;
+  const ids = group.map(e => e.id).join(',');
+  const href = isGroup ? `event.html?ids=${ids}` : `event.html?id=${esc(ev.id)}`;
 
   return `
-    <a class="event-row" href="${href}" ${onclick}>
-      <div class="event-content">
-        <div class="event-title">${headline}</div>
-        ${body ? `<p class="event-desc">${body}</p>` : ''}
-        ${metaParts.length ? `<div class="event-meta">${metaParts.join('')}</div>` : ''}
+    <a class="event-card" href="${href}">
+      <div class="card-billboard">
+        <div class="billboard-content">
+          <span class="category-pill">${category}</span>
+          <div class="card-title" style="background-image: ${gradient}">${headline}</div>
+        </div>
+        <span class="billboard-ghost">${headline}</span>
       </div>
-      <div class="event-thumb">${thumbInner}</div>
+      <div class="card-body">
+        ${body ? `<p class="card-summary">"${body}"</p>` : ''}
+        <div class="meta-grid">
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div>
+              <div class="meta-label">Time</div>
+              <div class="meta-value">${time || 'See details'}</div>
+            </div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div>
+              <div class="meta-label">Neighborhood</div>
+              <div class="meta-value">${location || 'Miami'}</div>
+            </div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            <div>
+              <div class="meta-label">Price</div>
+              <div class="meta-value${priceClass}">${price}</div>
+            </div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div>
+              <div class="meta-label">Ages</div>
+              <div class="meta-value">${ages}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </a>`;
-}
-
-// ─── CALENDAR JUMP ────────────────────────────────────────────────
-function jumpToDate(val) {
-  if (!val) return;
-  // Find exact section, or nearest section on/after that date
-  const all = [...document.querySelectorAll('.day-section[data-date]')];
-  let target = all.find(s => s.dataset.date === val)
-            || all.find(s => s.dataset.date >= val);
-  if (target) {
-    const offset = 58 + 12; // header height + gap
-    const y = target.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top: y, behavior: 'smooth' });
-  }
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────
 
-// Title-case a neighbourhood string: "coral gables" → "Coral Gables"
+function toDateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function parseDateKey(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function fmtDisplayDate(d) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[d.getMonth()]} ${d.getDate()}`;
+}
+
 function titleCase(str) {
   if (!str) return str;
   return str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
@@ -923,36 +699,12 @@ function titleCase(str) {
 function fmtTime(iso) {
   if (!iso) return '';
   const d = new Date(iso);
-  // Read UTC values — times are stored as Miami local time labeled as UTC
   const h = d.getUTCHours(), m = d.getUTCMinutes();
-  if (h === 0 && m === 0) return ''; // all-day / no time set
+  if (h === 0 && m === 0) return '';
   const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12  = h % 12 || 12;
-  const mm   = m === 0 ? '' : `:${String(m).padStart(2, '0')}`;
+  const h12 = h % 12 || 12;
+  const mm = m === 0 ? '' : `:${String(m).padStart(2, '0')}`;
   return `${h12}${mm} ${ampm}`;
-}
-
-function priceTag(ev) {
-  if (ev.is_free) return `<span class="price-tag is-free">Free</span>`;
-  if (ev.price_min != null) {
-    const lo = ev.price_min, hi = ev.price_max;
-    const label = (lo === hi || hi == null) ? `$${lo}` : `$${lo}–$${hi}`;
-    return `<span class="price-tag is-paid">${label}</span>`;
-  }
-  return '';
-}
-
-function ageTag(min, max) {
-  let label;
-  if (min == null && max == null) return '';
-  if (min == null) min = 0;
-  // Degenerate range (e.g. 1–1 from bad API data): treat as "X+"
-  if (min === max) max = null;
-  if (min === 0 && (max == null || max >= 12)) label = 'All ages';
-  else if (max == null) label = `Ages: ${min}+`;
-  else if (min === 0) label = `Ages: 0–${max}`;
-  else label = `Ages: ${min}–${max}`;
-  return `<span class="age-tag">${label}</span>`;
 }
 
 function fmtTimeRange(start, end) {
@@ -963,18 +715,29 @@ function fmtTimeRange(start, end) {
   return `${s} – ${e}`;
 }
 
-function srcIcon(source) {
-  const map = {
-    miami_dade_libraries:   '📚',
-    eventbrite:             '🎟',
-    the_underline:          '🌿',
-    miami_childrens_museum: '🎡',
-    arsht_center:           '🎭',
-    deering_estate:         '🏛',
-    pinecrest_gardens:      '🌺',
-    magic_13:               '✨',
-  };
-  return map[source] || '🌴';
+function priceLabel(ev) {
+  if (ev.is_free) return 'Free';
+  if (ev.price_min != null) {
+    const lo = ev.price_min, hi = ev.price_max;
+    return (lo === hi || hi == null) ? `$${lo}` : `$${lo}–$${hi}`;
+  }
+  return 'See event';
+}
+
+function ageLabel(min, max) {
+  if (min == null && max == null) return 'All ages';
+  if (min == null) min = 0;
+  if (min === max) max = null;
+  if (min === 0 && (max == null || max >= 12)) return 'All ages';
+  if (max == null) return `${min}+`;
+  if (min === 0) return `0–${max}`;
+  return `${min}–${max}`;
+}
+
+function groupAgeLabel(group) {
+  const keys = new Set(group.map(e => `${e.age_min ?? ''}-${e.age_max ?? ''}`));
+  if (keys.size === 1) return ageLabel(group[0].age_min, group[0].age_max);
+  return 'Multiple ages';
 }
 
 function esc(str) {
@@ -987,10 +750,16 @@ function esc(str) {
     .replace(/'/g, '&#39;');
 }
 
+function showError(msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">⚠️</div>
+      <h3>Could not load events</h3>
+      <p>${esc(msg)}</p>
+    </div>`;
+}
+
 // ─── PROGRAM GROUPING ─────────────────────────────────────────────
-// PROGRAM_FAMILIES: semantically equivalent library programs that should
-// collapse into one card even when their exact titles differ.
-// e.g. "Family Storytime", "Hora de los cuentos", "Furry Tales" → "Storytime at the Library"
 const PROGRAM_FAMILIES = [
   { key: 'storytime',  label: 'Storytime at the Library', pattern: /\bstoryt(ime|elling)\b|story time|hora de los cuentos|furry tales/i },
   { key: 'chess',      label: 'Chess Club',               pattern: /\bchess\b/i },
@@ -1005,14 +774,9 @@ function familyMatch(title) {
   return null;
 }
 
-// Strips age-qualifier suffixes so variant titles like
-// "Talking is Teaching … for Toddlers" and "… for Preschoolers"
-// collapse to the same program key.
 function programKey(title) {
-  // Semantic family takes priority — merges related but non-identical programs
   const fam = familyMatch(title);
   if (fam) return fam.key;
-
   return title
     .toLowerCase()
     .replace(/^online event:\s*/i, '')
@@ -1025,7 +789,22 @@ function programKey(title) {
     .trim();
 }
 
-// Human-readable title with age qualifier removed (preserves punctuation/case)
+function groupByProgram(events) {
+  const map = new Map();
+  for (const ev of events) {
+    const key = programKey(ev.title);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(ev);
+  }
+  return [...map.values()];
+}
+
+function groupTitle(group) {
+  const fam = familyMatch(group[0].title);
+  if (fam) return fam.label;
+  return cleanProgramTitle(group[0].title);
+}
+
 function cleanProgramTitle(title) {
   if (!title) return '';
   return title
@@ -1037,28 +816,6 @@ function cleanProgramTitle(title) {
     .trim();
 }
 
-// Best display title for a group:
-// - If events belong to a semantic family → use the family label
-// - Otherwise → cleaned title of the first event
-function groupTitle(group) {
-  const fam = familyMatch(group[0].title);
-  if (fam) return fam.label;
-  return cleanProgramTitle(group[0].title);
-}
-
-// Group an array of events into sub-arrays by program key
-function groupByProgram(events) {
-  const map = new Map();
-  for (const ev of events) {
-    const key = programKey(ev.title);
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(ev);
-  }
-  return [...map.values()];
-}
-
-// Pick a parent_summary that doesn't mention a specific age group;
-// fall back to the first event's summary or description.
 function neutralSummary(group) {
   const ageWords = /\btoddler|\bpreschooler|\bbabies?\b|\binfant|\bteen|\btween|\byour\s+\d/i;
   const withSummary = group.filter(e => e.parent_summary);
@@ -1067,14 +824,6 @@ function neutralSummary(group) {
   return (neutral || withSummary[0]).parent_summary;
 }
 
-// Return "Multiple ages" badge if age ranges differ, else the common badge
-function groupAgeTag(group) {
-  const keys = new Set(group.map(e => `${e.age_min ?? ''}-${e.age_max ?? ''}`));
-  if (keys.size === 1) return ageTag(group[0].age_min, group[0].age_max);
-  return `<span class="age-tag">Multiple ages</span>`;
-}
-
-// Return a single location label, or "Multiple locations"
 function groupLocation(group) {
   const hoods = new Set(group.map(e => e.neighborhood || ''));
   if (hoods.size === 1 && [...hoods][0]) return titleCase([...hoods][0]);
@@ -1083,231 +832,8 @@ function groupLocation(group) {
   return 'Multiple locations';
 }
 
-function showError(msg) {
-  document.getElementById('content').innerHTML = `
-    <div class="empty-state">
-      <div class="empty-icon">⚠️</div>
-      <h3>Could not load events</h3>
-      <p>${esc(msg)}</p>
-    </div>`;
-}
-
-// ─── MODAL ────────────────────────────────────────────────────────
-let _modalEvent = null;
-
-function openModal(id, e) {
-  if (e) {
-    // Allow Ctrl/Cmd+click, middle-click to open in new tab normally
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
-    e.preventDefault();
-  }
-  history.pushState({ modalId: id }, '', '?id=' + id);
-  _showModal(id);
-}
-
-function _showModal(id) {
-  const overlay = document.getElementById('modal-overlay');
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  document.getElementById('modal-content').innerHTML = '<div class="spinner"></div>';
-  document.getElementById('modal-cta').style.display = 'none';
-  fetchAndRenderModal(id);
-}
-
-function closeModal() {
-  const overlay = document.getElementById('modal-overlay');
-  overlay.classList.remove('open');
-  setTimeout(() => { document.body.style.overflow = ''; }, 300);
-  if (history.state && history.state.modalId) {
-    history.pushState({}, '', location.pathname);
-  }
-}
-
-function onOverlayClick(e) {
-  if (e.target === e.currentTarget) closeModal();
-}
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-window.addEventListener('popstate', e => {
-  const overlay = document.getElementById('modal-overlay');
-  if (e.state && e.state.modalId) {
-    // Navigating forward to a modal state
-    _showModal(e.state.modalId);
-  } else if (overlay.classList.contains('open')) {
-    overlay.classList.remove('open');
-    setTimeout(() => { document.body.style.overflow = ''; }, 300);
-  }
-});
-
-async function fetchAndRenderModal(id) {
-  const { data, error } = await db
-    .from('events')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (error || !data) {
-    document.getElementById('modal-content').innerHTML =
-      '<div class="m-body"><p style="color:var(--text-2);padding:16px 0">Event not found.</p></div>';
-    return;
-  }
-
-  _modalEvent = data;
-  document.getElementById('modal-content').innerHTML = renderModal(data);
-
-  // CTA link
-  const ctaLink = document.getElementById('modal-cta-link');
-  if (data.source_url) {
-    ctaLink.href = data.source_url;
-    ctaLink.textContent = data.is_free ? 'Register / RSVP' : 'View & Get Tickets';
-    ctaLink.style.display = 'flex';
-  } else {
-    ctaLink.style.display = 'none';
-  }
-
-  // Maps button
-  const mapsBtn = document.getElementById('modal-maps-btn');
-  const mq = data.address
-    ? data.address
-    : (data.venue_name ? data.venue_name + ', Miami, FL' : '');
-  if (mq) {
-    mapsBtn.href = 'https://maps.google.com/?q=' + encodeURIComponent(mq);
-    mapsBtn.style.display = 'flex';
-  } else {
-    mapsBtn.style.display = 'none';
-  }
-
-  document.getElementById('modal-cta').style.display = 'flex';
-  // Scroll back to top of modal content after render
-  document.getElementById('modal-content').scrollTop = 0;
-}
-
-function renderModal(ev) {
-  const hero = ev.image_url
-    ? `<div class="m-hero"><img src="${esc(ev.image_url)}" alt=""
-         onerror="this.parentNode.innerHTML='<div class=m-hero-icon>${srcIcon(ev.source)}</div>'"></div>`
-    : `<div class="m-hero"><div class="m-hero-icon">${srcIcon(ev.source)}</div></div>`;
-
-  const dateLabel = fmtFullDate(ev.start_date);
-  const timeStr   = fmtTimeRange(ev.start_date, ev.end_date);
-
-  const priceHtml = ev.is_free
-    ? `<span class="m-pill free">Free</span>`
-    : (ev.price_min != null ? `<span class="m-pill paid">${esc(mPriceStr(ev))}</span>` : '');
-
-  const metaParts = [];
-  if (timeStr)      metaParts.push(`<span class="m-meta-item">${timeStr}</span>`);
-  if (ev.venue_name) metaParts.push(`<span class="m-meta-item">📍 ${esc(titleCase(ev.neighborhood) || ev.venue_name)}</span>`);
-  if (priceHtml)    metaParts.push(priceHtml);
-  const metaRow = metaParts.length
-    ? `<div class="m-meta">${metaParts.join('<span class="m-meta-sep"></span>')}</div>`
-    : '';
-
-  const summary = ev.parent_summary || ev.description || '';
-  const summaryBlock = summary ? `
-    <div class="m-summary-wrap">
-      <p class="m-summary">${esc(summary)}</p>
-      ${ev.practical_notes ? `<div class="m-practical">📋 ${esc(ev.practical_notes)}</div>` : ''}
-    </div>` : '';
-
-  const infoRows = [];
-  infoRows.push(`<div class="m-info-row">
-    <span class="m-info-icon">📅</span>
-    <div><div class="m-info-label">Date</div><div class="m-info-value accent">${esc(dateLabel)}</div></div>
-  </div>`);
-  if (timeStr) infoRows.push(`<div class="m-info-row">
-    <span class="m-info-icon">🕐</span>
-    <div><div class="m-info-label">Time</div><div class="m-info-value">${timeStr}</div></div>
-  </div>`);
-  infoRows.push(`<div class="m-info-row">
-    <span class="m-info-icon">📍</span>
-    <div>
-      <div class="m-info-label">Location</div>
-      <div class="m-info-value">${esc(titleCase(ev.neighborhood) || ev.venue_name || 'Miami, FL')}</div>
-      ${ev.neighborhood && ev.venue_name ? `<div class="m-info-sub">${esc(ev.venue_name)}</div>` : ''}
-    </div>
-  </div>`);
-  infoRows.push(`<div class="m-info-row">
-    <span class="m-info-icon">💵</span>
-    <div><div class="m-info-label">Cost</div>
-    <div class="m-info-value ${ev.is_free ? 'green' : ''}">${esc(mPriceStr(ev))}</div></div>
-  </div>`);
-  infoRows.push(`<div class="m-info-row" style="border-bottom:none">
-    <span class="m-info-icon">👶</span>
-    <div><div class="m-info-label">Ages</div><div class="m-info-value">${esc(mAgeLabel(ev.age_min, ev.age_max))}</div>
-    ${ev.activity_type ? `<div class="m-info-sub" style="text-transform:capitalize">${esc(ev.activity_type)}</div>` : ''}
-    </div>
-  </div>`);
-
-  return `
-    ${hero}
-    <div class="m-body">
-      <div class="m-date-label">${esc(dateLabel)}</div>
-      <h2 class="m-title">${esc(ev.editorial_headline || ev.title)}</h2>
-      ${ev.editorial_headline ? `<div class="m-organizer">${esc(ev.title)}</div>` : ''}
-      ${metaRow}
-      ${summaryBlock}
-      <div class="m-info">${infoRows.join('')}</div>
-    </div>`;
-}
-
-function shareWhatsApp() {
-  const ev = _modalEvent;
-  if (!ev) return;
-  const title = ev.editorial_headline || ev.title;
-  const date  = fmtFullDate(ev.start_date);
-  const time  = fmtTime(ev.start_date);
-  const venue = ev.venue_name ? '📍 ' + ev.venue_name : '';
-  const url   = ev.source_url || (location.origin + location.pathname + '?id=' + ev.id);
-  const text  = [title, date + (time ? ' at ' + time : ''), venue, '', 'Found on EZPZ Miami 🌴', url]
-    .filter(Boolean).join('\n');
-  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
-}
-
-function calendarModal() {
-  const ev = _modalEvent;
-  if (!ev) return;
-  const fmt = iso => iso ? new Date(iso).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z' : '';
-  const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
-    + '&text=' + encodeURIComponent(ev.title)
-    + '&dates=' + fmt(ev.start_date) + '/' + fmt(ev.end_date || ev.start_date)
-    + '&location=' + encodeURIComponent(ev.address || ev.venue_name || '')
-    + '&details=' + encodeURIComponent((ev.parent_summary || ev.description || '').slice(0, 200));
-  window.open(url, '_blank');
-}
-
-// Modal-specific helpers (avoid polluting existing helpers)
-function fmtFullDate(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  return `${days[d.getUTCDay()]}, ${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
-}
-function mPriceStr(ev) {
-  if (ev.is_free) return 'Free';
-  if (ev.price_min != null && ev.price_max != null && ev.price_min === ev.price_max) return `$${ev.price_min}`;
-  if (ev.price_min != null && ev.price_max != null) return `$${ev.price_min}–$${ev.price_max}`;
-  if (ev.price_min != null) return `From $${ev.price_min}`;
-  return 'See event page';
-}
-function mAgeLabel(min, max) {
-  if (min == null && max == null) return 'All ages welcome';
-  if (min == null) min = 0;
-  // Degenerate range (e.g. 1–1 from bad API data): treat as "X+"
-  if (min === max) max = null;
-  if (min === 0 && (max == null || max >= 12)) return 'All ages welcome';
-  if (max == null) return `Ages ${min}+`;
-  return `Ages ${min}–${max}`;
-}
-
 // ─── INIT ─────────────────────────────────────────────────────────
 loadEvents();
-
-// Auto-open modal if URL has ?id= on initial load (shared link)
-const _initId = new URLSearchParams(location.search).get('id');
-if (_initId) _showModal(_initId);
 </script>
 
 </body>
