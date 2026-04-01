@@ -16,10 +16,12 @@
       --flamingo:     #FF4477;
       --coral:        #FF8C70;
       --violet:       #8B5CF6;
+      --teal:         #0D9488;
       --yellow:       #FACC15;
       --bg:           #FDFCFB;
       --bg-white:     #FFFFFF;
       --bg-date:      #FFFBEB;
+      --bg-yellow:    #FFFBEB;
       --text-1:       #0F172A;
       --text-2:       #475569;
       --text-3:       #94A3B8;
@@ -29,6 +31,7 @@
       --free-bg:      #ECFDF5;
       --header-h:     68px;
       --date-h:       72px;
+      --tab-h:        48px;
     }
 
     html { scroll-behavior: smooth; }
@@ -73,7 +76,7 @@
     }
     .logo-name {
       font-family: 'Montserrat', sans-serif;
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 900;
       letter-spacing: -0.04em;
       text-transform: uppercase;
@@ -113,11 +116,96 @@
     }
 
     /* ─────────────────────────────────────────────
+       TAB BAR
+    ───────────────────────────────────────────── */
+    .tab-bar {
+      position: sticky;
+      top: var(--header-h);
+      z-index: 95;
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      height: var(--tab-h);
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .tab-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-2);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s, background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-btn:hover { color: var(--text-1); }
+    /* Active tab background tints */
+    .tab-btn[data-tab="events"].active {
+      background: rgba(255, 68, 119, 0.05);
+      color: var(--flamingo);
+    }
+    .tab-btn[data-tab="library"].active {
+      background: rgba(139, 92, 246, 0.05);
+      color: var(--violet);
+    }
+    .tab-btn[data-tab="places"].active {
+      background: rgba(13, 148, 136, 0.05);
+      color: var(--teal);
+    }
+    .tab-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 10px;
+      background: var(--border);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-2);
+      line-height: 1;
+    }
+    .tab-btn[data-tab="events"].active .tab-badge {
+      background: var(--flamingo);
+      color: white;
+    }
+    .tab-btn[data-tab="library"].active .tab-badge {
+      background: var(--violet);
+      color: white;
+    }
+    .tab-btn[data-tab="places"].active .tab-badge {
+      background: var(--teal);
+      color: white;
+    }
+    .tab-underline {
+      position: absolute;
+      bottom: 0;
+      height: 3px;
+      background: var(--flamingo);
+      transition: left 0.3s ease, width 0.3s ease, background 0.3s ease;
+      border-radius: 2px;
+    }
+    .tab-btn[data-tab="library"] ~ .tab-underline.on-library {
+      background: var(--violet);
+    }
+    .tab-btn[data-tab="places"] ~ .tab-underline.on-places {
+      background: var(--teal);
+    }
+
+    /* ─────────────────────────────────────────────
        DATE PICKER STRIP
     ───────────────────────────────────────────── */
     .date-strip {
       position: sticky;
-      top: var(--header-h);
+      top: calc(var(--header-h) + var(--tab-h));
       z-index: 90;
       background: var(--bg-date);
       border-bottom: 1px solid #FDE68A;
@@ -125,6 +213,7 @@
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
     }
+    .date-strip.hidden { display: none; }
     .date-strip::-webkit-scrollbar { display: none; }
     .date-strip-inner {
       display: flex;
@@ -175,6 +264,52 @@
       margin-top: 1px;
     }
     .date-btn.active .day-dot { opacity: 1; }
+    /* Date color variants */
+    .date-strip[data-tab="library"] .date-btn.active .day-num { color: var(--violet); }
+    .date-strip[data-tab="library"] .date-btn.active .day-dot { background: var(--violet); }
+    .date-strip[data-tab="places"] .date-btn.active .day-num { color: var(--teal); }
+    .date-strip[data-tab="places"] .date-btn.active .day-dot { background: var(--teal); }
+
+    /* ─────────────────────────────────────────────
+       AGE FILTER BAR (Library tab)
+    ───────────────────────────────────────────── */
+    .age-filter-bar {
+      display: none;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 12px 12px;
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .age-filter-bar::-webkit-scrollbar { display: none; }
+    .age-filter-bar.visible { display: flex; }
+    .age-filter-inner {
+      display: flex;
+      gap: 8px;
+      min-width: max-content;
+    }
+    .age-chip {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border-med);
+      background: var(--bg-white);
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .age-chip:hover { border-color: var(--violet); }
+    .age-chip.active {
+      border-color: var(--violet);
+      background: var(--violet);
+      color: white;
+    }
 
     /* ─────────────────────────────────────────────
        PAGE & SECTION HEADER
@@ -186,6 +321,12 @@
     }
     .section-header {
       padding: 28px 12px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .section-header-left {
+      flex: 1;
     }
     .section-date {
       font-family: 'Montserrat', sans-serif;
@@ -202,6 +343,8 @@
       background: var(--flamingo);
       margin-top: 10px;
     }
+    .section-bar.violet { background: var(--violet); }
+    .section-bar.teal { background: var(--teal); }
     .section-count {
       font-size: 12px;
       font-weight: 600;
@@ -236,7 +379,7 @@
       .event-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
     }
 
-    /* Billboard header — flexible height, no clamp */
+    /* Billboard header */
     .card-billboard {
       width: 100%;
       position: relative;
@@ -352,6 +495,348 @@
       margin-top: 1px;
     }
     .meta-value.is-free { color: var(--free); }
+
+    /* ─────────────────────────────────────────────
+       LIBRARY SECTION (Card-based)
+    ───────────────────────────────────────────── */
+    .library-group {
+      margin-bottom: 16px;
+      background: var(--bg-white);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .library-card-top {
+      padding: 20px 20px 0;
+    }
+    .library-title-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-1);
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .library-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 24px;
+      padding-bottom: 16px;
+    }
+    .library-meta-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+    }
+    .library-meta-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--violet);
+    }
+    .library-meta-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-3);
+    }
+    .library-meta-value {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      color: var(--text-1);
+      margin-top: 1px;
+    }
+    .library-card-actions {
+      padding: 0 20px 16px;
+      display: flex;
+      gap: 8px;
+    }
+    .library-details-btn {
+      padding: 8px 16px;
+      background: var(--violet);
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .library-details-btn:hover { opacity: 0.85; }
+    .library-locations-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 14px;
+      background: rgba(139, 92, 246, 0.08);
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--violet);
+      cursor: pointer;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .library-locations-btn:hover { background: rgba(139, 92, 246, 0.14); }
+    .library-locations-btn .chevron {
+      font-size: 10px;
+      transition: transform 0.2s;
+    }
+    .library-group.expanded .library-locations-btn .chevron { transform: rotate(180deg); }
+    .library-branches {
+      display: none;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid var(--border);
+    }
+    .library-group.expanded .library-branches { display: flex; }
+    .library-branch {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .library-branch:first-child { border-top: none; }
+    .library-branch-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+    }
+    .library-branch-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-1);
+    }
+    .library-branch-meta {
+      font-size: 12px;
+      color: var(--text-2);
+    }
+    .library-branch-btn {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      border: none;
+      background: var(--violet);
+      color: white;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .library-branch-btn:hover { opacity: 0.85; }
+
+    /* ─────────────────────────────────────────────
+       VENUES SECTION (Places Tab)
+    ───────────────────────────────────────────── */
+    .venues-list {
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .venue-card {
+      background: var(--bg-white);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .venue-card-top {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 20px;
+    }
+    .venue-logo {
+      width: 96px;
+      height: 96px;
+      border-radius: 14px;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .venue-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 8px;
+    }
+    .venue-logo-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: white;
+      background: linear-gradient(135deg, var(--teal), var(--violet));
+    }
+    .venue-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .venue-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-image: linear-gradient(to right, var(--teal), #0d9488);
+      margin-bottom: 10px;
+    }
+    .venue-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 16px;
+    }
+    .venue-meta-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+    }
+    .venue-meta-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--teal);
+    }
+    .venue-meta-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-3);
+    }
+    .venue-meta-value {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      color: var(--text-1);
+      margin-top: 1px;
+    }
+    .venue-meta-value.is-free { color: var(--free); }
+    .venue-desc {
+      font-size: 14px;
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1.6;
+      color: var(--text-2);
+      padding: 0 20px 16px;
+    }
+    .venue-actions {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px 16px;
+    }
+    .venue-visit-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 16px;
+      background: var(--teal);
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .venue-visit-btn:hover { opacity: 0.85; }
+    .venue-cta {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--teal);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .venue-cta:hover { background: rgba(13, 148, 136, 0.06); }
+    .venue-events {
+      display: none;
+      flex-direction: column;
+      background: var(--bg-yellow);
+    }
+    .venue-card.expanded .venue-events { display: flex; }
+    .venue-event-row {
+      padding: 12px 16px;
+      border-top: 1px solid #FEE9AA;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .venue-event-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      background: var(--teal);
+      color: white;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      max-width: fit-content;
+    }
+    .venue-event-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+    .venue-event-desc {
+      font-size: 12px;
+      color: var(--text-2);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .venue-event-link {
+      align-self: flex-start;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--teal);
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .venue-event-link:hover { opacity: 0.7; }
 
     /* ─────────────────────────────────────────────
        LOADING & EMPTY STATES
@@ -644,7 +1129,7 @@
       line-height: 1.35;
     }
     .m-info-value.accent { color: var(--flamingo); }
-    .m-info-value.green  { color: var(--free); }
+    .m-info-value.green { color: var(--free); }
     .m-info-sub {
       font-size: 12px;
       color: var(--text-3);
@@ -741,10 +1226,38 @@
   </div>
 </header>
 
+<!-- Tab Bar -->
+<nav class="tab-bar" id="tab-bar">
+  <button class="tab-btn active" data-tab="events" onclick="switchTab('events')">
+    Local Events
+    <span class="tab-badge">0</span>
+  </button>
+  <button class="tab-btn" data-tab="library" onclick="switchTab('library')">
+    Library Programs
+    <span class="tab-badge">0</span>
+  </button>
+  <button class="tab-btn" data-tab="places" onclick="switchTab('places')">
+    Anytime Spots
+    <span class="tab-badge">15</span>
+  </button>
+  <div class="tab-underline"></div>
+</nav>
+
 <!-- Date picker strip -->
-<nav class="date-strip" id="date-strip">
+<nav class="date-strip" id="date-strip" data-tab="events">
   <div class="date-strip-inner" id="date-strip-inner"></div>
 </nav>
+
+<!-- Age filter bar (Library tab only) -->
+<div class="age-filter-bar" id="age-filter-bar">
+  <div class="age-filter-inner">
+    <button class="age-chip active" data-age="all" onclick="setAgeFilter('all')">All Ages</button>
+    <button class="age-chip" data-age="baby" onclick="setAgeFilter('baby')">Baby 0-1</button>
+    <button class="age-chip" data-age="toddler" onclick="setAgeFilter('toddler')">Toddler 1-3</button>
+    <button class="age-chip" data-age="prek" onclick="setAgeFilter('prek')">Pre-K 3-5</button>
+    <button class="age-chip" data-age="school" onclick="setAgeFilter('school')">School Age 6+</button>
+  </div>
+</div>
 
 <!-- Events feed -->
 <main class="page" id="content">
@@ -795,17 +1308,145 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const GRADIENTS = [
-  'linear-gradient(to right, #FF8C70, #FF4477)',
-  'linear-gradient(to right, #FF4477, #8B5CF6)',
   'linear-gradient(to right, #FACC15, #FF8C70)',
+  'linear-gradient(to right, #FF4477, #8B5CF6)',
+  'linear-gradient(to right, #FF8C70, #FACC15)',
   'linear-gradient(to right, #8B5CF6, #FF4477)',
   'linear-gradient(to right, #FF4477, #FACC15)',
   'linear-gradient(to right, #FF8C70, #8B5CF6)',
 ];
 
+const CURATED_VENUES = [
+  // Scraped venues (have event calendars)
+  { id: 'zoo_miami', name: 'Zoo Miami', source: 'zoo_miami', neighborhood: 'South Miami-Dade', hours: 'Open daily 10am–5pm', priceLabel: '$18–23', type: 'Outdoor', ages: 'All ages',
+    desc: 'Huge open-air zoo where you can rent a safari cycle, see giraffes and gorillas up close, then let the kids burn off steam at the splash pad and play zone. Plan on a full morning.',
+    logo: 'https://www.zoomiami.org/sitefiles/2891/images/zoo-miami-logo.svg', website: 'https://www.zoomiami.org' },
+  { id: 'pinecrest_gardens', name: 'Pinecrest Gardens', source: 'pinecrest_gardens', neighborhood: 'Pinecrest', hours: 'Open daily 9am–5pm', priceLabel: '$5 / Free under 2', type: 'Outdoor', ages: 'All ages',
+    desc: 'Beautiful botanical garden with a splash pad, petting zoo, and nature playground that actually feels like an escape from the city. Great for a low-key morning with younger kids.',
+    logo: 'https://pinecrestgardens.org/wp-content/uploads/2021/08/PG-Logo-Color-Web.png', website: 'https://pinecrestgardens.org' },
+  { id: 'frost_science', name: 'Frost Museum of Science', source: 'frost_science', neighborhood: 'Downtown', hours: 'Open daily 10am–5pm', priceLabel: '$20–30', type: 'Indoor', ages: 'Ages 3+',
+    desc: 'Three floors of hands-on exhibits, a planetarium, and an aquarium with a lens you can walk under. The "Feathers to the Stars" area is a hit with little ones. Easy to spend half a day here.',
+    logo: 'https://www.frostscience.org/wp-content/themes/frost-science/images/logo_frost.png', website: 'https://www.frostscience.org' },
+  { id: 'miami_childrens_museum', name: "Miami Children's Museum", source: 'miami_childrens_museum', neighborhood: 'Watson Island', hours: 'Open daily 10am–6pm', priceLabel: '$22', type: 'Indoor', ages: 'Ages 0–10',
+    desc: 'Tons of interactive exhibits — mini supermarket, music studio, construction zone — all designed for under-10s. Plan for 2–3 hours minimum; the kids will not want to leave.',
+    logo: 'https://cdn.prod.website-files.com/66db2ebe365cb31f2f127efe/66db2ebe365cb31f2f127f4e_Screen%20Shot%202021-03-15%20at%205.44.44%20PM.png', website: 'https://www.miamichildrensmuseum.org' },
+  { id: 'deering_estate', name: 'Deering Estate', source: 'eventbrite_venues', neighborhood: 'Palmetto Bay', hours: 'Thu–Mon 10am–4pm', priceLabel: '$15 / Free under 4', type: 'Outdoor', ages: 'Ages 3+',
+    desc: 'Gorgeous historic estate on Biscayne Bay with nature trails, a fossil pit, and monthly family programs. Feels like a window into old Florida — surprisingly peaceful for Miami.',
+    logo: 'https://deeringestate.org/wp-content/uploads/2022/09/logo-500-x-500-160x160.jpg', website: 'https://deeringestate.org' },
+  // Non-scraped venues (curated picks)
+  { id: 'velocity', name: 'Velocity Climbing', source: null, neighborhood: 'Miami', hours: 'Varies — check website', priceLabel: '$20–30', type: 'Indoor', ages: 'Ages 5+',
+    desc: 'Indoor rock climbing with routes for all levels, plus a bouldering area where kids can climb without ropes. Great rainy-day option for kids 5+ who need to burn serious energy.',
+    logo: 'https://www.velocityclimbing.com/wp-content/uploads/logo-1.svg', website: 'https://www.velocityclimbing.com' },
+  { id: 'we_rock_spectrum', name: 'We Rock the Spectrum', source: null, neighborhood: 'North Miami', hours: 'Mon–Fri 9am–6pm', priceLabel: '~$18', type: 'Indoor', ages: 'All abilities',
+    desc: 'Sensory-friendly indoor playground built for all abilities — zip line, trampoline, climbing wall, and a calm-down room. Genuinely inclusive, not just a marketing tagline.',
+    logo: '', website: 'https://werockthespectrumnorthmiami.com' },
+  { id: 'dezerland', name: 'Dezerland Action Park', source: null, neighborhood: 'North Miami Beach', hours: 'Daily — varies', priceLabel: 'Free entry / pay per ride', type: 'Indoor', ages: 'All ages',
+    desc: 'Massive indoor complex with go-karts, arcade, bumper cars, and trampolines. You pay per activity so it\'s easy to control the budget. Older kids go wild here; toddlers less so.',
+    logo: '', website: 'https://dezerlandactionpark.com' },
+  { id: 'diver_mansion', name: 'Diver Mansion', source: null, neighborhood: 'North Miami / Doral', hours: 'Daily 11am–7pm', priceLabel: '$20', type: 'Indoor', ages: 'Ages 0–8',
+    desc: 'Adorable role-play village where kids dress up and "work" as doctors, chefs, firefighters. Perfect for the under-8 imagination crowd. Two locations so pick the one closer to you.',
+    logo: '', website: 'https://divermansion.com' },
+  { id: 'planet_kids', name: 'Planet Kids', source: null, neighborhood: 'Edgewater', hours: 'Daily — check website', priceLabel: '$10', type: 'Indoor', ages: 'Ages 0–8',
+    desc: 'Cozy three-story play structure with slides and obstacle courses, plus a toddler zone and art corner. The attached cafe with sandwiches and gelato is a lifesaver for parents.',
+    logo: '', website: 'https://www.planetkidsplayplayground.com' },
+  { id: 'cool_de_sac', name: 'Cool de Sac', source: null, neighborhood: 'Doral (Dolphin Mall)', hours: 'Daily 11am–9pm', priceLabel: '$7–14', type: 'Indoor', ages: 'Ages 1–12',
+    desc: 'Seven themed play zones inside Dolphin Mall — arts, climbing maze, Lego station, dress-up salon. Easy to pair with a mall errand while the kids are happily occupied.',
+    logo: '', website: 'https://cool-de-sac.com' },
+  { id: 'fundimension', name: 'FunDimension', source: null, neighborhood: 'Wynwood', hours: 'Daily — varies', priceLabel: '~$20+', type: 'Indoor', ages: 'All ages',
+    desc: 'Wynwood\'s family entertainment spot with bowling, laser tag, bumper cars, and a prize wall. Older kids (6+) love it. Good option if you\'re already in the neighborhood.',
+    logo: '', website: 'https://fundimensionusa.com' },
+  { id: 'jumpin_jamboree', name: "Jumpin' Jamboree", source: null, neighborhood: 'Doral', hours: 'Daily — check website', priceLabel: '~$15–20', type: 'Indoor', ages: 'All ages',
+    desc: '15,000 sq ft of bounce houses, inflatable slides, and obstacle courses. Basically a giant air-filled playground your kids won\'t want to leave. Has a toddler soft-play area too.',
+    logo: '', website: 'https://jumpinjamboree.com' },
+  { id: 'topsy_turvy', name: 'Topsy Turvy Town', source: null, neighborhood: 'Doral', hours: 'Daily — check website', priceLabel: '~$15–20', type: 'Indoor', ages: 'Ages 1–10',
+    desc: '10,000 sq ft indoor play space with trampolines, climbing walls, slides, and a pretend-play village. Solid neighborhood option for burning energy on rainy days.',
+    logo: '', website: 'https://topsyturvytown.com' },
+  { id: 'sky_zone', name: 'Sky Zone', source: null, neighborhood: 'Cutler Bay', hours: 'Daily — varies', priceLabel: '$11–19', type: 'Indoor', ages: 'All ages',
+    desc: 'Wall-to-wall trampolines, foam pits, dodgeball courts, and a ninja course. Ask about their Little Leapers sessions for toddler-only hours — much calmer than the weekend chaos.',
+    logo: '', website: 'https://www.skyzone.com/cutlerbay' },
+];
+
+const PROGRAM_FAMILIES = [
+  { key: 'storytime',  label: 'Storytime at the Library', pattern: /\bstoryt(ime|elling)\b|story time|hora de los cuentos|furry tales/i },
+  { key: 'chess',      label: 'Chess Club',               pattern: /\bchess\b/i },
+  { key: 'scavenger',  label: 'Scavenger Hunt',           pattern: /scavenger hunt/i },
+  { key: 'craft-kits', label: 'Take-Home Craft Kits',     pattern: /craft kit|take and make/i },
+];
+
+// State
 let _allEvents = [];
 let _activeDate = null;
+let _activeTab = 'events';
+let _activeAgeFilter = 'all';
 let _modalEvent = null;
+
+// ─── TAB SWITCHING ────────────────────────────────────────────────
+function switchTab(tab) {
+  _activeTab = tab;
+  _activeAgeFilter = 'all';
+  updateTabUI();
+  updateDateStripVisibility();
+  updateAgeFilterVisibility();
+  renderContent();
+  updateTabUnderline();
+}
+
+function updateTabUI() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === _activeTab);
+  });
+}
+
+function updateDateStripVisibility() {
+  const dateStrip = document.getElementById('date-strip');
+  if (_activeTab === 'places') {
+    dateStrip.classList.add('hidden');
+  } else {
+    dateStrip.classList.remove('hidden');
+    dateStrip.dataset.tab = _activeTab;
+  }
+}
+
+function updateAgeFilterVisibility() {
+  const ageBar = document.getElementById('age-filter-bar');
+  if (_activeTab === 'library') {
+    ageBar.classList.add('visible');
+  } else {
+    ageBar.classList.remove('visible');
+  }
+  resetAgeFilter();
+}
+
+function updateTabUnderline() {
+  const underline = document.querySelector('.tab-underline');
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if (activeBtn && underline) {
+    const rect = activeBtn.getBoundingClientRect();
+    const tabBar = document.getElementById('tab-bar');
+    const tabBarRect = tabBar.getBoundingClientRect();
+    underline.style.left = (rect.left - tabBarRect.left) + 'px';
+    underline.style.width = rect.width + 'px';
+    underline.className = 'tab-underline';
+    if (_activeTab === 'library') underline.classList.add('on-library');
+    if (_activeTab === 'places') underline.classList.add('on-places');
+  }
+}
+
+// ─── AGE FILTER ───────────────────────────────────────────────────
+function setAgeFilter(age) {
+  _activeAgeFilter = age;
+  document.querySelectorAll('.age-chip').forEach(chip => {
+    chip.classList.toggle('active', chip.dataset.age === age);
+  });
+  renderContent();
+}
+
+function resetAgeFilter() {
+  _activeAgeFilter = 'all';
+  document.querySelectorAll('.age-chip').forEach(chip => {
+    chip.classList.toggle('active', chip.dataset.age === 'all');
+  });
+}
 
 // ─── DATE STRIP ──────────────────────────────────────────────────
 function buildDateStrip() {
@@ -835,7 +1476,7 @@ function selectDate(key) {
   });
   const activeBtn = document.querySelector(`.date-btn[data-date="${key}"]`);
   if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-  renderForDate(key);
+  renderContent();
 }
 
 function jumpToDate(val) {
@@ -848,7 +1489,7 @@ function jumpToDate(val) {
 async function loadEvents() {
   const { data, error } = await db
     .from('events')
-    .select('id, title, editorial_headline, description, parent_summary, start_date, end_date, age_min, age_max, image_url, venue_name, neighborhood, is_free, price_min, price_max, source, activity_type')
+    .select('id, title, editorial_headline, description, parent_summary, start_date, end_date, age_min, age_max, image_url, venue_name, neighborhood, is_free, price_min, price_max, source, activity_type, address, source_url, practical_notes')
     .eq('is_canceled', false)
     .eq('is_kid_friendly', true)
     .gte('start_date', new Date().toISOString().slice(0, 10))
@@ -859,35 +1500,58 @@ async function loadEvents() {
   _allEvents = data || [];
   buildDateStrip();
   selectDate(toDateKey(new Date()));
+  setTimeout(() => updateTabUnderline(), 100);
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────
-function renderForDate(dateKey) {
+function renderContent() {
+  if (_activeTab === 'events') {
+    renderLocalEvents();
+  } else if (_activeTab === 'library') {
+    renderLibraryPrograms();
+  } else if (_activeTab === 'places') {
+    renderPlaces();
+  }
+}
+
+function renderLocalEvents() {
   const content = document.getElementById('content');
-  const dayEvents = _allEvents.filter(ev => toDateKey(new Date(ev.start_date)) === dateKey);
-  const dateObj = parseDateKey(dateKey);
+  const dayEvents = _allEvents.filter(ev => toDateKey(new Date(ev.start_date)) === _activeDate);
+
+  // Filter out library events and excluded venue sources (unless they're one-offs)
+  const localEvents = dayEvents.filter(ev => {
+    if (ev.source === 'miami_dade_libraries') return false;
+    return true;
+  });
+
+  const dateObj = parseDateKey(_activeDate);
   const label = fmtDisplayDate(dateObj);
 
-  if (dayEvents.length === 0) {
+  if (localEvents.length === 0) {
     content.innerHTML = `
       <div class="section-header">
-        <div class="section-date display">${esc(label)}</div>
-        <div class="section-bar"></div>
+        <div class="section-header-left">
+          <div class="section-date display">${esc(label)}</div>
+          <div class="section-bar"></div>
+        </div>
       </div>
       <div class="empty-state">
         <div class="empty-icon">🌴</div>
         <h3>Nothing listed yet</h3>
         <p>No events on this day — try another date or check back soon.</p>
       </div>`;
+    updateTabBadge('events', 0);
     return;
   }
 
-  const programGroups = groupByProgram(dayEvents);
+  const programGroups = groupByProgram(localEvents);
   let html = `
-    <div class="section-header" data-date="${dateKey}">
-      <div class="section-date display">${esc(label)}</div>
-      <div class="section-bar"></div>
-      <div class="section-count">${programGroups.length} event${programGroups.length !== 1 ? 's' : ''}</div>
+    <div class="section-header" data-date="${_activeDate}">
+      <div class="section-header-left">
+        <div class="section-date display">${esc(label)}</div>
+        <div class="section-bar"></div>
+        <div class="section-count">${programGroups.length} event${programGroups.length !== 1 ? 's' : ''}</div>
+      </div>
     </div>
     <div class="events-list">`;
 
@@ -895,7 +1559,308 @@ function renderForDate(dateKey) {
 
   html += `</div><div class="footer"><span class="footer-text display">Miami &middot; Playbook</span></div>`;
   content.innerHTML = html;
+  updateTabBadge('events', programGroups.length);
   window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function renderLibraryPrograms() {
+  const content = document.getElementById('content');
+  const dayEvents = _allEvents.filter(ev => toDateKey(new Date(ev.start_date)) === _activeDate);
+
+  // Filter for library events only
+  let libraryEvents = dayEvents.filter(ev => ev.source === 'miami_dade_libraries');
+
+  // Filter by age
+  if (_activeAgeFilter !== 'all') {
+    libraryEvents = libraryEvents.filter(ev => matchesAgeFilter(ev, _activeAgeFilter));
+  }
+
+  const dateObj = parseDateKey(_activeDate);
+  const label = fmtDisplayDate(dateObj);
+
+  if (libraryEvents.length === 0) {
+    content.innerHTML = `
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-date display">${esc(label)}</div>
+          <div class="section-bar violet"></div>
+        </div>
+      </div>
+      <div class="empty-state">
+        <div class="empty-icon">📚</div>
+        <h3>No programs today</h3>
+        <p>No library programs match your filter — try another date or age group.</p>
+      </div>`;
+    updateTabBadge('library', 0);
+    return;
+  }
+
+  const programGroups = groupByProgram(libraryEvents);
+  let html = `
+    <div class="section-header" data-date="${_activeDate}">
+      <div class="section-header-left">
+        <div class="section-date display">${esc(label)}</div>
+        <div class="section-bar violet"></div>
+        <div class="section-count">${programGroups.length} program${programGroups.length !== 1 ? 's' : ''}</div>
+      </div>
+    </div>`;
+
+  programGroups.forEach(group => {
+    html += renderLibraryGroup(group);
+  });
+
+  html += `<div class="footer"><span class="footer-text display">Miami &middot; Playbook</span></div>`;
+  content.innerHTML = html;
+  updateTabBadge('library', programGroups.length);
+  window.scrollTo({ top: 0, behavior: 'auto' });
+
+  // Attach expand handlers (multi-branch location buttons)
+  document.querySelectorAll('.expandable-trigger').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      e.currentTarget.closest('.library-group').classList.toggle('expanded');
+    };
+  });
+}
+
+function renderLibraryGroup(group) {
+  const title = groupTitle(group);
+  const ageLbl = groupAgeLabel(group);
+
+  // SVG icon templates (matching Local Events style)
+  const iconClock = `<svg class="library-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+  const iconPin = `<svg class="library-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+  const iconTag = `<svg class="library-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`;
+  const iconUser = `<svg class="library-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+
+  // Build branch map
+  const branchMap = new Map();
+  for (const ev of group) {
+    const venue = ev.venue_name || ev.neighborhood || 'Unknown';
+    if (!branchMap.has(venue)) branchMap.set(venue, []);
+    branchMap.get(venue).push(ev);
+  }
+
+  const isSingle = branchMap.size === 1;
+  const firstEvents = [...branchMap.values()][0];
+  const firstVenue = [...branchMap.keys()][0];
+  const firstTime = fmtTimeRange(firstEvents[0].start_date, firstEvents[0].end_date);
+  const firstHood = firstEvents[0].neighborhood ? titleCase(firstEvents[0].neighborhood) : '';
+
+  if (isSingle) {
+    // ── Single branch: card with meta grid + Details button ──
+    return `
+      <div class="library-group">
+        <div class="library-card-top">
+          <div class="library-title-name">${esc(title)}</div>
+          <div class="library-meta-grid">
+            <div class="library-meta-item">
+              ${iconClock}
+              <div><div class="library-meta-label">Time</div><div class="library-meta-value">${firstTime || 'See details'}</div></div>
+            </div>
+            <div class="library-meta-item">
+              ${iconPin}
+              <div><div class="library-meta-label">Branch</div><div class="library-meta-value">${esc(firstHood || firstVenue)}</div></div>
+            </div>
+            <div class="library-meta-item">
+              ${iconTag}
+              <div><div class="library-meta-label">Price</div><div class="library-meta-value" style="color: var(--free)">Free</div></div>
+            </div>
+            <div class="library-meta-item">
+              ${iconUser}
+              <div><div class="library-meta-label">Ages</div><div class="library-meta-value">${esc(ageLbl)}</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="library-card-actions">
+          <button class="library-details-btn" onclick="event.stopPropagation(); openModal('${esc(firstEvents[0].id)}')">Details</button>
+        </div>
+      </div>`;
+  }
+
+  // ── Multiple branches: card with meta grid + Locations expand ──
+  let html = `
+    <div class="library-group">
+      <div class="library-card-top">
+        <div class="library-title-name">${esc(title)}</div>
+        <div class="library-meta-grid">
+          <div class="library-meta-item">
+            ${iconClock}
+            <div><div class="library-meta-label">Time</div><div class="library-meta-value">${firstTime || 'Varies'}</div></div>
+          </div>
+          <div class="library-meta-item">
+            ${iconPin}
+            <div><div class="library-meta-label">Branches</div><div class="library-meta-value">${branchMap.size} Locations</div></div>
+          </div>
+          <div class="library-meta-item">
+            ${iconTag}
+            <div><div class="library-meta-label">Price</div><div class="library-meta-value" style="color: var(--free)">Free</div></div>
+          </div>
+          <div class="library-meta-item">
+            ${iconUser}
+            <div><div class="library-meta-label">Ages</div><div class="library-meta-value">${esc(ageLbl)}</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="library-card-actions">
+        <button class="library-locations-btn expandable-trigger">${branchMap.size} Locations <span class="chevron">▾</span></button>
+      </div>
+      <div class="library-branches">`;
+
+  for (const [venue, events] of branchMap) {
+    const time = fmtTimeRange(events[0].start_date, events[0].end_date);
+    const hood = events[0].neighborhood ? titleCase(events[0].neighborhood) : '';
+    html += `
+      <div class="library-branch">
+        <div class="library-branch-info">
+          <div class="library-branch-name">${esc(venue)}</div>
+          <div class="library-branch-meta">${time}${hood ? ' · ' + esc(hood) : ''}</div>
+        </div>
+        <button class="library-branch-btn" onclick="event.stopPropagation(); openModal('${esc(events[0].id)}')">Details</button>
+      </div>`;
+  }
+
+  html += `</div></div>`;
+  return html;
+}
+
+function renderPlaces() {
+  const content = document.getElementById('content');
+
+  let html = `
+    <div class="section-header" style="padding: 28px 12px 0">
+      <div class="section-header-left">
+        <div class="section-date display">Anytime</div>
+        <div class="section-bar teal"></div>
+        <div class="section-count">15 curated venues</div>
+      </div>
+    </div>
+    <div class="venues-list">`;
+
+  CURATED_VENUES.forEach((venue, idx) => {
+    html += renderVenueCard(venue);
+  });
+
+  html += `</div><div class="footer"><span class="footer-text display">Miami &middot; Playbook</span></div>`;
+  content.innerHTML = html;
+  updateTabBadge('places', 15);
+  window.scrollTo({ top: 0, behavior: 'auto' });
+
+  // Attach venue event handlers
+  document.querySelectorAll('.venue-cta').forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.currentTarget.closest('.venue-card').classList.toggle('expanded');
+    };
+  });
+
+  // Attach modal handlers for venue events
+  document.querySelectorAll('.venue-event-link').forEach(link => {
+    link.onclick = (e) => {
+      e.preventDefault();
+      const id = link.dataset.eventId;
+      openModal(id);
+    };
+  });
+
+  // Handle broken venue logo images
+  document.querySelectorAll('.venue-logo img').forEach(img => {
+    img.onerror = function() {
+      const fallback = this.dataset.fallback || '?';
+      this.parentElement.innerHTML = `<div class="venue-logo-fallback">${fallback}</div>`;
+    };
+  });
+}
+
+function renderVenueCard(venue) {
+  // Find events for this venue
+  const venueEvents = _allEvents.filter(ev => {
+    if (venue.source === 'eventbrite_venues' && venue.id === 'deering_estate') {
+      return ev.source === 'eventbrite_venues' && ev.venue_name && ev.venue_name.includes('Deering');
+    }
+    return venue.source && ev.source === venue.source;
+  });
+
+  const initial = venue.name.charAt(0).toUpperCase();
+  const logoHtml = venue.logo
+    ? `<img src="${esc(venue.logo)}" alt="${esc(venue.name)}" data-fallback="${initial}">`
+    : `<div class="venue-logo-fallback">${initial}</div>`;
+
+  const iconClock = `<svg class="venue-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+  const iconPin = `<svg class="venue-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+  const iconTag = `<svg class="venue-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`;
+  const iconUser = `<svg class="venue-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+
+  const isFree = venue.priceLabel.toLowerCase().includes('free');
+  const priceClass = isFree ? ' is-free' : '';
+
+  let html = `
+    <div class="venue-card" data-venue-id="${venue.id}">
+      <div class="venue-card-top">
+        <div class="venue-logo">${logoHtml}</div>
+        <div class="venue-info">
+          <div class="venue-name">${esc(venue.name)}</div>
+          <div class="venue-meta-grid">
+            <div class="venue-meta-item">
+              ${iconClock}
+              <div><div class="venue-meta-label">Hours</div><div class="venue-meta-value">${esc(venue.hours)}</div></div>
+            </div>
+            <div class="venue-meta-item">
+              ${iconPin}
+              <div><div class="venue-meta-label">Location</div><div class="venue-meta-value">${esc(venue.neighborhood)}</div></div>
+            </div>
+            <div class="venue-meta-item">
+              ${iconTag}
+              <div><div class="venue-meta-label">Price</div><div class="venue-meta-value${priceClass}">${esc(venue.priceLabel)}</div></div>
+            </div>
+            <div class="venue-meta-item">
+              ${iconUser}
+              <div><div class="venue-meta-label">Ages</div><div class="venue-meta-value">${esc(venue.ages)}</div></div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+  if (venue.desc) {
+    html += `<div class="venue-desc">"${esc(venue.desc)}"</div>`;
+  }
+
+  const visitUrl = venue.website && venue.website !== '#' ? venue.website : null;
+  if (visitUrl || venueEvents.length > 0) {
+    html += `<div class="venue-actions">`;
+    if (visitUrl) {
+      html += `<a class="venue-visit-btn" href="${esc(visitUrl)}" target="_blank" rel="noopener">Visit Site →</a>`;
+    }
+    html += `</div>`;
+  }
+
+  if (venueEvents.length > 0) {
+    html += `<button class="venue-cta">View ${venueEvents.length} upcoming event${venueEvents.length !== 1 ? 's' : ''}</button>`;
+    html += `<div class="venue-events">`;
+
+    venueEvents.slice(0, 10).forEach(ev => {
+      const date = fmtDisplayDate(parseDateKey(toDateKey(new Date(ev.start_date))));
+      const summary = ev.parent_summary || ev.description || '';
+      const shortSummary = summary.length > 80 ? summary.slice(0, 80) + '...' : summary;
+      html += `
+        <div class="venue-event-row">
+          <span class="venue-event-badge">${esc(date)}</span>
+          <div class="venue-event-title">${esc(ev.editorial_headline || ev.title)}</div>
+          ${shortSummary ? `<div class="venue-event-desc">${esc(shortSummary)}</div>` : ''}
+          <a class="venue-event-link" data-event-id="${esc(ev.id)}">View details →</a>
+        </div>`;
+    });
+
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function updateTabBadge(tab, count) {
+  const btn = document.querySelector(`.tab-btn[data-tab="${tab}"] .tab-badge`);
+  if (btn) btn.textContent = count;
 }
 
 function eventCard(group, idx) {
@@ -920,13 +1885,10 @@ function eventCard(group, idx) {
   const ages = isGroup ? groupAgeLabel(group) : ageLabel(ev.age_min, ev.age_max);
   const category = ev.activity_type ? esc(titleCase(ev.activity_type)) : 'Event';
 
-  // Groups link to event.html; singles open modal
-  const ids = group.map(e => e.id).join(',');
-  const href = isGroup ? `event.html?ids=${ids}` : `event.html?id=${esc(ev.id)}`;
   const onclick = isGroup ? '' : `onclick="openModal('${esc(ev.id)}', event)"`;
 
   return `
-    <a class="event-card" href="${href}" ${onclick}>
+    <a class="event-card" href="#" ${onclick}>
       <div class="card-billboard">
         <div class="billboard-content">
           <span class="category-pill">${category}</span>
@@ -1218,12 +2180,6 @@ function showError(msg) {
 }
 
 // ─── PROGRAM GROUPING ─────────────────────────────────────────────
-const PROGRAM_FAMILIES = [
-  { key: 'storytime',  label: 'Storytime at the Library', pattern: /\bstoryt(ime|elling)\b|story time|hora de los cuentos|furry tales/i },
-  { key: 'chess',      label: 'Chess Club',               pattern: /\bchess\b/i },
-  { key: 'scavenger',  label: 'Scavenger Hunt',           pattern: /scavenger hunt/i },
-  { key: 'craft-kits', label: 'Take-Home Craft Kits',     pattern: /craft kit|take and make/i },
-];
 function familyMatch(title) {
   for (const f of PROGRAM_FAMILIES) { if (f.pattern.test(title)) return f; }
   return null;
@@ -1267,6 +2223,18 @@ function groupLocation(group) {
   const venues = new Set(group.map(e => e.venue_name || ''));
   if (venues.size === 1 && [...venues][0]) return [...venues][0];
   return 'Multiple locations';
+}
+
+function matchesAgeFilter(ev, filter) {
+  const min = ev.age_min || 0;
+  const max = ev.age_max || 18;
+  switch (filter) {
+    case 'baby': return min <= 1 && max >= 0;
+    case 'toddler': return min <= 3 && max >= 1;
+    case 'prek': return min <= 5 && max >= 3;
+    case 'school': return min <= 12 && max >= 6;
+    default: return true;
+  }
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────
