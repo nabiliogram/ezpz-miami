@@ -652,11 +652,13 @@
       border-radius: 16px;
       overflow: hidden;
       border: 1px solid var(--border);
+      border-top: 3px solid var(--teal);
       display: flex;
       flex-direction: column;
       text-decoration: none;
       color: inherit;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
     }
     .venue-card-top {
       display: flex;
@@ -753,28 +755,27 @@
       color: var(--text-2);
       padding: 0 20px 16px;
     }
-    .venue-actions {
-      display: flex;
-      gap: 8px;
-      padding: 0 20px 16px;
-    }
     .venue-visit-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 8px 16px;
-      background: var(--teal);
+      gap: 4px;
+      padding: 5px 10px;
+      background: rgba(13, 148, 136, 0.08);
       border: none;
-      border-radius: 8px;
-      font-size: 13px;
+      border-radius: 6px;
+      font-size: 11px;
       font-weight: 700;
-      color: white;
+      color: var(--teal);
       cursor: pointer;
       text-decoration: none;
-      transition: opacity 0.15s;
+      transition: background 0.15s;
       -webkit-tap-highlight-color: transparent;
+      z-index: 2;
     }
-    .venue-visit-btn:hover { opacity: 0.85; }
+    .venue-visit-btn:hover { background: rgba(13, 148, 136, 0.15); }
     .venue-cta {
       padding: 12px 20px;
       border-top: 1px solid var(--border);
@@ -1794,8 +1795,11 @@ function renderVenueCard(venue) {
   const isFree = venue.priceLabel.toLowerCase().includes('free');
   const priceClass = isFree ? ' is-free' : '';
 
+  const visitUrl = venue.website && venue.website !== '#' ? venue.website : null;
+
   let html = `
     <div class="venue-card" data-venue-id="${venue.id}">
+      ${visitUrl ? `<a class="venue-visit-btn" href="${esc(visitUrl)}" target="_blank" rel="noopener">Visit Site →</a>` : ''}
       <div class="venue-card-top">
         <div class="venue-logo">${logoHtml}</div>
         <div class="venue-info">
@@ -1823,15 +1827,6 @@ function renderVenueCard(venue) {
 
   if (venue.desc) {
     html += `<div class="venue-desc">"${esc(venue.desc)}"</div>`;
-  }
-
-  const visitUrl = venue.website && venue.website !== '#' ? venue.website : null;
-  if (visitUrl || venueEvents.length > 0) {
-    html += `<div class="venue-actions">`;
-    if (visitUrl) {
-      html += `<a class="venue-visit-btn" href="${esc(visitUrl)}" target="_blank" rel="noopener">Visit Site →</a>`;
-    }
-    html += `</div>`;
   }
 
   if (venueEvents.length > 0) {
