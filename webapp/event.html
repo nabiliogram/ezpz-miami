@@ -557,7 +557,7 @@ async function loadEvent() {
     if (error || !data?.length) { renderError('Event not found.'); return; }
     // Sort sessions by age_min so youngest first
     data.sort((a, b) => (a.age_min ?? 99) - (b.age_min ?? 99));
-    document.title = `${cleanProgramTitle(data[0].editorial_headline || data[0].title)} — EZPZ Miami`;
+    document.title = `${cleanProgramTitle(data[0].title)} — EZPZ Miami`;
     renderGroup(data);
     return;
   }
@@ -864,7 +864,7 @@ function renderGroup(events) {
     : `<div class="hero-wrap"><div class="hero-placeholder">${srcIcon(rep.source)}</div></div>`;
 
   const dateLabel    = fmtFullDate(rep.start_date);
-  const programTitle = cleanProgramTitle(rep.editorial_headline || rep.title);
+  const programTitle = cleanProgramTitle(rep.title);
 
   // Price: show Free if all free, else first event's price
   const allFree  = events.every(e => e.is_free);
