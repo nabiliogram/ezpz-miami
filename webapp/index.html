@@ -1552,7 +1552,7 @@ async function loadEvents() {
 
 function updateAllBadges() {
   const dayEvents = _allEvents.filter(ev => toDateKey(new Date(ev.start_date)) === _activeDate);
-  const localEvents = dayEvents.filter(ev => ev.source !== 'miami_dade_libraries' && !isTooLateForKids(ev.start_date));
+  const localEvents = dayEvents.filter(ev => ev.source !== 'miami_dade_libraries');
   const libraryEvents = dayEvents.filter(ev => ev.source === 'miami_dade_libraries');
   const programGroups = groupByProgram(libraryEvents);
   updateTabBadge('events', localEvents.length);
@@ -1575,12 +1575,8 @@ function renderLocalEvents() {
   const content = document.getElementById('content');
   const dayEvents = _allEvents.filter(ev => toDateKey(new Date(ev.start_date)) === _activeDate);
 
-  // Filter out library events and late-night events (8 PM+)
-  const localEvents = dayEvents.filter(ev => {
-    if (ev.source === 'miami_dade_libraries') return false;
-    if (isTooLateForKids(ev.start_date)) return false;
-    return true;
-  });
+  // Filter out library events (they go in the Library tab)
+  const localEvents = dayEvents.filter(ev => ev.source !== 'miami_dade_libraries');
 
   const dateObj = parseDateKey(_activeDate);
   const label = fmtDisplayDate(dateObj);
@@ -2147,11 +2143,6 @@ function calendarModal() {
 
 // ─── HELPERS ──────────────────────────────────────────────────────
 
-function isTooLateForKids(startDate) {
-  if (!startDate) return false;
-  const d = new Date(startDate);
-  return d.getUTCHours() >= 20; // 8 PM+ UTC (times stored in UTC)
-}
 function toDateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
