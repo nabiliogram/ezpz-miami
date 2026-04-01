@@ -878,7 +878,7 @@
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.35em;
-      color: var(--border-med);
+      color: var(--yellow);
       font-style: italic;
     }
 
@@ -1558,7 +1558,7 @@ function renderLocalEvents() {
 
   programGroups.forEach((group, idx) => { html += eventCard(group, idx); });
 
-  html += `</div><div class="footer"><span class="footer-text display">Miami &middot; Playbook</span></div>`;
+  html += `</div><div class="footer"><span class="footer-text display">Your EZPZ Miami Play &mdash; Book</span></div>`;
   content.innerHTML = html;
   updateTabBadge('events', programGroups.length);
   window.scrollTo({ top: 0, behavior: 'auto' });
@@ -1610,7 +1610,7 @@ function renderLibraryPrograms() {
     html += renderLibraryGroup(group);
   });
 
-  html += `<div class="footer"><span class="footer-text display">Miami &middot; Playbook</span></div>`;
+  html += `<div class="footer"><span class="footer-text display">Your EZPZ Miami Play &mdash; Book</span></div>`;
   content.innerHTML = html;
   updateTabBadge('library', programGroups.length);
   window.scrollTo({ top: 0, behavior: 'auto' });
@@ -1742,7 +1742,7 @@ function renderPlaces() {
     html += renderVenueCard(venue);
   });
 
-  html += `</div><div class="footer"><span class="footer-text display">Miami &middot; Playbook</span></div>`;
+  html += `</div><div class="footer"><span class="footer-text display">Your EZPZ Miami Play &mdash; Book</span></div>`;
   content.innerHTML = html;
   updateTabBadge('places', 15);
   window.scrollTo({ top: 0, behavior: 'auto' });
