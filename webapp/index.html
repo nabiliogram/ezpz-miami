@@ -787,7 +787,8 @@ function render(events) {
   let html = '';
 
   Object.entries(groups).forEach(([dateKey, { label, dateStr, events: evs }]) => {
-    const count = evs.length;
+    const programGroups = groupByProgram(evs);
+    const count = programGroups.length;
     html += `
       <section class="day-section" data-date="${dateKey}">
         <div class="day-label">${esc(label)}</div>
@@ -796,7 +797,7 @@ function render(events) {
           <span class="day-count">${count} event${count !== 1 ? 's' : ''}</span>
         </div>
         <hr class="day-rule" />
-        ${evs.map(eventRow).join('')}
+        ${programGroups.map(eventRow).join('')}
       </section>`;
   });
 
@@ -844,33 +845,50 @@ function groupByDay(events) {
   return groups;
 }
 
-function eventRow(ev) {
-  const time     = fmtTimeRange(ev.start_date, ev.end_date);
-  // Prefer neighborhood for location; fall back to venue_name; always title-case
-  const location = ev.neighborhood ? esc(titleCase(ev.neighborhood)) : (ev.venue_name ? esc(ev.venue_name) : '');
-  // Prefer editorial content; fall back to raw scraped content
-  const headline = ev.editorial_headline ? esc(ev.editorial_headline) : esc(ev.title);
-  const body     = ev.parent_summary    ? esc(ev.parent_summary)    : (ev.description ? esc(ev.description) : '');
-  const price    = priceTag(ev);
-  const ages     = ageTag(ev.age_min, ev.age_max);
+function eventRow(group) {
+  // group is always an array; single events arrive as [ev]
+  const ev      = group[0];
+  const isGroup = group.length > 1;
 
-  // Thumbnail
-  const thumbInner = ev.image_url
-    ? `<img src="${esc(ev.image_url)}" alt="" loading="lazy"
+  const time = fmtTimeRange(ev.start_date, ev.end_date);
+
+  const headline = isGroup
+    ? esc(cleanProgramTitle(ev.title))
+    : (ev.editorial_headline ? esc(ev.editorial_headline) : esc(ev.title));
+
+  const body = isGroup
+    ? esc(neutralSummary(group))
+    : (ev.parent_summary ? esc(ev.parent_summary) : (ev.description ? esc(ev.description) : ''));
+
+  const price    = priceTag(ev);
+  const ages     = isGroup ? groupAgeTag(group) : ageTag(ev.age_min, ev.age_max);
+  const location = isGroup
+    ? esc(groupLocation(group))
+    : (ev.neighborhood ? esc(titleCase(ev.neighborhood)) : (ev.venue_name ? esc(ev.venue_name) : ''));
+
+  // Thumbnail: prefer first event that has an image
+  const imgEv = group.find(e => e.image_url) || ev;
+  const thumbInner = imgEv.image_url
+    ? `<img src="${esc(imgEv.image_url)}" alt="" loading="lazy"
            onerror="this.style.display='none';this.nextSibling.style.display='block'"
        /><span class="thumb-icon" style="display:none">${srcIcon(ev.source)}</span>`
     : `<span class="thumb-icon">${srcIcon(ev.source)}</span>`;
 
   // Meta row: time · location · price · ages
   const metaParts = [];
-  if (time)     metaParts.push(`<span class="meta-time">${time}</span>`);
-  if (time && location) metaParts.push(`<span class="meta-sep">·</span>`);
-  if (location) metaParts.push(`<span class="meta-venue">${location}</span>`);
-  if (price)    metaParts.push(price);
-  if (ages)     metaParts.push(ages);
+  if (time)              metaParts.push(`<span class="meta-time">${time}</span>`);
+  if (time && location)  metaParts.push(`<span class="meta-sep">·</span>`);
+  if (location)          metaParts.push(`<span class="meta-venue">${location}</span>`);
+  if (price)             metaParts.push(price);
+  if (ages)              metaParts.push(ages);
+
+  // Groups link to detail page with all IDs; singles use the modal
+  const ids     = group.map(e => e.id).join(',');
+  const href    = isGroup ? `event.html?ids=${ids}` : `event.html?id=${esc(ev.id)}`;
+  const onclick = isGroup ? '' : `onclick="openModal('${esc(ev.id)}', event)"`;
 
   return `
-    <a class="event-row" href="event.html?id=${esc(ev.id)}" onclick="openModal('${esc(ev.id)}', event)">
+    <a class="event-row" href="${href}" ${onclick}>
       <div class="event-content">
         <div class="event-title">${headline}</div>
         ${body ? `<p class="event-desc">${body}</p>` : ''}
@@ -967,6 +985,72 @@ function esc(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// ─── PROGRAM GROUPING ─────────────────────────────────────────────
+// Strips age-qualifier suffixes so variant titles like
+// "Talking is Teaching … for Toddlers" and "… for Preschoolers"
+// collapse to the same program key.
+function programKey(title) {
+  return title
+    .toLowerCase()
+    .replace(/^online event:\s*/i, '')
+    .replace(/^new[!\s]+/i, '')
+    .replace(/\s*for\s+(babies|toddlers|preschoolers|infants|teens|tweens|kids|children|families|all ages)(\s+and\s+(caregivers|adults))?(\s+en dos idiomas.*)?$/i, '')
+    .replace(/\s+en dos idiomas.*$/i, '')
+    .replace(/\s+y\s+m[aá]s.*$/i, '')
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Human-readable title with age qualifier removed (preserves punctuation/case)
+function cleanProgramTitle(title) {
+  if (!title) return '';
+  return title
+    .replace(/^Online Event:\s*/i, '')
+    .replace(/^New[!\s]+/i, '')
+    .replace(/\s*for\s+(Babies|Toddlers|Preschoolers|Infants|Teens|Tweens|Kids|Children|Families|All Ages)(\s+and\s+(Caregivers|Adults))?(\s+en dos idiomas.*)?$/i, '')
+    .replace(/\s+en dos idiomas.*$/i, '')
+    .replace(/\s+y\s+m[aá]s.*$/i, '')
+    .trim();
+}
+
+// Group an array of events into sub-arrays by program key
+function groupByProgram(events) {
+  const map = new Map();
+  for (const ev of events) {
+    const key = programKey(ev.title);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(ev);
+  }
+  return [...map.values()];
+}
+
+// Pick a parent_summary that doesn't mention a specific age group;
+// fall back to the first event's summary or description.
+function neutralSummary(group) {
+  const ageWords = /\btoddler|\bpreschooler|\bbabies?\b|\binfant|\bteen|\btween|\byour\s+\d/i;
+  const withSummary = group.filter(e => e.parent_summary);
+  if (!withSummary.length) return group[0].description || '';
+  const neutral = withSummary.find(e => !ageWords.test(e.parent_summary));
+  return (neutral || withSummary[0]).parent_summary;
+}
+
+// Return "Multiple ages" badge if age ranges differ, else the common badge
+function groupAgeTag(group) {
+  const keys = new Set(group.map(e => `${e.age_min ?? ''}-${e.age_max ?? ''}`));
+  if (keys.size === 1) return ageTag(group[0].age_min, group[0].age_max);
+  return `<span class="age-tag">Multiple ages</span>`;
+}
+
+// Return a single location label, or "Multiple locations"
+function groupLocation(group) {
+  const hoods = new Set(group.map(e => e.neighborhood || ''));
+  if (hoods.size === 1 && [...hoods][0]) return titleCase([...hoods][0]);
+  const venues = new Set(group.map(e => e.venue_name || ''));
+  if (venues.size === 1 && [...venues][0]) return [...venues][0];
+  return 'Multiple locations';
 }
 
 function showError(msg) {

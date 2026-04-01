@@ -418,6 +418,76 @@
       .topnav { padding: 0 28px; }
       .page { padding: 0 28px calc(var(--cta-h) + 28px); }
     }
+
+    /* ─────────────────────────────────────────────
+       SESSIONS TABLE (grouped multi-location events)
+    ───────────────────────────────────────────── */
+    .sessions-list {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .sessions-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+    }
+    .sh-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-3);
+    }
+    .session-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+    }
+    .session-row:last-child { border-bottom: none; }
+    .session-age {
+      font-weight: 600;
+      color: var(--text-1);
+      min-width: 82px;
+      flex-shrink: 0;
+    }
+    .session-venue {
+      flex: 1;
+      color: var(--text-2);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .session-time {
+      color: var(--text-2);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .session-link {
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-size: 13px;
+      margin-left: auto;
+    }
+    .session-link:hover { text-decoration: underline; }
+    .sessions-header .session-age  { min-width: 82px; flex-shrink: 0; }
+    .sessions-header .session-venue { flex: 1; }
+    .sessions-header .session-time { flex-shrink: 0; }
+    .sessions-header .session-link { margin-left: auto; }
+    @media (max-width: 380px) {
+      .session-age { min-width: 70px; }
+      .sessions-header .session-age { min-width: 70px; }
+    }
   </style>
 </head>
 <body>
@@ -476,12 +546,26 @@ let currentEvent = null;
 
 // ─── LOAD ─────────────────────────────────────────────────────────
 async function loadEvent() {
-  const id = new URLSearchParams(window.location.search).get('id');
-  if (!id) { renderError('No event ID provided.'); return; }
+  const params = new URLSearchParams(window.location.search);
+  const ids    = params.get('ids');
+  const id     = params.get('id');
 
+  // ── Grouped event (multiple sessions) ──
+  if (ids) {
+    const idList = ids.split(',').filter(Boolean);
+    const { data, error } = await db.from('events').select('*').in('id', idList);
+    if (error || !data?.length) { renderError('Event not found.'); return; }
+    // Sort sessions by age_min so youngest first
+    data.sort((a, b) => (a.age_min ?? 99) - (b.age_min ?? 99));
+    document.title = `${cleanProgramTitle(data[0].editorial_headline || data[0].title)} — EZPZ Miami`;
+    renderGroup(data);
+    return;
+  }
+
+  // ── Single event ──
+  if (!id) { renderError('No event ID provided.'); return; }
   const { data, error } = await db.from('events').select('*').eq('id', id).single();
   if (error || !data) { renderError('Event not found.'); return; }
-
   currentEvent = data;
   document.title = `${data.editorial_headline || data.title} — EZPZ Miami`;
   renderEvent(data);
@@ -751,6 +835,147 @@ function renderNotes(notes) {
     }
   } catch (e) { /* not JSON — fall through */ }
   return esc(notes);
+}
+
+// ─── PROGRAM TITLE HELPER ─────────────────────────────────────────
+function cleanProgramTitle(title) {
+  if (!title) return '';
+  return title
+    .replace(/^Online Event:\s*/i, '')
+    .replace(/^New[!\s]+/i, '')
+    .replace(/\s*for\s+(Babies|Toddlers|Preschoolers|Infants|Teens|Tweens|Kids|Children|Families|All Ages)(\s+and\s+(Caregivers|Adults))?(\s+en dos idiomas.*)?$/i, '')
+    .replace(/\s+en dos idiomas.*$/i, '')
+    .replace(/\s+y\s+m[aá]s.*$/i, '')
+    .trim();
+}
+
+// ─── GROUP RENDER (multi-session programs) ────────────────────────
+function renderGroup(events) {
+  const root = document.getElementById('root');
+  const rep  = events[0];
+
+  // Hero: first event with an image
+  const imgEv    = events.find(e => e.image_url) || rep;
+  const heroHtml = imgEv.image_url
+    ? `<div class="hero-wrap">
+         <img src="${esc(imgEv.image_url)}" alt=""
+              onerror="this.parentNode.innerHTML='<div class=hero-placeholder>${srcIcon(rep.source)}</div>'" />
+       </div>`
+    : `<div class="hero-wrap"><div class="hero-placeholder">${srcIcon(rep.source)}</div></div>`;
+
+  const dateLabel    = fmtFullDate(rep.start_date);
+  const programTitle = cleanProgramTitle(rep.editorial_headline || rep.title);
+
+  // Price: show Free if all free, else first event's price
+  const allFree  = events.every(e => e.is_free);
+  const priceHtml = allFree
+    ? `<span class="price-pill is-free">Free</span>`
+    : (() => {
+        const label = priceStr(rep);
+        return (label && label !== 'See event page')
+          ? `<span class="price-pill is-paid">${esc(label)}</span>` : '';
+      })();
+
+  // Summary: prefer one that doesn't mention a specific age group
+  const ageWords    = /\btoddler|\bpreschooler|\bbabies?\b|\binfant|\bteen|\btween|\byour\s+\d/i;
+  const withSummary = events.filter(e => e.parent_summary);
+  const summaryEv   = withSummary.find(e => !ageWords.test(e.parent_summary)) || withSummary[0];
+  const summary     = summaryEv?.parent_summary || rep.description || '';
+
+  // Sessions table: decide which columns to show
+  const ageKeys   = new Set(events.map(e => `${e.age_min ?? ''}-${e.age_max ?? ''}`));
+  const timeKeys  = new Set(events.map(e => fmtTime(e.start_date)));
+  const showAges  = ageKeys.size  > 1;
+  const showTimes = timeKeys.size > 1;
+
+  const sessionRows = events.map(e => {
+    const ageTxt  = ageLabel(e.age_min, e.age_max);
+    const venue   = e.venue_name || e.neighborhood || '—';
+    const timeStr = fmtTime(e.start_date) || '—';
+    const label   = e.is_free ? 'Register' : 'Tickets';
+    return `
+      <div class="session-row">
+        ${showAges  ? `<div class="session-age">${esc(ageTxt)}</div>` : ''}
+        <div class="session-venue">${esc(venue)}</div>
+        ${showTimes ? `<div class="session-time">${esc(timeStr)}</div>` : ''}
+        <a class="session-link" href="${esc(e.source_url || '#')}" target="_blank" rel="noopener">${esc(label)} →</a>
+      </div>`;
+  }).join('');
+
+  const sessionsSection = `
+    <div class="section">
+      <div class="section-label">Sessions</div>
+      <div class="sessions-list">
+        <div class="sessions-header">
+          ${showAges  ? '<div class="session-age sh-label">Age group</div>' : ''}
+          <div class="session-venue sh-label">Location</div>
+          ${showTimes ? '<div class="session-time sh-label">Time</div>' : ''}
+          <div class="session-link sh-label"></div>
+        </div>
+        ${sessionRows}
+      </div>
+    </div>`;
+
+  const summarySection = summary ? `
+    <div class="section">
+      <div class="section-label">What to expect</div>
+      <p class="summary-text">${esc(summary)}</p>
+    </div>` : '';
+
+  const locationNote = events.length === 1
+    ? esc(rep.neighborhood || rep.venue_name || 'TBA')
+    : `${events.length} Miami-Dade locations — see sessions above`;
+
+  const infoSection = `
+    <div class="section">
+      <div class="section-label">Plan your visit</div>
+      <div class="info-rows">
+        <div class="info-row">
+          <span class="info-icon">📅</span>
+          <div class="info-body">
+            <div class="info-label">Date</div>
+            <div class="info-value accent">${esc(dateLabel)}</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">📍</span>
+          <div class="info-body">
+            <div class="info-label">Location</div>
+            <div class="info-value">${locationNote}</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">💵</span>
+          <div class="info-body">
+            <div class="info-label">Cost</div>
+            <div class="info-value ${allFree ? 'green' : ''}">${allFree ? 'Free' : esc(priceStr(rep))}</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">👶</span>
+          <div class="info-body">
+            <div class="info-label">Ages</div>
+            <div class="info-value">${showAges ? 'Multiple age groups — see sessions above' : esc(ageLabel(rep.age_min, rep.age_max))}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  root.innerHTML = `
+    ${heroHtml}
+    <div class="page">
+      <div class="title-block">
+        <div class="event-date-label">${esc(dateLabel)}</div>
+        <h1 class="event-title">${esc(programTitle)}</h1>
+        ${priceHtml ? `<div style="margin-top:8px">${priceHtml}</div>` : ''}
+      </div>
+      ${summarySection}
+      ${sessionsSection}
+      ${infoSection}
+    </div>`;
+
+  // Hide the single CTA bar — each session row has its own link
+  document.getElementById('cta-bar').style.display = 'none';
 }
 
 function renderError(msg) {
