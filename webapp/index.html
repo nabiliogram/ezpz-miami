@@ -31,7 +31,7 @@
       --free-bg:      #ECFDF5;
       --header-h:     68px;
       --date-h:       72px;
-      --tab-h:        48px;
+      --tab-h:        68px;
     }
 
     html { scroll-behavior: smooth; }
@@ -125,26 +125,32 @@
       background: var(--bg-white);
       border-bottom: 1px solid var(--border);
       display: flex;
-      height: var(--tab-h);
+      height: auto;
       max-width: 720px;
       margin: 0 auto;
+      margin-bottom: 8px;
     }
     .tab-btn {
       flex: 1;
       border: none;
+      border-right: 1px solid var(--border);
       background: transparent;
       color: var(--text-2);
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
       position: relative;
       transition: color 0.15s, background 0.15s;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 4px;
+      padding: 12px 6px;
       -webkit-tap-highlight-color: transparent;
+      line-height: 1.2;
     }
+    .tab-btn:last-of-type { border-right: none; }
     .tab-btn:hover { color: var(--text-1); }
     /* Active tab background tints */
     .tab-btn[data-tab="events"].active {
@@ -159,16 +165,19 @@
       background: rgba(13, 148, 136, 0.05);
       color: var(--teal);
     }
+    .tab-label {
+      text-align: center;
+    }
     .tab-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       min-width: 20px;
-      height: 20px;
+      height: 18px;
       padding: 0 6px;
-      border-radius: 10px;
+      border-radius: 9px;
       background: var(--border);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--text-2);
       line-height: 1;
@@ -317,7 +326,7 @@
     .page {
       max-width: 720px;
       margin: 0 auto;
-      padding: 0 12px 100px;
+      padding: 0 12px 0;
     }
     .section-header {
       padding: 28px 12px 0;
@@ -506,18 +515,52 @@
       border: 1px solid var(--border);
       overflow: hidden;
     }
-    .library-card-top {
-      padding: 20px 20px 0;
+    .library-billboard {
+      position: relative;
+      overflow: hidden;
+      background: var(--text-1);
+      padding: 18px 20px;
+    }
+    .library-billboard::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.08;
+      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect width="28" height="28" fill="none"/><rect x="0" y="0" width="14" height="14" fill="white" fill-opacity="0.15"/><rect x="14" y="14" width="14" height="14" fill="white" fill-opacity="0.15"/></svg>');
+      background-size: 28px 28px;
+    }
+    .library-billboard-inner {
+      position: relative;
+      z-index: 2;
+    }
+    .library-billboard .library-pill {
+      display: inline-block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: var(--bg-white);
+      color: var(--text-1);
+      margin-bottom: 8px;
     }
     .library-title-name {
       font-family: 'Montserrat', sans-serif;
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text-1);
+      font-size: 20px;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: -0.02em;
-      line-height: 1.15;
-      margin-bottom: 14px;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .library-card-top {
+      padding: 16px 20px 0;
     }
     .library-meta-grid {
       display: grid;
@@ -869,7 +912,7 @@
        FOOTER
     ───────────────────────────────────────────── */
     .footer {
-      padding: 48px 0;
+      padding: 32px 0 12px;
       text-align: center;
     }
     .footer-text {
@@ -1230,15 +1273,15 @@
 <!-- Tab Bar -->
 <nav class="tab-bar" id="tab-bar">
   <button class="tab-btn active" data-tab="events" onclick="switchTab('events')">
-    Local Events
+    <span class="tab-label">Local<br>Events</span>
     <span class="tab-badge">0</span>
   </button>
   <button class="tab-btn" data-tab="library" onclick="switchTab('library')">
-    Library Programs
+    <span class="tab-label">Library<br>Programs</span>
     <span class="tab-badge">0</span>
   </button>
   <button class="tab-btn" data-tab="places" onclick="switchTab('places')">
-    Anytime Spots
+    <span class="tab-label">Anytime<br>Spots</span>
     <span class="tab-badge">15</span>
   </button>
   <div class="tab-underline"></div>
@@ -1565,6 +1608,7 @@ function renderLocalEvents() {
 }
 
 function renderLibraryPrograms() {
+  _libGradIdx = 0; // reset gradient rotation
   const content = document.getElementById('content');
   const dayEvents = _allEvents.filter(ev => toDateKey(new Date(ev.start_date)) === _activeDate);
 
@@ -1624,9 +1668,18 @@ function renderLibraryPrograms() {
   });
 }
 
+const LIB_GRADIENTS = [
+  'linear-gradient(to right, #8B5CF6, #EC4899)',
+  'linear-gradient(to right, #EC4899, #F59E0B)',
+  'linear-gradient(to right, #6366F1, #8B5CF6)',
+  'linear-gradient(to right, #F59E0B, #EC4899)',
+];
+let _libGradIdx = 0;
+
 function renderLibraryGroup(group) {
   const title = groupTitle(group);
   const ageLbl = groupAgeLabel(group);
+  const gradient = LIB_GRADIENTS[_libGradIdx++ % LIB_GRADIENTS.length];
 
   // SVG icon templates (matching Local Events style)
   const iconClock = `<svg class="library-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
@@ -1649,11 +1702,16 @@ function renderLibraryGroup(group) {
   const firstHood = firstEvents[0].neighborhood ? titleCase(firstEvents[0].neighborhood) : '';
 
   if (isSingle) {
-    // ── Single branch: card with meta grid + Details button ──
+    // ── Single branch: card with billboard + meta grid + Details button ──
     return `
       <div class="library-group">
+        <div class="library-billboard">
+          <div class="library-billboard-inner">
+            <span class="library-pill">Library Program</span>
+            <div class="library-title-name" style="background-image: ${gradient}">${esc(title)}</div>
+          </div>
+        </div>
         <div class="library-card-top">
-          <div class="library-title-name">${esc(title)}</div>
           <div class="library-meta-grid">
             <div class="library-meta-item">
               ${iconClock}
@@ -1679,11 +1737,16 @@ function renderLibraryGroup(group) {
       </div>`;
   }
 
-  // ── Multiple branches: card with meta grid + Locations expand ──
+  // ── Multiple branches: card with billboard + meta grid + Locations expand ──
   let html = `
     <div class="library-group">
+      <div class="library-billboard">
+        <div class="library-billboard-inner">
+          <span class="library-pill">Library Program</span>
+          <div class="library-title-name" style="background-image: ${gradient}">${esc(title)}</div>
+        </div>
+      </div>
       <div class="library-card-top">
-        <div class="library-title-name">${esc(title)}</div>
         <div class="library-meta-grid">
           <div class="library-meta-item">
             ${iconClock}
