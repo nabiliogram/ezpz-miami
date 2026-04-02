@@ -1669,17 +1669,14 @@ function resetAgeFilter() {
 
 // ─── NEIGHBORHOOD FILTER ─────────────────────────────────────────
 function getLibraryHoodsForDay() {
-  // Get all library events for the active date, filtered by current age filter
-  let dayLib = _allEvents.filter(ev =>
-    toDateKey(new Date(ev.start_date)) === _activeDate &&
-    ev.source === 'miami_dade_libraries'
-  );
+  // Get all library events across all dates, filtered by current age filter
+  let allLib = _allEvents.filter(ev => ev.source === 'miami_dade_libraries');
   if (_activeAgeFilter !== 'all') {
-    dayLib = dayLib.filter(ev => matchesAgeFilter(ev, _activeAgeFilter));
+    allLib = allLib.filter(ev => matchesAgeFilter(ev, _activeAgeFilter));
   }
   // Count events per neighborhood
   const hoodCounts = {};
-  dayLib.forEach(ev => {
+  allLib.forEach(ev => {
     const hood = ev.neighborhood ? titleCase(ev.neighborhood) : '';
     if (!hood) return;
     hoodCounts[hood] = (hoodCounts[hood] || 0) + 1;
@@ -1777,16 +1774,85 @@ function buildDateStrip() {
   inner.innerHTML = html;
 }
 
-function selectDate(key) {
+let _scrollObserver = null;
+let _ignoreScrollUpdate = false;
+
+function selectDate(key, fromScroll) {
   _activeDate = key;
   document.querySelectorAll('.date-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.date === key);
   });
   const activeBtn = document.querySelector(`.date-btn[data-date="${key}"]`);
   if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-  renderContent();
-  updateAllBadges();
-  gtag('event', 'date_select', { date: key, tab: _activeTab });
+
+  if (!fromScroll) {
+    // User tapped a date — scroll to that section instead of re-rendering
+    const section = document.getElementById(`section-${key}`);
+    if (section) {
+      _ignoreScrollUpdate = true;
+      const stickyOffset = _getStickyOffset();
+      const top = section.getBoundingClientRect().top + window.scrollY - stickyOffset;
+      window.scrollTo({ top, behavior: 'smooth' });
+      setTimeout(() => { _ignoreScrollUpdate = false; }, 800);
+    } else {
+      // Section doesn't exist (no events that day) — re-render won't help, just scroll top
+      renderContent();
+    }
+    gtag('event', 'date_select', { date: key, tab: _activeTab });
+  }
+}
+
+function _getStickyOffset() {
+  // Calculate total sticky header height: header + tab bar + date strip + (age filter if library)
+  const headerH = 68;
+  const tabH = document.getElementById('tab-bar-wrap')?.offsetHeight || 68;
+  const dateH = document.getElementById('date-strip')?.offsetHeight || 72;
+  const ageBar = document.getElementById('age-filter-bar');
+  const ageH = (ageBar && ageBar.classList.contains('visible')) ? ageBar.offsetHeight : 0;
+  return headerH + tabH + dateH + ageH + 8;
+}
+
+function _setupScrollObserver() {
+  if (_scrollObserver) _scrollObserver.disconnect();
+
+  const sections = document.querySelectorAll('.section-header[data-date]');
+  if (sections.length === 0) return;
+
+  const offset = _getStickyOffset();
+  _scrollObserver = new IntersectionObserver((entries) => {
+    if (_ignoreScrollUpdate) return;
+    // Find the topmost visible section header
+    let topEntry = null;
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        if (!topEntry || entry.boundingClientRect.top < topEntry.boundingClientRect.top) {
+          topEntry = entry;
+        }
+      }
+    }
+    if (topEntry) {
+      const dateKey = topEntry.target.dataset.date;
+      if (dateKey && dateKey !== _activeDate) {
+        selectDate(dateKey, true);
+      }
+    }
+  }, {
+    rootMargin: `-${offset}px 0px -60% 0px`,
+    threshold: 0
+  });
+
+  sections.forEach(s => _scrollObserver.observe(s));
+}
+
+function _getDateKeys() {
+  const today = new Date();
+  const keys = [];
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    keys.push(toDateKey(d));
+  }
+  return keys;
 }
 
 function jumpToDate(val) {
@@ -1822,18 +1888,34 @@ async function loadEvents() {
   const defaultDate = now.getHours() >= 18
     ? new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
     : now;
-  selectDate(toDateKey(defaultDate));
+  const defaultKey = toDateKey(defaultDate);
+  _activeDate = defaultKey;
+  // Render content first (continuous scroll), then highlight and scroll to default date
+  renderContent();
   updateAllBadges();
-  setTimeout(() => updateTabUnderline(), 100);
+  // Highlight the default date in the strip
+  document.querySelectorAll('.date-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.date === defaultKey);
+  });
+  // Scroll to the default date section after a tick (DOM needs to settle)
+  setTimeout(() => {
+    const section = document.getElementById(`section-${defaultKey}`);
+    if (section) {
+      const stickyOffset = _getStickyOffset();
+      const top = section.getBoundingClientRect().top + window.scrollY - stickyOffset;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
+    }
+    updateTabUnderline();
+  }, 100);
 }
 
 function updateAllBadges() {
-  const dayEvents = _allEvents.filter(ev => toDateKey(new Date(ev.start_date)) === _activeDate);
-  const localEvents = dayEvents.filter(ev => ev.source !== 'miami_dade_libraries');
-  const libraryEvents = dayEvents.filter(ev => ev.source === 'miami_dade_libraries');
-  const programGroups = groupByProgram(libraryEvents);
-  updateTabBadge('events', localEvents.length);
-  updateTabBadge('library', programGroups.length);
+  const localEvents = _allEvents.filter(ev => ev.source !== 'miami_dade_libraries');
+  const libraryEvents = _allEvents.filter(ev => ev.source === 'miami_dade_libraries');
+  const localGroups = groupByProgram(localEvents);
+  const libGroups = groupByProgram(libraryEvents);
+  updateTabBadge('events', localGroups.length);
+  updateTabBadge('library', libGroups.length);
   updateTabBadge('places', 15);
 }
 
@@ -1850,115 +1932,123 @@ function renderContent() {
 
 function renderLocalEvents() {
   const content = document.getElementById('content');
-  const dayEvents = _allEvents.filter(ev => toDateKey(new Date(ev.start_date)) === _activeDate);
+  const allLocal = _allEvents.filter(ev => ev.source !== 'miami_dade_libraries');
 
-  // Filter out library events (they go in the Library tab)
-  const localEvents = dayEvents.filter(ev => ev.source !== 'miami_dade_libraries');
+  // Group events by date
+  const dateKeys = _getDateKeys();
+  let html = '';
+  let totalEvents = 0;
+  let cardIdx = 0;
 
-  const dateObj = parseDateKey(_activeDate);
-  const label = fmtDisplayDate(dateObj);
+  for (const key of dateKeys) {
+    const dayEvents = allLocal.filter(ev => toDateKey(new Date(ev.start_date)) === key);
+    if (dayEvents.length === 0) continue;
 
-  if (localEvents.length === 0) {
-    content.innerHTML = `
-      <div class="section-header">
+    const dateObj = parseDateKey(key);
+    const label = fmtDisplayDate(dateObj);
+    const programGroups = groupByProgram(dayEvents);
+    totalEvents += programGroups.length;
+
+    html += `
+      <div class="section-header" data-date="${key}" id="section-${key}">
         <div class="section-header-left">
           <div class="section-date display">${esc(label)}</div>
+          <div class="section-bar"></div>
+          <div class="section-count">${programGroups.length} event${programGroups.length !== 1 ? 's' : ''}</div>
+        </div>
+      </div>
+      <div class="events-list">`;
+    programGroups.forEach((group) => { html += eventCard(group, cardIdx++); });
+    html += `</div>`;
+  }
+
+  if (totalEvents === 0) {
+    html = `
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-date display">Coming Up</div>
           <div class="section-bar"></div>
         </div>
       </div>
       <div class="empty-state">
         <div class="empty-icon">🌴</div>
         <h3>Nothing listed yet</h3>
-        <p>No events on this day — try another date or check back soon.</p>
+        <p>No events coming up — check back soon.</p>
       </div>`;
-    updateTabBadge('events', 0);
-    return;
   }
 
-  const programGroups = groupByProgram(localEvents);
-  let html = `
-    <div class="section-header" data-date="${_activeDate}">
-      <div class="section-header-left">
-        <div class="section-date display">${esc(label)}</div>
-        <div class="section-bar"></div>
-        <div class="section-count">${programGroups.length} event${programGroups.length !== 1 ? 's' : ''}</div>
-      </div>
-    </div>
-    <div class="events-list">`;
-
-  programGroups.forEach((group, idx) => { html += eventCard(group, idx); });
-
-  html += `</div><div class="footer"><span class="footer-text display">Your EZPZ Miami Play &mdash; Book</span></div>`;
+  html += `<div class="footer"><span class="footer-text display">Your EZPZ Miami Play &mdash; Book</span></div>`;
   content.innerHTML = html;
-  updateTabBadge('events', programGroups.length);
+  updateTabBadge('events', totalEvents);
   window.scrollTo({ top: 0, behavior: 'auto' });
+  _setupScrollObserver();
 }
 
 function renderLibraryPrograms() {
   _libGradIdx = 0; // reset gradient rotation
   const content = document.getElementById('content');
-  const dayEvents = _allEvents.filter(ev => toDateKey(new Date(ev.start_date)) === _activeDate);
 
-  // Filter for library events only
-  let libraryEvents = dayEvents.filter(ev => ev.source === 'miami_dade_libraries');
-
-  // Filter by age
+  // Get all library events with filters applied
+  let allLibrary = _allEvents.filter(ev => ev.source === 'miami_dade_libraries');
   if (_activeAgeFilter !== 'all') {
-    libraryEvents = libraryEvents.filter(ev => matchesAgeFilter(ev, _activeAgeFilter));
+    allLibrary = allLibrary.filter(ev => matchesAgeFilter(ev, _activeAgeFilter));
   }
-
-  // Filter by neighborhood
   if (_activeHoods.size > 0) {
-    libraryEvents = libraryEvents.filter(ev => {
+    allLibrary = allLibrary.filter(ev => {
       const hood = ev.neighborhood ? titleCase(ev.neighborhood) : '';
       return _activeHoods.has(hood);
     });
   }
 
-  const dateObj = parseDateKey(_activeDate);
-  const label = fmtDisplayDate(dateObj);
+  const dateKeys = _getDateKeys();
+  let html = '';
+  let totalPrograms = 0;
 
-  if (libraryEvents.length === 0) {
-    const filterNote = _activeHoods.size > 0 ? ' or neighborhood' : '';
-    content.innerHTML = `
-      <div class="section-header">
+  for (const key of dateKeys) {
+    const dayEvents = allLibrary.filter(ev => toDateKey(new Date(ev.start_date)) === key);
+    if (dayEvents.length === 0) continue;
+
+    const dateObj = parseDateKey(key);
+    const label = fmtDisplayDate(dateObj);
+    const programGroups = groupByProgram(dayEvents);
+    totalPrograms += programGroups.length;
+
+    html += `
+      <div class="section-header" data-date="${key}" id="section-${key}">
         <div class="section-header-left">
           <div class="section-date display">${esc(label)}</div>
+          <div class="section-bar violet"></div>
+          <div class="section-count">${programGroups.length} program${programGroups.length !== 1 ? 's' : ''}</div>
+        </div>
+      </div>`;
+    programGroups.forEach(group => { html += renderLibraryGroup(group); });
+  }
+
+  if (totalPrograms === 0) {
+    const filterNote = _activeHoods.size > 0 ? ' or neighborhood' : '';
+    html = `
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-date display">Coming Up</div>
           <div class="section-bar violet"></div>
         </div>
       </div>
       <div class="empty-state">
         <div class="empty-icon">📚</div>
-        <h3>No programs today</h3>
-        <p>No library programs match your filter — try another date or age group${filterNote}.</p>
+        <h3>No programs found</h3>
+        <p>No library programs match your filter — try another age group${filterNote}.</p>
       </div>`;
-    updateTabBadge('library', 0);
-    return;
   }
-
-  const programGroups = groupByProgram(libraryEvents);
-  let html = `
-    <div class="section-header" data-date="${_activeDate}">
-      <div class="section-header-left">
-        <div class="section-date display">${esc(label)}</div>
-        <div class="section-bar violet"></div>
-        <div class="section-count">${programGroups.length} program${programGroups.length !== 1 ? 's' : ''}</div>
-      </div>
-    </div>`;
-
-  programGroups.forEach(group => {
-    html += renderLibraryGroup(group);
-  });
 
   html += `<div class="footer"><span class="footer-text display">Your EZPZ Miami Play &mdash; Book</span></div>`;
   content.innerHTML = html;
-  updateTabBadge('library', programGroups.length);
+  updateTabBadge('library', totalPrograms);
   window.scrollTo({ top: 0, behavior: 'auto' });
+  _setupScrollObserver();
 
   // Attach expand handlers (multi-branch cards — click card to toggle)
   document.querySelectorAll('.expandable-card').forEach(card => {
     card.onclick = (e) => {
-      // Don't toggle if clicking a branch Details button
       if (e.target.closest('.library-branch-btn')) return;
       card.classList.toggle('expanded');
     };
