@@ -104,93 +104,92 @@
     /* Calendar button removed — space reserved for disclaimer link */
 
     /* ─────────────────────────────────────────────
-       TAB BAR
+       TAB BAR — Card-in-Tray Design
     ───────────────────────────────────────────── */
     .tab-bar-wrap {
       position: sticky;
       top: var(--header-h);
       z-index: 95;
       background: var(--bg-white);
+      padding: 10px 12px;
       border-bottom: 1px solid var(--border);
     }
     .tab-bar {
       display: flex;
-      height: auto;
+      gap: 8px;
       max-width: 720px;
       margin: 0 auto;
+      background: #F7F6F4;
+      border-radius: 14px;
+      padding: 6px;
     }
     .tab-btn {
       flex: 1;
-      border: none;
-      border-right: 1px solid var(--border);
-      /* Inactive tabs: warm grey tint so they read as tappable surfaces */
-      background: #F8F7F6;
-      color: var(--text-2);
-      font-size: 13px;
-      font-weight: 700;
+      border: 1.5px solid #E8E6E3;
+      background: white;
+      border-radius: 11px;
+      padding: 10px 6px;
       cursor: pointer;
-      position: relative;
-      transition: color 0.15s, background 0.15s, box-shadow 0.15s;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       gap: 4px;
-      padding: 12px 6px;
+      font-family: 'Inter', -apple-system, sans-serif;
+      transition: all 0.2s ease;
       -webkit-tap-highlight-color: transparent;
-      line-height: 1.2;
-      border-radius: 0;
-      /* Subtle inset to make inactive tabs feel recessed */
-      box-shadow: inset 0 -2px 0 var(--border-med);
     }
-    .tab-btn:last-of-type { border-right: none; }
-    .tab-btn:hover { color: var(--text-1); background: #F2F1EF; }
-    /* Active tab background tints — stronger for recognizability */
-    .tab-btn[data-tab="events"].active {
-      background: rgba(255, 68, 119, 0.08);
-      color: var(--flamingo);
-      box-shadow: inset 0 -3px 0 var(--flamingo);
-    }
-    .tab-btn[data-tab="library"].active {
-      background: rgba(139, 92, 246, 0.08);
-      color: var(--violet);
-      box-shadow: inset 0 -3px 0 var(--violet);
-    }
-    .tab-btn[data-tab="places"].active {
-      background: rgba(13, 148, 136, 0.08);
-      color: var(--teal);
-      box-shadow: inset 0 -3px 0 var(--teal);
+    .tab-icon {
+      font-size: 16px;
+      line-height: 1;
     }
     .tab-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-2);
       text-align: center;
+      line-height: 1.25;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
     .tab-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 20px;
+      min-width: 22px;
       height: 18px;
-      padding: 0 6px;
-      border-radius: 9px;
-      background: var(--border);
-      font-size: 11px;
-      font-weight: 700;
+      padding: 0 7px;
+      border-radius: 10px;
+      background: #EDECEB;
+      font-size: 10.5px;
+      font-weight: 800;
       color: var(--text-2);
       line-height: 1;
     }
-    .tab-btn[data-tab="events"].active .tab-badge {
-      background: var(--flamingo);
-      color: white;
+    .tab-btn:hover { background: #FAFAF9; }
+    /* Active states — colored fill + border */
+    .tab-btn[data-tab="events"].active {
+      background: rgba(255, 68, 119, 0.08);
+      border-color: var(--flamingo);
+      box-shadow: 0 2px 8px rgba(255, 68, 119, 0.12);
     }
-    .tab-btn[data-tab="library"].active .tab-badge {
-      background: var(--violet);
-      color: white;
+    .tab-btn[data-tab="events"].active .tab-label { color: var(--flamingo); }
+    .tab-btn[data-tab="events"].active .tab-badge { background: var(--flamingo); color: white; }
+
+    .tab-btn[data-tab="library"].active {
+      background: rgba(139, 92, 246, 0.08);
+      border-color: var(--violet);
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.12);
     }
-    .tab-btn[data-tab="places"].active .tab-badge {
-      background: var(--teal);
-      color: white;
+    .tab-btn[data-tab="library"].active .tab-label { color: var(--violet); }
+    .tab-btn[data-tab="library"].active .tab-badge { background: var(--violet); color: white; }
+
+    .tab-btn[data-tab="places"].active {
+      background: rgba(13, 148, 136, 0.08);
+      border-color: var(--teal);
+      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.12);
     }
-    /* Tab underline now handled via box-shadow on active tab */
+    .tab-btn[data-tab="places"].active .tab-label { color: var(--teal); }
+    .tab-btn[data-tab="places"].active .tab-badge { background: var(--teal); color: white; }
 
     /* ─────────────────────────────────────────────
        DATE PICKER STRIP
@@ -1399,14 +1398,17 @@
 <div class="tab-bar-wrap" id="tab-bar-wrap">
   <nav class="tab-bar" id="tab-bar">
     <button class="tab-btn active" data-tab="events" onclick="switchTab('events')">
+      <span class="tab-icon">🎪</span>
       <span class="tab-label">Local<br>Events</span>
       <span class="tab-badge">0</span>
     </button>
     <button class="tab-btn" data-tab="library" onclick="switchTab('library')">
+      <span class="tab-icon">📚</span>
       <span class="tab-label">Library<br>Programs</span>
       <span class="tab-badge">0</span>
     </button>
     <button class="tab-btn" data-tab="places" onclick="switchTab('places')">
+      <span class="tab-icon">📍</span>
       <span class="tab-label">Anytime<br>Spots</span>
       <span class="tab-badge">15</span>
     </button>
