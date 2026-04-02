@@ -649,6 +649,13 @@
       border: 1.5px solid var(--border-med);
       overflow: hidden;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+      cursor: pointer;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .library-group:active { opacity: 0.85; }
+    @media (hover: hover) {
+      .library-group:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); border-color: #CBD5E1; }
     }
     .library-billboard {
       position: relative;
@@ -696,6 +703,19 @@
     }
     .library-card-top {
       padding: 16px 20px 0;
+    }
+    .library-summary {
+      font-size: 14px;
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1.65;
+      color: var(--text-2);
+      padding: 16px 20px 0;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
     .library-meta-grid {
       display: grid;
@@ -769,6 +789,13 @@
       transition: transform 0.2s;
     }
     .library-group.expanded .library-locations-btn .chevron { transform: rotate(180deg); }
+    .library-meta-value .chevron {
+      font-size: 10px;
+      display: inline-block;
+      transition: transform 0.2s;
+      color: var(--violet);
+    }
+    .library-group.expanded .library-meta-value .chevron { transform: rotate(180deg); }
     .library-branches {
       display: none;
       flex-direction: column;
@@ -1429,13 +1456,13 @@
 <!-- Age filter bar (Library tab only) -->
 <div class="age-filter-bar" id="age-filter-bar">
   <div class="age-filter-inner">
+    <button class="hood-pill" id="hood-pill" onclick="toggleHoodDropdown()">📍 All Areas</button>
+    <div style="width:1px;height:24px;background:var(--border-med);flex-shrink:0;margin:0 2px;align-self:center"></div>
     <button class="age-chip active" data-age="all" onclick="setAgeFilter('all')">All Ages</button>
     <button class="age-chip" data-age="baby" onclick="setAgeFilter('baby')">Baby 0-1</button>
     <button class="age-chip" data-age="toddler" onclick="setAgeFilter('toddler')">Toddler 1-3</button>
     <button class="age-chip" data-age="prek" onclick="setAgeFilter('prek')">Pre-K 3-5</button>
     <button class="age-chip" data-age="school" onclick="setAgeFilter('school')">School Age 6+</button>
-    <div style="width:1px;height:24px;background:var(--border-med);flex-shrink:0;margin:0 2px;align-self:center"></div>
-    <button class="hood-pill" id="hood-pill" onclick="toggleHoodDropdown()">📍 All Areas</button>
   </div>
 </div>
 
@@ -1928,11 +1955,12 @@ function renderLibraryPrograms() {
   updateTabBadge('library', programGroups.length);
   window.scrollTo({ top: 0, behavior: 'auto' });
 
-  // Attach expand handlers (multi-branch location buttons)
-  document.querySelectorAll('.expandable-trigger').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      e.currentTarget.closest('.library-group').classList.toggle('expanded');
+  // Attach expand handlers (multi-branch cards — click card to toggle)
+  document.querySelectorAll('.expandable-card').forEach(card => {
+    card.onclick = (e) => {
+      // Don't toggle if clicking a branch Details button
+      if (e.target.closest('.library-branch-btn')) return;
+      card.classList.toggle('expanded');
     };
   });
 }
@@ -1971,15 +1999,17 @@ function renderLibraryGroup(group) {
   const firstHood = firstEvents[0].neighborhood ? titleCase(firstEvents[0].neighborhood) : '';
 
   if (isSingle) {
-    // ── Single branch: card with billboard + meta grid + Details button ──
+    // ── Single branch: clickable card with billboard + summary + meta grid ──
+    const summary = firstEvents[0].parent_summary || firstEvents[0].description || '';
     return `
-      <div class="library-group">
+      <div class="library-group" onclick="openModal('${esc(firstEvents[0].id)}')">
         <div class="library-billboard">
           <div class="library-billboard-inner">
             <span class="library-pill">Library Program</span>
             <div class="library-title-name" style="background-image: ${gradient}">${esc(title)}</div>
           </div>
         </div>
+        ${summary ? `<p class="library-summary">"${esc(summary)}"</p>` : ''}
         <div class="library-card-top">
           <div class="library-meta-grid">
             <div class="library-meta-item">
@@ -2000,21 +2030,20 @@ function renderLibraryGroup(group) {
             </div>
           </div>
         </div>
-        <div class="library-card-actions">
-          <button class="library-details-btn" onclick="event.stopPropagation(); openModal('${esc(firstEvents[0].id)}')">Details</button>
-        </div>
       </div>`;
   }
 
-  // ── Multiple branches: card with billboard + meta grid + Locations expand ──
+  // ── Multiple branches: clickable card with billboard + summary + meta grid + expanding rows ──
+  const multiSummary = group[0].parent_summary || group[0].description || '';
   let html = `
-    <div class="library-group">
+    <div class="library-group expandable-card">
       <div class="library-billboard">
         <div class="library-billboard-inner">
           <span class="library-pill">Library Program</span>
           <div class="library-title-name" style="background-image: ${gradient}">${esc(title)}</div>
         </div>
       </div>
+      ${multiSummary ? `<p class="library-summary">"${esc(multiSummary)}"</p>` : ''}
       <div class="library-card-top">
         <div class="library-meta-grid">
           <div class="library-meta-item">
@@ -2023,7 +2052,7 @@ function renderLibraryGroup(group) {
           </div>
           <div class="library-meta-item">
             ${iconPin}
-            <div><div class="library-meta-label">Branches</div><div class="library-meta-value">${branchMap.size} Locations</div></div>
+            <div><div class="library-meta-label">Branches</div><div class="library-meta-value">${branchMap.size} Locations <span class="chevron">▾</span></div></div>
           </div>
           <div class="library-meta-item">
             ${iconTag}
@@ -2034,9 +2063,6 @@ function renderLibraryGroup(group) {
             <div><div class="library-meta-label">Ages</div><div class="library-meta-value">${esc(ageLbl)}</div></div>
           </div>
         </div>
-      </div>
-      <div class="library-card-actions">
-        <button class="library-locations-btn expandable-trigger">${branchMap.size} Locations <span class="chevron">▾</span></button>
       </div>
       <div class="library-branches">`;
 
