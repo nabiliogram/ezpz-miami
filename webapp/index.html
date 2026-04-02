@@ -1515,7 +1515,15 @@ async function loadEvents() {
     .limit(400);
 
   if (error) { showError(error.message); return; }
-  _allEvents = data || [];
+  // Defense-in-depth: filter out teen/adult events client-side
+  // even if they slipped through backend is_kid_friendly checks
+  _allEvents = (data || []).filter(ev => {
+    const ageMin = ev.age_min;
+    const ageMax = ev.age_max;
+    // Skip events where age_min >= 13 and no young-kid overlap
+    if (ageMin != null && ageMin >= 13 && (ageMax == null || ageMax >= 13)) return false;
+    return true;
+  });
   buildDateStrip();
   // After 6PM, default to tomorrow — library/kid events are done for the day
   const now = new Date();
