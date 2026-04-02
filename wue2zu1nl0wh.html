@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How EZPZ Miami Works</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f6f8fa;
+      color: #1f2328;
+      min-height: 100vh;
+      padding: 48px 24px 64px;
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ── Pipeline container ── */
+    .pipeline {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── Stage row: left summary | rail | right detail ── */
+    .stage-row {
+      display: grid;
+      grid-template-columns: 260px 56px 1fr;
+      min-height: 80px;
+      position: relative;
+    }
+
+    /* ── Left column: plain-English summary ── */
+    .stage-summary {
+      padding: 24px 24px 24px 0;
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding-top: 28px;
+    }
+    .stage-summary-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-dark, #0550ae);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .stage-summary-desc {
+      font-size: 12.5px;
+      color: #656d76;
+      line-height: 1.6;
+    }
+
+    /* ── Center rail ── */
+    .stage-rail {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+    .stage-rail::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      background: var(--rail-color, #d0d7de);
+    }
+    .stage-row:last-child .stage-rail::before {
+      height: 40px;
+    }
+    .stage-dot {
+      position: relative;
+      top: 32px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--dot-color, #d0d7de);
+      border: 3px solid #f6f8fa;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    /* ── Right column: technical detail ── */
+    .stage-detail {
+      padding: 16px 0 16px 24px;
+    }
+
+    .stage-card {
+      background: #ffffff;
+      border: 1px solid #d0d7de;
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 1px 3px rgba(31,35,40,0.04), 0 4px 12px rgba(31,35,40,0.03);
+    }
+    .stage-card::before {
+      content: '';
+      position: absolute;
+      left: -25px;
+      top: 36px;
+      width: 24px;
+      height: 2px;
+      background: #d0d7de;
+    }
+
+    .stage-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .stage-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--accent-dark, #0550ae);
+      background: var(--accent-bg, rgba(5,80,174,0.06));
+      border: 1px solid var(--accent-border, rgba(5,80,174,0.15));
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .stage-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f2328;
+    }
+    .stage-timing {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #656d76;
+      background: #f6f8fa;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid #d0d7de;
+    }
+
+    /* ── Connector row ── */
+    .connector-row {
+      display: grid;
+      grid-template-columns: 260px 56px 1fr;
+    }
+    .connector-row .stage-rail::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      background: #d0d7de;
+    }
+    .connector-left {}
+    .connector-right {
+      padding: 2px 0 2px 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .connector-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: #8c959f;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .connector-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, #d0d7de 0%, transparent 100%);
+    }
+
+    /* ── Flow row ── */
+    .flow-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .flow-step {
+      flex: 1;
+      min-width: 160px;
+      background: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .flow-step-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--step-color, #656d76);
+      margin-bottom: 6px;
+    }
+    .flow-step-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f2328;
+      margin-bottom: 4px;
+    }
+    .flow-step-desc {
+      font-size: 11.5px;
+      color: #656d76;
+      line-height: 1.55;
+    }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      color: #d0d7de;
+      font-size: 18px;
+      flex-shrink: 0;
+      align-self: center;
+    }
+
+    /* ── Source grid ── */
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .source-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #0550ae;
+      background: rgba(5,80,174,0.05);
+      border: 1px solid rgba(5,80,174,0.12);
+      padding: 5px 8px;
+      border-radius: 6px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Filter list ── */
+    .filter-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .filter-list li {
+      font-size: 11px;
+      color: #656d76;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+    }
+    .filter-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .filter-icon.pass { color: #1a7f37; }
+    .filter-icon.fail { color: #cf222e; }
+
+    /* ── Data transform ── */
+    .transform-visual {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      align-items: stretch;
+    }
+    .transform-box {
+      flex: 1;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .transform-box.input {
+      background: #f6f8fa;
+      border: 1px solid #d0d7de;
+    }
+    .transform-box.output {
+      background: var(--accent-light, rgba(5,80,174,0.04));
+      border: 1px solid var(--accent-border, rgba(5,80,174,0.15));
+    }
+    .transform-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .transform-box.input .transform-label { color: #656d76; }
+    .transform-box.output .transform-label { color: var(--accent-dark, #0550ae); }
+    .transform-arrow {
+      display: flex;
+      align-items: center;
+      color: #d0d7de;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .transform-field {
+      font-size: 11px;
+      color: #656d76;
+      padding: 3px 0;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .transform-field .key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #1f2328;
+    }
+    .transform-field .val {
+      color: #656d76;
+      font-style: italic;
+      font-size: 10.5px;
+    }
+    .transform-field.highlight .key { color: var(--accent-dark, #6639ba); }
+
+    /* ── Quality checks grid ── */
+    .checks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .check-item {
+      background: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      padding: 12px 14px;
+      border-left: 3px solid var(--check-color, #d0d7de);
+    }
+    .check-item-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #1f2328;
+      margin-bottom: 3px;
+    }
+    .check-item-desc {
+      font-size: 10.5px;
+      color: #656d76;
+      line-height: 1.5;
+    }
+    .check-item-action {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      color: var(--check-color, #656d76);
+      margin-top: 4px;
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .stat {
+      background: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      padding: 10px 14px;
+      flex: 1;
+      text-align: center;
+    }
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent-dark, #0550ae);
+    }
+    .stat-label {
+      font-size: 10px;
+      color: #656d76;
+      margin-top: 2px;
+    }
+
+    /* ── Dedup visual ── */
+    .dedup-visual {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+      align-items: center;
+    }
+    .dedup-group {
+      background: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      padding: 12px 14px;
+      flex: 1;
+    }
+    .dedup-group-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      color: #656d76;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .dedup-event {
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 5px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .dedup-event.kept {
+      background: rgba(26,127,55,0.06);
+      border: 1px solid rgba(26,127,55,0.2);
+      color: #1a7f37;
+    }
+    .dedup-event.dropped {
+      background: rgba(207,34,46,0.04);
+      border: 1px solid rgba(207,34,46,0.12);
+      color: #cf222e;
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+    .dedup-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      opacity: 0.8;
+    }
+
+    /* ── Prompt block ── */
+    .prompt-block {
+      background: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 12px;
+      font-size: 11.5px;
+      line-height: 1.6;
+      position: relative;
+      overflow: hidden;
+    }
+    .prompt-block::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--prompt-accent, #8250df);
+    }
+    .prompt-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .prompt-role.system { color: #8250df; }
+    .prompt-role.user { color: #0550ae; }
+    .prompt-text {
+      color: #656d76;
+      font-style: italic;
+    }
+    .prompt-text em { color: #1f2328; font-style: normal; font-weight: 500; }
+
+    /* ── Schedule visual ── */
+    .schedule-visual {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      align-items: center;
+    }
+    .schedule-slot {
+      flex: 1;
+      background: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    .schedule-slot.active {
+      border-color: rgba(26,127,55,0.3);
+      background: rgba(26,127,55,0.04);
+    }
+    .schedule-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f2328;
+    }
+    .schedule-slot.active .schedule-time { color: #1a7f37; }
+    .schedule-label {
+      font-size: 10px;
+      color: #656d76;
+      margin-top: 2px;
+    }
+    .schedule-arrow {
+      color: #d0d7de;
+      font-size: 16px;
+    }
+
+    /* ── Color themes per stage ── */
+    .stage-scrape   { --rail-color:#0550ae; --dot-color:#0550ae; --accent-dark:#0550ae; --accent-bg:rgba(5,80,174,0.06); --accent-border:rgba(5,80,174,0.15); --accent-light:rgba(5,80,174,0.04); }
+    .stage-filter   { --rail-color:#9a6700; --dot-color:#9a6700; --accent-dark:#9a6700; --accent-bg:rgba(154,103,0,0.06); --accent-border:rgba(154,103,0,0.15); --accent-light:rgba(154,103,0,0.04); }
+    .stage-dedup    { --rail-color:#bc4c00; --dot-color:#bc4c00; --accent-dark:#bc4c00; --accent-bg:rgba(188,76,0,0.06); --accent-border:rgba(188,76,0,0.15); --accent-light:rgba(188,76,0,0.04); }
+    .stage-enrich   { --rail-color:#8250df; --dot-color:#8250df; --accent-dark:#6639ba; --accent-bg:rgba(130,80,223,0.06); --accent-border:rgba(130,80,223,0.15); --accent-light:rgba(130,80,223,0.04); }
+    .stage-validate { --rail-color:#cf222e; --dot-color:#cf222e; --accent-dark:#cf222e; --accent-bg:rgba(207,34,46,0.06); --accent-border:rgba(207,34,46,0.15); --accent-light:rgba(207,34,46,0.04); }
+    .stage-cleanup  { --rail-color:#1a7f37; --dot-color:#1a7f37; --accent-dark:#1a7f37; --accent-bg:rgba(26,127,55,0.06); --accent-border:rgba(26,127,55,0.15); --accent-light:rgba(26,127,55,0.04); }
+    .stage-serve    { --rail-color:#0550ae; --dot-color:#0550ae; --accent-dark:#0550ae; --accent-bg:rgba(5,80,174,0.06); --accent-border:rgba(5,80,174,0.15); --accent-light:rgba(5,80,174,0.04); }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .stage-row { grid-template-columns: 1fr; }
+      .connector-row { grid-template-columns: 1fr; }
+      .stage-summary {
+        text-align: left;
+        padding: 16px 16px 0 16px;
+      }
+      .stage-rail { display: none; }
+      .connector-row .stage-rail { display: none; }
+      .connector-left { display: none; }
+      .stage-detail { padding: 8px 16px 16px 16px; }
+      .stage-card::before { display: none; }
+      .connector-right { padding: 0 16px; }
+      .source-grid { grid-template-columns: repeat(3, 1fr); }
+      .flow-row { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); align-self: center; }
+      .transform-visual { flex-direction: column; }
+      .transform-arrow { transform: rotate(90deg); align-self: center; }
+      .checks-grid { grid-template-columns: 1fr; }
+      .dedup-visual { flex-direction: column; }
+      .schedule-visual { flex-wrap: wrap; }
+      .stats-row { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="pipeline">
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- TRIGGER -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="stage-row stage-scrape">
+    <div class="stage-summary">
+      <div class="stage-summary-title">Automated scheduling</div>
+      <div class="stage-summary-desc">The pipeline runs on a fixed schedule with no manual intervention. A cloud-based scheduler triggers the full process twice per day.</div>
+    </div>
+    <div class="stage-rail"><div class="stage-dot">&#x23F1;</div></div>
+    <div class="stage-detail">
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-number">Trigger</span>
+          <span class="stage-title">GitHub Actions Cron</span>
+          <span class="stage-timing">UTC 08:00 + 20:00</span>
+        </div>
+        <div style="font-size:12px; color:#656d76; margin-bottom:12px;">
+          GitHub Actions spins up a container, installs Python deps, and runs <span class="mono" style="color:#0550ae;">python main.py</span>. Manual triggers available with <span class="mono" style="color:#0550ae;">--source</span>, <span class="mono" style="color:#0550ae;">--dry-run</span>, <span class="mono" style="color:#0550ae;">--no-enrich</span> flags.
+        </div>
+        <div class="schedule-visual">
+          <div class="schedule-slot active">
+            <div class="schedule-time">4:00 AM</div>
+            <div class="schedule-label">Morning run (ET)</div>
+          </div>
+          <div class="schedule-arrow">&#x2192;</div>
+          <div class="schedule-slot">
+            <div class="schedule-time" style="color:#8c959f;">...</div>
+            <div class="schedule-label">Site live all day</div>
+          </div>
+          <div class="schedule-arrow">&#x2192;</div>
+          <div class="schedule-slot active">
+            <div class="schedule-time">4:00 PM</div>
+            <div class="schedule-label">Afternoon run (ET)</div>
+          </div>
+          <div class="schedule-arrow">&#x2192;</div>
+          <div class="schedule-slot">
+            <div class="schedule-time" style="color:#8c959f;">...</div>
+            <div class="schedule-label">Fresh for evening</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- connector -->
+  <div class="connector-row">
+    <div class="connector-left"></div>
+    <div class="stage-rail"></div>
+    <div class="connector-right">
+      <span class="connector-label">main.py starts &rarr; iterates SCRAPERS dict</span>
+      <div class="connector-line"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PHASE 1: SCRAPE -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="stage-row stage-scrape">
+    <div class="stage-summary">
+      <div class="stage-summary-title">Data collection</div>
+      <div class="stage-summary-desc">Dedicated scrapers visit Miami event sources &mdash; museums, parks, libraries, ticket platforms &mdash; and pull their current event listings into a normalized format.</div>
+    </div>
+    <div class="stage-rail"><div class="stage-dot">1</div></div>
+    <div class="stage-detail">
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-number">Phase 1</span>
+          <span class="stage-title">Scraper Execution</span>
+          <span class="stage-timing">~2-4 min</span>
+        </div>
+        <div style="font-size:12px; color:#656d76; margin-bottom:12px;">
+          Python scrapers run sequentially. Each fetches its source via <span class="mono" style="color:#0550ae;">requests</span> + <span class="mono" style="color:#0550ae;">BeautifulSoup</span> (static HTML) or <span class="mono" style="color:#0550ae;">Playwright</span> (JS-rendered), parses event data, and returns a normalized list of event dicts.
+        </div>
+        <div class="source-grid">
+          <div class="source-pill">eventbrite</div>
+          <div class="source-pill">eventbrite_venues</div>
+          <div class="source-pill">frost_science</div>
+          <div class="source-pill">zoo_miami</div>
+          <div class="source-pill">arsht_center</div>
+          <div class="source-pill">miami_childrens_museum</div>
+          <div class="source-pill">miami_dade_libraries</div>
+          <div class="source-pill">miami_dade_parks</div>
+          <div class="source-pill">the_underline</div>
+          <div class="source-pill">pinecrest_gardens</div>
+          <div class="source-pill">meetup</div>
+          <div class="source-pill" style="color:#8c959f; border-color:#d0d7de; background:#f6f8fa;">+ more planned</div>
+        </div>
+        <div style="margin-top:14px;">
+          <div class="flow-row">
+            <div class="flow-step">
+              <div class="flow-step-label" style="color:#0550ae;">Per source</div>
+              <div class="flow-step-title">HTTP Fetch</div>
+              <div class="flow-step-desc">GET to source URL. Eventbrite extracts <span class="mono" style="font-size:10px;">window.__SERVER_DATA__</span> via brace-depth parser. Libraries call day-by-day API over 14 days.</div>
+            </div>
+            <div class="flow-arrow">&#x2192;</div>
+            <div class="flow-step">
+              <div class="flow-step-label" style="color:#0550ae;">Parse</div>
+              <div class="flow-step-title">HTML/JSON &rarr; Dict</div>
+              <div class="flow-step-desc">Extract: title, start_date, venue_name, description, image_url, price, source_url. Scraper-specific age parsing and kid-friendly flags.</div>
+            </div>
+            <div class="flow-arrow">&#x2192;</div>
+            <div class="flow-step">
+              <div class="flow-step-label" style="color:#0550ae;">Output</div>
+              <div class="flow-step-title">Event List</div>
+              <div class="flow-step-desc">Returns <span class="mono" style="font-size:10px;">List[dict]</span> with normalized fields. Logged to <span class="mono" style="font-size:10px;">scrape_runs</span> table with event counts and status.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- connector -->
+  <div class="connector-row">
+    <div class="connector-left"></div>
+    <div class="stage-rail"></div>
+    <div class="connector-right">
+      <span class="connector-label">per event &rarr; validation gates in main.py</span>
+      <div class="connector-line"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PHASE 2: FILTER -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="stage-row stage-filter">
+    <div class="stage-summary">
+      <div class="stage-summary-title">Relevance filtering</div>
+      <div class="stage-summary-desc">Not all scraped events belong on the site. Each event is checked against audience, geography, date range, and content rules. Only kid-friendly, upcoming, Miami-Dade events pass through.</div>
+    </div>
+    <div class="stage-rail"><div class="stage-dot">2</div></div>
+    <div class="stage-detail">
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-number">Phase 2</span>
+          <span class="stage-title">Event-Level Filtering</span>
+          <span class="stage-timing">deterministic</span>
+        </div>
+        <div style="font-size:12px; color:#656d76; margin-bottom:12px;">
+          Every scraped event passes through validation gates in <span class="mono" style="color:#9a6700;">helpers.py</span>. Events that fail any check are dropped before touching the database.
+        </div>
+        <div class="flow-row">
+          <div class="flow-step" style="flex:2;">
+            <div class="flow-step-label" style="color:#9a6700;">Filter Gates</div>
+            <ul class="filter-list">
+              <li><span class="filter-icon pass">&#x2713;</span> <strong style="color:#1f2328;">Required fields</strong> &mdash; must have title + start_date</li>
+              <li><span class="filter-icon pass">&#x2713;</span> <strong style="color:#1f2328;">Time window</strong> &mdash; 7-day lookback to 14-day lookahead</li>
+              <li><span class="filter-icon pass">&#x2713;</span> <strong style="color:#1f2328;">Kid-friendly</strong> &mdash; 65+ adult keyword blocklist (nightclub, cocktail, 21+, networking...)</li>
+              <li><span class="filter-icon pass">&#x2713;</span> <strong style="color:#1f2328;">Commitment filter</strong> &mdash; rejects multi-week/semester programs</li>
+              <li><span class="filter-icon pass">&#x2713;</span> <strong style="color:#1f2328;">Late-night filter</strong> &mdash; drops events starting &ge; 6 PM</li>
+              <li><span class="filter-icon pass">&#x2713;</span> <strong style="color:#1f2328;">Geo-bound</strong> &mdash; lat/lng must fall in Miami-Dade bounding box</li>
+              <li><span class="filter-icon fail">&#x2717;</span> <strong style="color:#1f2328;">Age gate</strong> &mdash; extracted age_min &ge; 13 &rarr; hard exclude</li>
+            </ul>
+          </div>
+          <div class="flow-step" style="flex:1;">
+            <div class="flow-step-label" style="color:#9a6700;">Outcome</div>
+            <div class="flow-step-desc" style="margin-top:4px;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><span style="color:#1a7f37; font-weight:600;" class="mono">PASS</span> <span>&rarr; upsert to Supabase</span></div>
+              <div style="display:flex;align-items:center;gap:6px;"><span style="color:#cf222e; font-weight:600;" class="mono">FAIL</span> <span>&rarr; skipped, logged</span></div>
+            </div>
+            <div style="margin-top:14px; padding-top:12px; border-top:1px solid #d0d7de;">
+              <div class="flow-step-label" style="color:#9a6700;">Upsert Logic</div>
+              <div class="flow-step-desc" style="margin-top:4px;">
+                Unique key: <span class="mono" style="color:#9a6700; font-size:10px;">source_url</span><br/>
+                Conflict &rarr; update fields<br/>
+                Returns: <span class="mono" style="font-size:10px; color:#1a7f37;">new</span> / <span class="mono" style="font-size:10px; color:#0550ae;">updated</span> / <span class="mono" style="font-size:10px; color:#8c959f;">skipped</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- connector -->
+  <div class="connector-row">
+    <div class="connector-left"></div>
+    <div class="stage-rail"></div>
+    <div class="connector-right">
+      <span class="connector-label">all events upserted &rarr; dedup pass</span>
+      <div class="connector-line"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PHASE 3: DEDUP -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="stage-row stage-dedup">
+    <div class="stage-summary">
+      <div class="stage-summary-title">Cross-source deduplication</div>
+      <div class="stage-summary-desc">The same event often appears on multiple sources. The system groups matches across sources and retains the highest-quality record based on a scoring model.</div>
+    </div>
+    <div class="stage-rail"><div class="stage-dot">3</div></div>
+    <div class="stage-detail">
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-number">Phase 3</span>
+          <span class="stage-title">Cross-Source Deduplication</span>
+          <span class="stage-timing">~5 sec</span>
+        </div>
+        <div style="font-size:12px; color:#656d76; margin-bottom:12px;">
+          Groups events by normalized title + datetime + address. Scores each record on data quality and keeps the winner. Runs before enrichment to avoid wasting LLM tokens on duplicates.
+        </div>
+
+        <div class="flow-row" style="margin-bottom:12px;">
+          <div class="flow-step">
+            <div class="flow-step-label" style="color:#bc4c00;">Grouping Key</div>
+            <div class="flow-step-desc" style="margin-top:4px;">
+              <span class="mono" style="color:#bc4c00; font-size:10px;">normalize(title)</span> +
+              <span class="mono" style="color:#bc4c00; font-size:10px;">date_to_minute</span> +
+              <span class="mono" style="color:#bc4c00; font-size:10px;">normalize(address)</span><br/><br/>
+              Fuzzy: 70% word overlap (stop words excluded) within same (datetime, address).
+            </div>
+          </div>
+          <div class="flow-arrow">&#x2192;</div>
+          <div class="flow-step">
+            <div class="flow-step-label" style="color:#bc4c00;">Quality Score</div>
+            <div class="flow-step-desc" style="margin-top:4px;">
+              <span class="mono" style="font-size:10px; color:#1f2328;">source_priority</span> &rarr; up to +10<br/>
+              <span class="mono" style="font-size:10px; color:#1f2328;">has image_url</span> &rarr; +3<br/>
+              <span class="mono" style="font-size:10px; color:#1f2328;">has enriched_at</span> &rarr; +4<br/>
+              <span class="mono" style="font-size:10px; color:#1f2328;">has editorial_headline</span> &rarr; +2<br/>
+              <span class="mono" style="font-size:10px; color:#1f2328;">desc length</span> &rarr; +1/100 chars (max +5)
+            </div>
+          </div>
+          <div class="flow-arrow">&#x2192;</div>
+          <div class="flow-step">
+            <div class="flow-step-label" style="color:#bc4c00;">Action</div>
+            <div class="flow-step-desc" style="margin-top:4px;">
+              Highest score &rarr; <span style="color:#1a7f37; font-weight:600;">KEEP</span><br/>
+              All others &rarr; <span style="color:#cf222e; font-weight:600;">DELETE</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dedup-visual">
+          <div class="dedup-group">
+            <div class="dedup-group-title">Example: "Easter Egg Hunt at Zoo Miami"</div>
+            <div class="dedup-event kept">
+              <span>eventbrite &mdash; full description, image</span>
+              <span class="dedup-score">score: 18</span>
+            </div>
+            <div class="dedup-event dropped">
+              <span>zoo_miami &mdash; short desc, no image</span>
+              <span class="dedup-score">score: 9</span>
+            </div>
+            <div class="dedup-event dropped">
+              <span>miami_dade_parks &mdash; title only</span>
+              <span class="dedup-score">score: 5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- connector -->
+  <div class="connector-row">
+    <div class="connector-left"></div>
+    <div class="stage-rail"></div>
+    <div class="connector-right">
+      <span class="connector-label">deduplicated set &rarr; WHERE enriched_at IS NULL</span>
+      <div class="connector-line"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PHASE 4: ENRICHMENT -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="stage-row stage-enrich">
+    <div class="stage-summary">
+      <div class="stage-summary-title">AI editorial enrichment</div>
+      <div class="stage-summary-desc">Raw event data is rewritten by an LLM into parent-facing editorial content: a headline, a summary focused on the child's experience, practical logistics, and structured metadata like activity type and neighborhood.</div>
+    </div>
+    <div class="stage-rail"><div class="stage-dot">4</div></div>
+    <div class="stage-detail">
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-number">Phase 4</span>
+          <span class="stage-title">LLM Enrichment &mdash; Claude Haiku</span>
+          <span class="stage-timing">~0.3s / event</span>
+        </div>
+        <div style="font-size:12px; color:#656d76; margin-bottom:14px;">
+          All events where <span class="mono" style="color:#6639ba;">enriched_at IS NULL</span> are sent one-by-one to Claude Haiku with a detailed brand voice prompt. This is the editorial engine.
+        </div>
+
+        <div class="prompt-block" style="--prompt-accent:#8250df;">
+          <div class="prompt-role system">System Prompt</div>
+          <div class="prompt-text">"You are the editorial voice of EZPZ Miami. <em>Warm, witty, direct.</em> Like a trusted friend who's already vetted the event &mdash; <em>honest, specific, no marketing fluff.</em> Think NYT Parenting meets a local Miami parent newsletter."</div>
+        </div>
+
+        <div class="prompt-block" style="--prompt-accent:#0550ae; margin-top:8px;">
+          <div class="prompt-role user">User Prompt (per event)</div>
+          <div class="prompt-text"><em>title</em> + <em>venue</em> + <em>date/time</em> + <em>current age range</em> + <em>source name</em> + up to <em>3,000 chars</em> of description. Eventbrite events get full page fetched first.</div>
+        </div>
+
+        <div class="transform-visual" style="margin-top:16px;">
+          <div class="transform-box input">
+            <div class="transform-label">Raw Input</div>
+            <div class="transform-field"><span class="key">title:</span> <span class="val">"Spring Break Art Camp for Kids"</span></div>
+            <div class="transform-field"><span class="key">venue:</span> <span class="val">"Perez Art Museum Miami"</span></div>
+            <div class="transform-field"><span class="key">description:</span> <span class="val">"Join us for a week of creative exploration... registration required... ages 5-10... $45/day..."</span></div>
+            <div class="transform-field"><span class="key">age_min:</span> <span class="val">0</span></div>
+            <div class="transform-field"><span class="key">age_max:</span> <span class="val">null</span></div>
+          </div>
+          <div class="transform-arrow">&#x2192;</div>
+          <div class="transform-box output" style="--accent-dark:#6639ba; --accent-border:rgba(130,80,223,0.15); --accent-light:rgba(130,80,223,0.04);">
+            <div class="transform-label">LLM Output (JSON)</div>
+            <div class="transform-field highlight" style="--accent-dark:#6639ba;"><span class="key">editorial_headline:</span> <span class="val">"Little Artists Take Over PAMM This Spring Break"</span></div>
+            <div class="transform-field highlight" style="--accent-dark:#6639ba;"><span class="key">parent_summary:</span> <span class="val">"Kids 5-10 get messy with paint, collage, and sculpture in PAMM's studio. Drop-off friendly, $45/day includes materials."</span></div>
+            <div class="transform-field highlight" style="--accent-dark:#6639ba;"><span class="key">practical_notes:</span> <span class="val">"Registration required. Parking in museum garage. Pack a snack."</span></div>
+            <div class="transform-field highlight" style="--accent-dark:#6639ba;"><span class="key">activity_type:</span> <span class="val">"craft"</span></div>
+            <div class="transform-field highlight" style="--accent-dark:#6639ba;"><span class="key">neighborhood:</span> <span class="val">"Downtown Miami"</span></div>
+            <div class="transform-field highlight" style="--accent-dark:#6639ba;"><span class="key">age_min/max:</span> <span class="val">5 / 10 (confidence: high)</span></div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div style="font-size:11px; font-weight:600; color:#6639ba; margin-bottom:8px;">Post-Enrichment Safety</div>
+          <div class="flow-row">
+            <div class="flow-step" style="border-color:rgba(130,80,223,0.2);">
+              <div class="flow-step-desc">Scans for <strong style="color:#1f2328;">private group signals</strong> (members-only, approval required) &rarr; deletes event</div>
+            </div>
+            <div class="flow-step" style="border-color:rgba(130,80,223,0.2);">
+              <div class="flow-step-desc">Validates <strong style="color:#1f2328;">neighborhood</strong> against known Miami area names &rarr; nulls if invalid</div>
+            </div>
+            <div class="flow-step" style="border-color:rgba(130,80,223,0.2);">
+              <div class="flow-step-desc">Strips <strong style="color:#1f2328;">phone numbers &amp; emails</strong> from editorial text before DB write</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px; font-size:11px; color:#656d76; background:#f6f8fa; border:1px solid #d0d7de; border-radius:8px; padding:10px 14px;">
+          <strong style="color:#6639ba;">Age refinement logic:</strong> LLM ages only overwrite DB when confidence is high/medium AND current values are generic defaults (0/null). Scraper-provided specific ages are never overwritten. Month-based values (e.g., "6 months" &rarr; age_min: 6) are caught and corrected in post-processing.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- connector -->
+  <div class="connector-row">
+    <div class="connector-left"></div>
+    <div class="stage-rail"></div>
+    <div class="connector-right">
+      <span class="connector-label">enriched events &rarr; deterministic validation pass</span>
+      <div class="connector-line"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PHASE 5: VALIDATION -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="stage-row stage-validate">
+    <div class="stage-summary">
+      <div class="stage-summary-title">Quality control</div>
+      <div class="stage-summary-desc">A set of deterministic checks runs against all enriched events to catch edge cases: adult content that slipped through, broken links, invalid age ranges, and missing metadata.</div>
+    </div>
+    <div class="stage-rail"><div class="stage-dot">5</div></div>
+    <div class="stage-detail">
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-number">Phase 5</span>
+          <span class="stage-title">Post-Enrichment Validation</span>
+          <span class="stage-timing">deterministic, no LLM</span>
+        </div>
+        <div style="font-size:12px; color:#656d76; margin-bottom:12px;">
+          Regex, numeric range, and HTTP status checks against all enriched events. No LLM calls. Catches anything the enricher missed or introduced.
+        </div>
+
+        <div class="checks-grid">
+          <div class="check-item" style="--check-color:#cf222e;">
+            <div class="check-item-title">Commitment Programs</div>
+            <div class="check-item-desc">Multi-week/semester language in enriched text</div>
+            <div class="check-item-action">&rarr; is_canceled = true</div>
+          </div>
+          <div class="check-item" style="--check-color:#cf222e;">
+            <div class="check-item-title">Adult Content Signals</div>
+            <div class="check-item-desc">Support groups, civic meetings, parenting classes</div>
+            <div class="check-item-action">&rarr; is_kid_friendly = false</div>
+          </div>
+          <div class="check-item" style="--check-color:#cf222e;">
+            <div class="check-item-title">Age Gate</div>
+            <div class="check-item-desc">age_min &ge; 13 with no age_max &lt; 13</div>
+            <div class="check-item-action">&rarr; is_kid_friendly = false</div>
+          </div>
+          <div class="check-item" style="--check-color:#9a6700;">
+            <div class="check-item-title">Contact Info Leakage</div>
+            <div class="check-item-desc">Phone/email in parent_summary or notes</div>
+            <div class="check-item-action">&rarr; reset enriched_at (re-enrich)</div>
+          </div>
+          <div class="check-item" style="--check-color:#9a6700;">
+            <div class="check-item-title">Invalid Age Ranges</div>
+            <div class="check-item-desc">Inverted ranges or age_min &ge; 18</div>
+            <div class="check-item-action">&rarr; null out age fields</div>
+          </div>
+          <div class="check-item" style="--check-color:#cf222e;">
+            <div class="check-item-title">Dead Source URLs</div>
+            <div class="check-item-desc">HTTP HEAD &rarr; 404 means removed at source</div>
+            <div class="check-item-action">&rarr; is_canceled = true</div>
+          </div>
+          <div class="check-item" style="--check-color:#1a7f37;">
+            <div class="check-item-title">Missing Neighborhoods</div>
+            <div class="check-item-desc">Null neighborhood &rarr; geocode via address</div>
+            <div class="check-item-action">&rarr; resolve via Google Geocoding</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- connector -->
+  <div class="connector-row">
+    <div class="connector-left"></div>
+    <div class="stage-rail"></div>
+    <div class="connector-right">
+      <span class="connector-label">validated &rarr; mark stale events</span>
+      <div class="connector-line"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PHASE 6: CLEANUP -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="stage-row stage-cleanup">
+    <div class="stage-summary">
+      <div class="stage-summary-title">Expiry and cleanup</div>
+      <div class="stage-summary-desc">Past events are flagged and removed from the live feed. They remain in the database for historical tracking but are excluded from all user-facing queries.</div>
+    </div>
+    <div class="stage-rail"><div class="stage-dot">6</div></div>
+    <div class="stage-detail">
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-number">Phase 6</span>
+          <span class="stage-title">Cleanup &amp; Expiry</span>
+          <span class="stage-timing">bulk UPDATE</span>
+        </div>
+        <div style="font-size:12px; color:#656d76;">
+          All events where <span class="mono" style="color:#1a7f37;">start_date &lt; today</span> are bulk-updated to <span class="mono" style="color:#1a7f37;">is_past = true</span>. Remain in DB for historical reference, excluded from frontend queries. Frontend filter: <span class="mono" style="color:#1a7f37; font-size:10px;">is_canceled=false AND is_kid_friendly=true AND start_date &ge; today</span>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- connector -->
+  <div class="connector-row">
+    <div class="connector-left"></div>
+    <div class="stage-rail"></div>
+    <div class="connector-right">
+      <span class="connector-label">database ready &rarr; frontend reads live</span>
+      <div class="connector-line"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PHASE 7: FRONTEND -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="stage-row stage-serve">
+    <div class="stage-summary">
+      <div class="stage-summary-title">Live delivery to users</div>
+      <div class="stage-summary-desc">The website reads directly from the database in real time. Within seconds of a pipeline run completing, parents see the updated, curated event feed with full editorial content.</div>
+    </div>
+    <div class="stage-rail"><div class="stage-dot">&#x2713;</div></div>
+    <div class="stage-detail">
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-number">Live</span>
+          <span class="stage-title">Frontend &rarr; Supabase &rarr; User</span>
+          <span class="stage-timing">real-time reads</span>
+        </div>
+        <div style="font-size:12px; color:#656d76; margin-bottom:14px;">
+          Static HTML on GitHub Pages queries Supabase directly from the browser using the publishable key + Row Level Security. No backend server. No build step. Updates visible within seconds.
+        </div>
+
+        <div class="flow-row">
+          <div class="flow-step">
+            <div class="flow-step-label" style="color:#0550ae;">Index Page</div>
+            <div class="flow-step-title">Event Listing</div>
+            <div class="flow-step-desc">Events grouped by day (Today / Tomorrow / Sat Apr 4...). Activity-type icons, source badges, price pills. Recurring library programs collapsed into single expandable cards.</div>
+          </div>
+          <div class="flow-arrow">&#x2192;</div>
+          <div class="flow-step">
+            <div class="flow-step-label" style="color:#0550ae;">Detail Page</div>
+            <div class="flow-step-title">Event Detail</div>
+            <div class="flow-step-desc">Full editorial: headline, parent summary, practical notes. Plan-your-visit rows (map, cost, age, indoor/outdoor). Sticky "Get Tickets" CTA. WhatsApp share + Add to Calendar.</div>
+          </div>
+          <div class="flow-arrow">&#x2192;</div>
+          <div class="flow-step">
+            <div class="flow-step-label" style="color:#0550ae;">Architecture</div>
+            <div class="flow-step-title">Stack</div>
+            <div class="flow-step-desc">
+              <span class="mono" style="font-size:10px; color:#0550ae;">GitHub Pages</span> (hosting, free)<br/>
+              <span class="mono" style="font-size:10px; color:#0550ae;">Supabase JS v2</span> (browser SDK)<br/>
+              <span class="mono" style="font-size:10px; color:#0550ae;">sb_publishable_*</span> key + RLS<br/>
+              <span class="mono" style="font-size:10px; color:#0550ae;">deploy.sh</span> &rarr; git push to Pages
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat">
+            <div class="stat-value">2x</div>
+            <div class="stat-label">Daily Runs</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">7</div>
+            <div class="stat-label">Quality Checks</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">83</div>
+            <div class="stat-label">Miami Neighborhoods</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">$0</div>
+            <div class="stat-label">Hosting Cost</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .pipeline -->
+
+</body>
+</html>
