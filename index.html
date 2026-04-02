@@ -8,6 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Montserrat:wght@800;900&display=swap" rel="stylesheet" />
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W4T15HS0Z0"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-W4T15HS0Z0');
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1565,6 +1573,7 @@ function switchTab(tab) {
   updateAgeFilterVisibility();
   renderContent();
   updateTabUnderline();
+  gtag('event', 'tab_switch', { tab_name: tab });
 }
 
 function updateTabUI() {
@@ -1611,6 +1620,7 @@ function setAgeFilter(age) {
     chip.classList.toggle('active', chip.dataset.age === age);
   });
   renderContent();
+  gtag('event', 'age_filter', { age_group: age });
 }
 
 function resetAgeFilter() {
@@ -1680,6 +1690,7 @@ function toggleHoodOption(el) {
   }
   updateHoodPill();
   renderContent();
+  gtag('event', 'neighborhood_filter', { neighborhood: hood, active_count: _activeHoods.size });
 }
 
 function clearHoodFilter() {
@@ -1738,6 +1749,7 @@ function selectDate(key) {
   if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   renderContent();
   updateAllBadges();
+  gtag('event', 'date_select', { date: key, tab: _activeTab });
 }
 
 function jumpToDate(val) {
@@ -2061,7 +2073,9 @@ function renderPlaces() {
   document.querySelectorAll('.venue-cta').forEach(btn => {
     btn.onclick = (e) => {
       e.preventDefault();
-      e.currentTarget.closest('.venue-card').classList.toggle('expanded');
+      const card = e.currentTarget.closest('.venue-card');
+      card.classList.toggle('expanded');
+      gtag('event', 'venue_expand', { venue_id: card.dataset.venueId });
     };
   });
 
@@ -2072,6 +2086,14 @@ function renderPlaces() {
       const id = link.dataset.eventId;
       openModal(id);
     };
+  });
+
+  // Track venue website clicks
+  document.querySelectorAll('.venue-visit-btn').forEach(link => {
+    link.addEventListener('click', () => {
+      const card = link.closest('.venue-card');
+      gtag('event', 'venue_website_click', { venue_id: card ? card.dataset.venueId : '' });
+    });
   });
 
   // Handle broken venue logo images
@@ -2233,6 +2255,7 @@ function openModal(id, e) {
   }
   history.pushState({ modalId: id }, '', '?id=' + id);
   _showModal(id);
+  gtag('event', 'event_card_click', { event_id: id, tab: _activeTab });
 }
 
 function _showModal(id) {
@@ -2285,6 +2308,15 @@ async function fetchAndRenderModal(id) {
     ctaLink.href = data.source_url;
     ctaLink.textContent = data.is_free ? 'Register / RSVP' : 'View & Get Tickets';
     ctaLink.style.display = 'flex';
+    ctaLink.onclick = function() {
+      gtag('event', 'ticket_click', {
+        event_title: data.editorial_headline || data.title,
+        event_source: data.source,
+        is_free: data.is_free,
+        venue: data.venue_name || '',
+        page: 'listing'
+      });
+    };
   } else {
     ctaLink.style.display = 'none';
   }
@@ -2296,6 +2328,9 @@ async function fetchAndRenderModal(id) {
   if (mq) {
     mapsBtn.href = 'https://maps.google.com/?q=' + encodeURIComponent(mq);
     mapsBtn.style.display = 'flex';
+    mapsBtn.onclick = function() {
+      gtag('event', 'maps_click', { event_title: data.editorial_headline || data.title, venue: data.venue_name || '', page: 'listing' });
+    };
   } else {
     mapsBtn.style.display = 'none';
   }
@@ -2364,6 +2399,7 @@ function shareWhatsApp() {
   const text  = [title, date + (time ? ' at ' + time : ''), venue, '', 'Found on EZPZ Miami 🌴', url]
     .filter(Boolean).join('\n');
   window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+  gtag('event', 'share', { method: 'whatsapp', event_title: title, page: 'listing' });
 }
 
 function calendarModal() {
@@ -2376,6 +2412,7 @@ function calendarModal() {
     + '&location=' + encodeURIComponent(ev.address || ev.venue_name || '')
     + '&details=' + encodeURIComponent((ev.parent_summary || ev.description || '').slice(0, 200));
   window.open(url, '_blank');
+  gtag('event', 'add_to_calendar', { event_title: ev.editorial_headline || ev.title, page: 'listing' });
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────
