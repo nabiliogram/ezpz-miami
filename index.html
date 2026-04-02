@@ -266,9 +266,22 @@
       margin-top: 1px;
     }
     .date-btn.active .day-dot { opacity: 1; }
+    .date-btn .day-count {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      font-weight: 800;
+      color: var(--text-3);
+      margin-top: 1px;
+      opacity: 0;
+      transition: opacity 0.15s;
+      line-height: 1;
+    }
+    .date-btn .day-count.has-events { opacity: 0.55; }
+    .date-btn.active .day-count.has-events { opacity: 1; color: var(--flamingo); }
     /* Date color variants */
     .date-strip[data-tab="library"] .date-btn.active .day-num { color: var(--violet); }
     .date-strip[data-tab="library"] .date-btn.active .day-dot { background: var(--violet); }
+    .date-strip[data-tab="library"] .date-btn.active .day-count.has-events { color: var(--violet); }
     .date-strip[data-tab="places"] .date-btn.active .day-num { color: var(--teal); }
     .date-strip[data-tab="places"] .date-btn.active .day-dot { background: var(--teal); }
 
@@ -1769,9 +1782,48 @@ function buildDateStrip() {
       <span class="day-name">${dn}</span>
       <span class="day-num">${num}</span>
       <span class="day-dot"></span>
+      <span class="day-count" data-date="${key}"></span>
     </button>`;
   }
   inner.innerHTML = html;
+}
+
+function updateDateStripCounts() {
+  // Count events per day based on active tab + filters
+  const isLibrary = _activeTab === 'library';
+  let events;
+  if (isLibrary) {
+    events = _allEvents.filter(ev => ev.source === 'miami_dade_libraries');
+    if (_activeAgeFilter !== 'all') {
+      events = events.filter(ev => matchesAgeFilter(ev, _activeAgeFilter));
+    }
+    if (_activeHoods.size > 0) {
+      events = events.filter(ev => {
+        const hood = ev.neighborhood ? titleCase(ev.neighborhood) : '';
+        return _activeHoods.has(hood);
+      });
+    }
+  } else {
+    events = _allEvents.filter(ev => ev.source !== 'miami_dade_libraries');
+  }
+  // Build count map
+  const countMap = {};
+  for (const ev of events) {
+    const key = toDateKey(new Date(ev.start_date));
+    countMap[key] = (countMap[key] || 0) + 1;
+  }
+  // Update DOM
+  document.querySelectorAll('.day-count').forEach(el => {
+    const key = el.dataset.date;
+    const count = countMap[key] || 0;
+    if (count > 0) {
+      el.textContent = `(${count})`;
+      el.classList.add('has-events');
+    } else {
+      el.textContent = '';
+      el.classList.remove('has-events');
+    }
+  });
 }
 
 let _scrollObserver = null;
@@ -1928,6 +1980,7 @@ function renderContent() {
   } else if (_activeTab === 'places') {
     renderPlaces();
   }
+  updateDateStripCounts();
 }
 
 function renderLocalEvents() {
