@@ -66,7 +66,7 @@
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+      border-bottom: none;
     }
     .header-inner {
       max-width: 720px;
@@ -104,30 +104,35 @@
     /* Calendar button removed — space reserved for disclaimer link */
 
     /* ─────────────────────────────────────────────
-       TAB BAR — Card-in-Tray Design
+       TAB BAR — Accent Line + Hanging Tag Cards
     ───────────────────────────────────────────── */
+    .tab-accent-line {
+      height: 3px;
+      background: var(--flamingo);
+      transition: background 0.2s ease;
+    }
+    .tab-accent-line[data-active="library"] { background: var(--violet); }
+    .tab-accent-line[data-active="places"] { background: var(--teal); }
+
     .tab-bar-wrap {
       position: sticky;
       top: var(--header-h);
       z-index: 95;
       background: var(--bg-white);
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
+      padding: 0 12px 10px;
     }
     .tab-bar {
       display: flex;
       gap: 8px;
       max-width: 720px;
       margin: 0 auto;
-      background: #F7F6F4;
-      border-radius: 14px;
-      padding: 6px;
     }
     .tab-btn {
       flex: 1;
       border: 1.5px solid #E8E6E3;
-      background: white;
-      border-radius: 11px;
+      border-top: none;
+      background: #FAFAF9;
+      border-radius: 0 0 14px 14px;
       padding: 10px 6px;
       cursor: pointer;
       display: flex;
@@ -159,34 +164,34 @@
       height: 18px;
       padding: 0 7px;
       border-radius: 10px;
-      background: #EDECEB;
+      background: #E5E4E1;
       font-size: 10.5px;
       font-weight: 800;
       color: var(--text-2);
       line-height: 1;
     }
-    .tab-btn:hover { background: #FAFAF9; }
-    /* Active states — colored fill + border */
+    .tab-btn:hover { background: #F5F4F2; }
+    /* Active states — colored fill + border + shadow */
     .tab-btn[data-tab="events"].active {
-      background: rgba(255, 68, 119, 0.08);
+      background: rgba(255, 68, 119, 0.06);
       border-color: var(--flamingo);
-      box-shadow: 0 2px 8px rgba(255, 68, 119, 0.12);
+      box-shadow: 0 3px 8px rgba(255, 68, 119, 0.1);
     }
     .tab-btn[data-tab="events"].active .tab-label { color: var(--flamingo); }
     .tab-btn[data-tab="events"].active .tab-badge { background: var(--flamingo); color: white; }
 
     .tab-btn[data-tab="library"].active {
-      background: rgba(139, 92, 246, 0.08);
+      background: rgba(139, 92, 246, 0.06);
       border-color: var(--violet);
-      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.12);
+      box-shadow: 0 3px 8px rgba(139, 92, 246, 0.1);
     }
     .tab-btn[data-tab="library"].active .tab-label { color: var(--violet); }
     .tab-btn[data-tab="library"].active .tab-badge { background: var(--violet); color: white; }
 
     .tab-btn[data-tab="places"].active {
-      background: rgba(13, 148, 136, 0.08);
+      background: rgba(13, 148, 136, 0.06);
       border-color: var(--teal);
-      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.12);
+      box-shadow: 0 3px 8px rgba(13, 148, 136, 0.1);
     }
     .tab-btn[data-tab="places"].active .tab-label { color: var(--teal); }
     .tab-btn[data-tab="places"].active .tab-badge { background: var(--teal); color: white; }
@@ -1395,6 +1400,7 @@
 </header>
 
 <!-- Tab Bar -->
+<div class="tab-accent-line" id="tab-accent-line" data-active="events"></div>
 <div class="tab-bar-wrap" id="tab-bar-wrap">
   <nav class="tab-bar" id="tab-bar">
     <button class="tab-btn active" data-tab="events" onclick="switchTab('events')">
@@ -1582,6 +1588,8 @@ function updateTabUI() {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === _activeTab);
   });
+  const accentLine = document.getElementById('tab-accent-line');
+  if (accentLine) accentLine.dataset.active = _activeTab;
 }
 
 function updateDateStripVisibility() {
