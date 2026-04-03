@@ -2080,37 +2080,67 @@ const ZIP_COORDS = {
 };
 
 // Miami-Dade Public Library branch name → lat/lng (keyword-based lookup)
+// NOTE: More-specific entries MUST come before broader ones (e.g. "hialeah gardens"
+// before "hialeah", "north miami beach" before "north miami", "west kendall" before
+// "kendall") because matching is first-hit.
 const LIBRARY_BRANCH_COORDS = [
-  { keywords: ['main library', 'w flagler', 'civic center'],          lat: 25.7743, lng: -80.1941 },
-  { keywords: ['coconut grove'],                                        lat: 25.7306, lng: -80.2356 },
-  { keywords: ['coral gables'],                                         lat: 25.7448, lng: -80.2616 },
-  { keywords: ['coral reef'],                                           lat: 25.6063, lng: -80.3694 },
-  { keywords: ['culmer', 'overtown'],                                   lat: 25.7873, lng: -80.2038 },
-  { keywords: ['doral'],                                                lat: 25.8203, lng: -80.3565 },
-  { keywords: ['edison center', 'edison'],                              lat: 25.8434, lng: -80.2126 },
-  { keywords: ['hialeah gardens'],                                      lat: 25.9077, lng: -80.3297 },
-  { keywords: ['hialeah'],                                              lat: 25.8625, lng: -80.2917 },
-  { keywords: ['homestead'],                                            lat: 25.4695, lng: -80.4774 },
-  { keywords: ['kendall'],                                              lat: 25.6764, lng: -80.3565 },
-  { keywords: ['lemon city'],                                           lat: 25.8425, lng: -80.1928 },
-  { keywords: ['little havana'],                                        lat: 25.7641, lng: -80.2194 },
-  { keywords: ['little river'],                                         lat: 25.8536, lng: -80.1900 },
-  { keywords: ['miami beach regional', 'miami beach'],                  lat: 25.7918, lng: -80.1316 },
-  { keywords: ['miami lakes'],                                          lat: 25.9202, lng: -80.3161 },
-  { keywords: ['model city'],                                           lat: 25.8391, lng: -80.2178 },
-  { keywords: ['north central'],                                        lat: 25.8888, lng: -80.2410 },
-  { keywords: ['north dade regional', 'carol city'],                    lat: 25.9371, lng: -80.2391 },
-  { keywords: ['north miami beach', 'ojus'],                            lat: 25.9325, lng: -80.1494 },
-  { keywords: ['north miami'],                                          lat: 25.8959, lng: -80.1867 },
-  { keywords: ['north shore'],                                          lat: 25.8524, lng: -80.1263 },
-  { keywords: ['opa-locka', 'opa locka'],                               lat: 25.9010, lng: -80.2485 },
-  { keywords: ['palmetto bay'],                                         lat: 25.5882, lng: -80.3361 },
-  { keywords: ['pinecrest'],                                            lat: 25.6742, lng: -80.3117 },
-  { keywords: ['shenandoah'],                                           lat: 25.7634, lng: -80.2408 },
-  { keywords: ['south dade regional', 'cutler bay'],                    lat: 25.5825, lng: -80.4018 },
-  { keywords: ['south miami'],                                          lat: 25.7055, lng: -80.2886 },
-  { keywords: ['west dade regional', 'west dade'],                      lat: 25.7597, lng: -80.4060 },
-  { keywords: ['westchester'],                                          lat: 25.7597, lng: -80.3321 },
+  // ── Central / Downtown ───────────────────────────────────────────────────────
+  { keywords: ['main library', 'civic center'],               lat: 25.7743, lng: -80.1941 },
+  { keywords: ['booker t'],                                   lat: 25.7823, lng: -80.2073 },
+  { keywords: ['culmer', 'overtown'],                         lat: 25.7873, lng: -80.2038 },
+  { keywords: ['lemon city'],                                 lat: 25.8425, lng: -80.1928 },
+  { keywords: ['little havana'],                              lat: 25.7641, lng: -80.2194 },
+  { keywords: ['little river'],                               lat: 25.8536, lng: -80.1900 },
+  { keywords: ['model city'],                                 lat: 25.8391, lng: -80.2178 },
+  { keywords: ['shenandoah'],                                 lat: 25.7634, lng: -80.2408 },
+  { keywords: ['west flagler'],                               lat: 25.7648, lng: -80.3163 },
+  // ── Beaches ──────────────────────────────────────────────────────────────────
+  { keywords: ['miami beach regional', 'miami beach'],        lat: 25.7918, lng: -80.1316 },
+  { keywords: ['north shore'],                                lat: 25.8524, lng: -80.1263 },
+  { keywords: ['sunny isles beach', 'sunny isles'],           lat: 25.9419, lng: -80.1223 },
+  // ── Upper East / NE Miami ────────────────────────────────────────────────────
+  { keywords: ['north miami beach', 'ojus'],                  lat: 25.9325, lng: -80.1494 },
+  { keywords: ['north miami'],                                lat: 25.8959, lng: -80.1867 },
+  { keywords: ['northeast dade', 'aventura'],                 lat: 25.9522, lng: -80.1476 },
+  { keywords: ['arcola lakes', 'arcola'],                     lat: 25.8534, lng: -80.2174 },
+  { keywords: ['north central'],                              lat: 25.8888, lng: -80.2410 },
+  // ── Hialeah / NW ─────────────────────────────────────────────────────────────
+  { keywords: ['hialeah gardens'],                            lat: 25.9077, lng: -80.3297 },
+  { keywords: ['hialeah'],                                    lat: 25.8625, lng: -80.2917 },
+  { keywords: ['california club'],                            lat: 25.8634, lng: -80.3034 },
+  { keywords: ['palm springs north'],                         lat: 25.9212, lng: -80.3150 },
+  { keywords: ['miami springs'],                              lat: 25.8211, lng: -80.2936 },
+  { keywords: ['miami lakes'],                                lat: 25.9202, lng: -80.3161 },
+  { keywords: ['north dade regional', 'carol city'],          lat: 25.9371, lng: -80.2391 },
+  { keywords: ['opa-locka', 'opa locka'],                     lat: 25.9010, lng: -80.2485 },
+  // ── Doral / West ─────────────────────────────────────────────────────────────
+  { keywords: ['doral'],                                      lat: 25.8203, lng: -80.3565 },
+  { keywords: ['international mall'],                         lat: 25.7928, lng: -80.3925 },
+  { keywords: ['tamiami'],                                    lat: 25.7618, lng: -80.4090 },
+  { keywords: ['west dade regional', 'west dade'],            lat: 25.7597, lng: -80.4060 },
+  // ── Westchester / Flagami ────────────────────────────────────────────────────
+  { keywords: ['westchester regional', 'westchester'],        lat: 25.7597, lng: -80.3321 },
+  { keywords: ['edison center', 'edison'],                    lat: 25.8434, lng: -80.2126 },
+  // ── Coconut Grove / Coral Gables / South Miami ───────────────────────────────
+  { keywords: ['virrick park'],                               lat: 25.7246, lng: -80.2462 },
+  { keywords: ['coconut grove'],                              lat: 25.7306, lng: -80.2356 },
+  { keywords: ['coral gables'],                               lat: 25.7448, lng: -80.2616 },
+  { keywords: ['coral way'],                                  lat: 25.7520, lng: -80.2822 },
+  { keywords: ['south miami'],                                lat: 25.7055, lng: -80.2886 },
+  { keywords: ['sunset'],                                     lat: 25.6969, lng: -80.3663 },
+  { keywords: ['pinecrest'],                                  lat: 25.6742, lng: -80.3117 },
+  // ── Kendall / SW ─────────────────────────────────────────────────────────────
+  { keywords: ['west kendall'],                               lat: 25.6601, lng: -80.4318 },
+  { keywords: ['kendale lakes'],                              lat: 25.6657, lng: -80.4268 },
+  { keywords: ['kendall'],                                    lat: 25.6764, lng: -80.3565 },
+  { keywords: ['coral reef'],                                 lat: 25.6063, lng: -80.3694 },
+  { keywords: ['country walk'],                               lat: 25.5815, lng: -80.4150 },
+  // ── Far South ────────────────────────────────────────────────────────────────
+  { keywords: ['palmetto bay'],                               lat: 25.5882, lng: -80.3361 },
+  { keywords: ['south dade regional'],                        lat: 25.5825, lng: -80.4018 },
+  { keywords: ['cutler bay'],                                 lat: 25.5790, lng: -80.3414 },
+  { keywords: ['naranja'],                                    lat: 25.5082, lng: -80.4192 },
+  { keywords: ['homestead'],                                  lat: 25.4695, lng: -80.4774 },
 ];
 
 // Returns {lat, lng} for a library branch name, or null if not found
