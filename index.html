@@ -1629,7 +1629,152 @@
       /* === FOOTER === */
       .footer { padding: 40px 0 16px; }
       .footer-text { font-size: 11px; }
+
+      /* === LOCATION BAR (desktop only) === */
+      .location-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: sticky;
+        top: 67px; /* header 64px + 3px flamingo border */
+        z-index: 90;
+        height: 48px;
+        background: #F0FDFA;
+        border-bottom: 1px solid rgba(13,148,136,0.15);
+      }
+      .location-bar-inner {
+        max-width: 960px;
+        width: 100%;
+        padding: 0 32px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .dloc-invite { display: flex; align-items: center; gap: 10px; }
+      .dloc-invite-text { font-size: 12px; font-weight: 500; color: var(--teal); opacity: 0.85; }
+      .dloc-invite-btn {
+        display: flex; align-items: center; gap: 6px;
+        padding: 7px 16px;
+        background: var(--teal); border: none; border-radius: 8px;
+        font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900;
+        text-transform: uppercase; color: white; cursor: pointer;
+        box-shadow: 0 2px 8px rgba(13,148,136,0.2);
+        white-space: nowrap;
+      }
+      .dloc-invite-btn:hover { background: #0f766e; }
+      .dloc-input { display: none; align-items: center; gap: 8px; }
+      .dloc-zip-field {
+        width: 90px; padding: 7px 12px;
+        border: 1.5px solid var(--teal); border-radius: 8px;
+        font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600;
+        color: var(--text-1); background: white; outline: none;
+      }
+      .dloc-zip-field::placeholder { color: var(--text-3); }
+      .dloc-go-btn {
+        padding: 7px 16px; background: var(--teal); border: none; border-radius: 8px;
+        font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900;
+        text-transform: uppercase; color: white; cursor: pointer; white-space: nowrap;
+      }
+      .dloc-go-btn:hover { background: #0f766e; }
+      .dloc-gps-btn {
+        padding: 7px 10px; background: white; border: 1.5px solid var(--border-med);
+        border-radius: 8px; cursor: pointer; font-size: 14px; line-height: 1;
+      }
+      .dloc-gps-btn:hover { border-color: var(--teal); }
+      .dloc-cancel-btn {
+        padding: 7px 8px; background: transparent; border: none; cursor: pointer;
+        font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase;
+      }
+      .dloc-cancel-btn:hover { color: var(--text-2); }
+      .dloc-set { display: none; align-items: center; gap: 12px; }
+      .dloc-set-badge {
+        display: flex; align-items: center; gap: 6px;
+        padding: 6px 14px;
+        background: rgba(13,148,136,0.1); border: 1.5px solid var(--teal); border-radius: 8px;
+        font-size: 12px; font-weight: 700; color: var(--teal); cursor: pointer; white-space: nowrap;
+      }
+      .dloc-set-badge:hover { background: rgba(13,148,136,0.15); }
+      .dloc-set-sorted { font-size: 12px; font-weight: 500; color: var(--teal); opacity: 0.75; }
+
+      /* Sticky offset updates for desktop location bar presence */
+      .date-strip { top: 115px; } /* 64px header + 3px border + 48px location bar */
+      .age-filter-bar { top: calc(115px + var(--date-h)); }
+
+      /* Hide mobile header location controls on desktop */
+      .header-loc { display: none !important; }
     }
+  </style>
+
+  <style>
+    /* ─────────────────────────────────────────────
+       LOCATION — Mobile Header Controls
+    ───────────────────────────────────────────── */
+    .header-loc { display: flex; align-items: center; }
+    .hloc-default { display: flex; align-items: center; gap: 10px; }
+    .hloc-default-tip {
+      font-size: 10px; font-weight: 500; color: var(--teal); opacity: 0.8;
+      text-align: right; line-height: 1.3; white-space: nowrap;
+    }
+    .hloc-default-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 13px; background: var(--teal); border: none; border-radius: 10px;
+      font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900;
+      text-transform: uppercase; color: white; cursor: pointer; white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(13,148,136,0.25);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hloc-input { display: none; align-items: center; gap: 6px; }
+    .hloc-zip-field {
+      width: 72px; padding: 7px 10px;
+      border: 1.5px solid var(--teal); border-radius: 8px;
+      font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600;
+      color: var(--text-1); background: white; outline: none;
+      -webkit-appearance: none;
+    }
+    .hloc-zip-field::placeholder { color: var(--text-3); }
+    .hloc-go-btn {
+      padding: 7px 12px; background: var(--teal); border: none; border-radius: 8px;
+      font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900;
+      text-transform: uppercase; color: white; cursor: pointer; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hloc-gps-btn {
+      padding: 7px 10px; background: transparent; border: 1.5px solid var(--border-med);
+      border-radius: 8px; cursor: pointer; font-size: 14px; line-height: 1;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hloc-cancel-btn {
+      padding: 7px 6px; background: transparent; border: none; cursor: pointer;
+      font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hloc-set { display: none; align-items: center; gap: 6px; }
+    .hloc-set-badge {
+      display: flex; align-items: center; gap: 5px;
+      padding: 7px 12px;
+      background: rgba(13,148,136,0.1); border: 1.5px solid var(--teal); border-radius: 10px;
+      font-size: 11px; font-weight: 700; color: var(--teal); cursor: pointer; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ─────────────────────────────────────────────
+       DISTANCE PILL — on event cards
+    ───────────────────────────────────────────── */
+    .billboard-top-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin-bottom: 6px;
+    }
+    .card-distance-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px;
+      background: rgba(13,148,136,0.12); border-radius: 20px;
+      font-size: 9px; font-weight: 800; color: var(--teal);
+      letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Location bar hidden on mobile; shown only via desktop media query */
+    @media (max-width: 959px) { .location-bar { display: none !important; } }
   </style>
 </head>
 <body>
@@ -1639,11 +1784,62 @@
   <div class="header-inner">
     <a class="logo" href="#">
       <span class="logo-name">EZPZ Miami</span>
-      <span class="logo-tag">The Play &mdash; Book</span>
+      <span class="logo-tag">The Parent Cheat Sheet</span>
     </a>
-    <!-- reserved for future use (disclaimer link) -->
+    <!-- Mobile location controls (hidden on desktop via CSS) -->
+    <div class="header-loc" id="header-loc">
+      <!-- Default state: tip + Set Area button -->
+      <div class="hloc-default" id="hloc-default">
+        <span class="hloc-default-tip">nearest<br>events first</span>
+        <button class="hloc-default-btn" onclick="showLocState('input');document.getElementById('hloc-zip').focus()">
+          📍 Set Area
+        </button>
+      </div>
+      <!-- Input state: zip field + Go + GPS + Cancel -->
+      <div class="hloc-input" id="hloc-input">
+        <input class="hloc-zip-field" id="hloc-zip" type="tel" inputmode="numeric" maxlength="5" placeholder="33133"
+               onkeydown="if(event.key==='Enter')tryZipSubmit('hloc-zip')">
+        <button class="hloc-go-btn" onclick="tryZipSubmit('hloc-zip')">Go</button>
+        <button class="hloc-gps-btn" onclick="tryGPS()" title="Use my location">📡</button>
+        <button class="hloc-cancel-btn" onclick="showLocState('default')">✕</button>
+      </div>
+      <!-- Set state: location badge (tap to clear) -->
+      <div class="hloc-set" id="hloc-set">
+        <button class="hloc-set-badge" onclick="clearLocation()" title="Tap to clear">
+          <span id="hloc-badge-text">📍 33133 · C. Grove</span>
+        </button>
+      </div>
+    </div>
   </div>
 </header>
+
+<!-- Desktop Location Bar (hidden on mobile via CSS, shown via desktop media query) -->
+<div class="location-bar" id="location-bar">
+  <div class="location-bar-inner">
+    <!-- Invite state -->
+    <div class="dloc-invite" id="dloc-invite">
+      <span class="dloc-invite-text">📍 Add your zip — closest activities surface first</span>
+      <button class="dloc-invite-btn" onclick="showLocState('input');document.getElementById('dloc-zip').focus()">
+        Set Area
+      </button>
+    </div>
+    <!-- Input state -->
+    <div class="dloc-input" id="dloc-input">
+      <input class="dloc-zip-field" id="dloc-zip" type="tel" inputmode="numeric" maxlength="5" placeholder="33133"
+             onkeydown="if(event.key==='Enter')tryZipSubmit('dloc-zip')">
+      <button class="dloc-go-btn" onclick="tryZipSubmit('dloc-zip')">Go</button>
+      <button class="dloc-gps-btn" onclick="tryGPS()" title="Use my location">📡</button>
+      <button class="dloc-cancel-btn" onclick="showLocState('default')">✕ Cancel</button>
+    </div>
+    <!-- Set state -->
+    <div class="dloc-set" id="dloc-set">
+      <button class="dloc-set-badge" onclick="clearLocation()" title="Tap to clear location">
+        <span id="dloc-badge-text">📍 33133 · C. Grove</span>
+      </button>
+      <span class="dloc-set-sorted">✦ Sorted by distance</span>
+    </div>
+  </div>
+</div>
 
 <!-- Tab Bar -->
 <div class="tab-bar-wrap" id="tab-bar-wrap">
@@ -1660,7 +1856,7 @@
       <span class="tab-badge">0</span>
     </button>
     <button class="tab-btn" data-tab="places" onclick="switchTab('places')">
-      <span class="tab-icon">📍</span>
+      <span class="tab-icon">🗺️</span>
       <span class="tab-label">Anytime <br>Spots</span>
       <span class="tab-badge">15</span>
     </button>
@@ -1817,6 +2013,82 @@ let _activeTab = 'events';
 let _activeAgeFilter = 'all';
 let _activeHoods = new Set(); // empty = all neighborhoods
 let _modalEvent = null;
+
+// ─── LOCATION STATE ───────────────────────────────────────────────
+let _userLat = null;
+let _userLng = null;
+let _userZip = null;
+let _userLocLabel = null;
+
+// Miami-Dade ZIP code → lat/lng + short neighborhood label
+const ZIP_COORDS = {
+  '33101': { lat: 25.7617, lng: -80.1918, label: 'Downtown' },
+  '33109': { lat: 25.7681, lng: -80.1317, label: 'Miami Beach' },
+  '33119': { lat: 25.7893, lng: -80.1298, label: 'South Beach' },
+  '33122': { lat: 25.8099, lng: -80.3005, label: 'Airport Area' },
+  '33124': { lat: 25.7203, lng: -80.2754, label: 'Coral Gables' },
+  '33125': { lat: 25.7762, lng: -80.2285, label: 'Little Havana' },
+  '33126': { lat: 25.7665, lng: -80.3041, label: 'Westchester' },
+  '33127': { lat: 25.8023, lng: -80.2027, label: 'Wynwood' },
+  '33128': { lat: 25.7742, lng: -80.1964, label: 'Downtown' },
+  '33129': { lat: 25.7468, lng: -80.2028, label: 'Brickell' },
+  '33130': { lat: 25.7555, lng: -80.1982, label: 'Brickell' },
+  '33131': { lat: 25.7595, lng: -80.1912, label: 'Brickell' },
+  '33132': { lat: 25.7798, lng: -80.1861, label: 'Downtown' },
+  '33133': { lat: 25.7250, lng: -80.2376, label: 'C. Grove' },
+  '33134': { lat: 25.7456, lng: -80.2679, label: 'Coral Gables' },
+  '33135': { lat: 25.7648, lng: -80.2393, label: 'Little Havana' },
+  '33136': { lat: 25.7860, lng: -80.2106, label: 'Overtown' },
+  '33137': { lat: 25.8132, lng: -80.1879, label: 'Upper East Side' },
+  '33138': { lat: 25.8654, lng: -80.1837, label: 'Miami Shores' },
+  '33139': { lat: 25.7907, lng: -80.1307, label: 'South Beach' },
+  '33140': { lat: 25.8198, lng: -80.1262, label: 'Mid Beach' },
+  '33141': { lat: 25.8450, lng: -80.1236, label: 'North Beach' },
+  '33142': { lat: 25.8068, lng: -80.2305, label: 'Allapattah' },
+  '33143': { lat: 25.7069, lng: -80.2966, label: 'South Miami' },
+  '33144': { lat: 25.7622, lng: -80.3262, label: 'Westchester' },
+  '33145': { lat: 25.7499, lng: -80.2356, label: 'Coral Way' },
+  '33146': { lat: 25.7186, lng: -80.2774, label: 'South Miami' },
+  '33147': { lat: 25.8409, lng: -80.2218, label: 'Liberty City' },
+  '33149': { lat: 25.6978, lng: -80.1627, label: 'Key Biscayne' },
+  '33150': { lat: 25.8452, lng: -80.2039, label: 'Little River' },
+  '33154': { lat: 25.8984, lng: -80.1225, label: 'Bal Harbour' },
+  '33155': { lat: 25.7476, lng: -80.3252, label: 'Westchester' },
+  '33156': { lat: 25.6682, lng: -80.3079, label: 'Pinecrest' },
+  '33157': { lat: 25.6207, lng: -80.3344, label: 'Palmetto Bay' },
+  '33158': { lat: 25.5994, lng: -80.3363, label: 'Palmetto Bay' },
+  '33160': { lat: 25.9336, lng: -80.1456, label: 'N. Miami Bch' },
+  '33161': { lat: 25.8959, lng: -80.1867, label: 'North Miami' },
+  '33162': { lat: 25.9313, lng: -80.1758, label: 'N. Miami Bch' },
+  '33165': { lat: 25.7445, lng: -80.3762, label: 'Kendall' },
+  '33166': { lat: 25.8256, lng: -80.3002, label: 'Miami Springs' },
+  '33167': { lat: 25.8841, lng: -80.2490, label: 'Opa-locka' },
+  '33168': { lat: 25.8895, lng: -80.2058, label: 'North Miami' },
+  '33169': { lat: 25.9398, lng: -80.2321, label: 'Miami Gardens' },
+  '33170': { lat: 25.5730, lng: -80.3726, label: 'Cutler Bay' },
+  '33172': { lat: 25.7930, lng: -80.3713, label: 'Doral' },
+  '33173': { lat: 25.6974, lng: -80.3546, label: 'Kendall' },
+  '33174': { lat: 25.7654, lng: -80.3537, label: 'Flagami' },
+  '33175': { lat: 25.7192, lng: -80.3860, label: 'Kendale Lakes' },
+  '33176': { lat: 25.6737, lng: -80.3360, label: 'Kendall' },
+  '33177': { lat: 25.5901, lng: -80.3619, label: 'Cutler Bay' },
+  '33178': { lat: 25.8166, lng: -80.3980, label: 'Doral' },
+  '33179': { lat: 25.9546, lng: -80.1765, label: 'N. Miami Bch' },
+  '33180': { lat: 25.9568, lng: -80.1398, label: 'Aventura' },
+  '33181': { lat: 25.9262, lng: -80.1430, label: 'N. Miami Bch' },
+  '33182': { lat: 25.7857, lng: -80.4104, label: 'Doral' },
+  '33183': { lat: 25.7173, lng: -80.4072, label: 'Kendall' },
+  '33184': { lat: 25.7381, lng: -80.4042, label: 'Kendale Lakes' },
+  '33185': { lat: 25.6980, lng: -80.4105, label: 'Kendall SW' },
+  '33186': { lat: 25.6546, lng: -80.4007, label: 'Kendall' },
+  '33187': { lat: 25.6723, lng: -80.4282, label: 'Hammocks' },
+  '33189': { lat: 25.5673, lng: -80.4182, label: 'Homestead' },
+  '33190': { lat: 25.5637, lng: -80.3387, label: 'Cutler Bay' },
+  '33193': { lat: 25.7130, lng: -80.4339, label: 'Kendall' },
+  '33194': { lat: 25.7602, lng: -80.3983, label: 'Sweetwater' },
+  '33196': { lat: 25.6648, lng: -80.4365, label: 'Kendall' },
+  '33199': { lat: 25.7579, lng: -80.3762, label: 'Doral/FIU' },
+};
 
 // ─── TAB SWITCHING ────────────────────────────────────────────────
 function switchTab(tab) {
@@ -2076,12 +2348,18 @@ function selectDate(key, fromScroll) {
 }
 
 function _getStickyOffset() {
-  // Calculate total sticky header height: header + tab bar + date strip + (age filter if library)
-  const headerH = 68;
-  const tabH = document.getElementById('tab-bar-wrap')?.offsetHeight || 68;
+  // Calculate total sticky header height so scroll-to-section lands just below all fixed/sticky bars
   const dateH = document.getElementById('date-strip')?.offsetHeight || 72;
   const ageBar = document.getElementById('age-filter-bar');
   const ageH = (ageBar && ageBar.classList.contains('visible')) ? ageBar.offsetHeight : 0;
+  if (window.innerWidth >= 960) {
+    // Desktop: header (64px) + flamingo border (3px) + location bar (48px) + date strip
+    const locH = document.getElementById('location-bar')?.offsetHeight || 48;
+    return 67 + locH + dateH + ageH + 8;
+  }
+  // Mobile: header + tab bar wrap + date strip
+  const headerH = 68;
+  const tabH = document.getElementById('tab-bar-wrap')?.offsetHeight || 68;
   return headerH + tabH + dateH + ageH + 8;
 }
 
@@ -2138,7 +2416,7 @@ function jumpToDate(val) {
 async function loadEvents() {
   const { data, error } = await db
     .from('events')
-    .select('id, title, editorial_headline, description, parent_summary, start_date, end_date, age_min, age_max, image_url, venue_name, neighborhood, is_free, price_min, price_max, source, activity_type, address, source_url, practical_notes')
+    .select('id, title, editorial_headline, description, parent_summary, start_date, end_date, age_min, age_max, image_url, venue_name, neighborhood, is_free, price_min, price_max, source, activity_type, address, source_url, practical_notes, lat, lng')
     .eq('is_canceled', false)
     .eq('is_kid_friendly', true)
     .gte('start_date', new Date().toISOString().slice(0, 10))
@@ -2230,6 +2508,19 @@ function renderLocalEvents() {
     const dateObj = parseDateKey(key);
     const label = fmtDisplayDate(dateObj);
     const programGroups = groupByProgram(dayEvents);
+
+    // Sort groups by distance to user if location is set
+    if (_userLat !== null && _userLng !== null) {
+      programGroups.sort((a, b) => {
+        const dist = (g) => {
+          const e = g[0];
+          if (e.lat == null || e.lng == null) return Infinity;
+          return haversine(_userLat, _userLng, e.lat, e.lng);
+        };
+        return dist(a) - dist(b);
+      });
+    }
+
     totalEvents += programGroups.length;
 
     html += `
@@ -2625,11 +2916,21 @@ function eventCard(group, idx) {
 
   const onclick = isGroup ? '' : `onclick="openModal('${esc(ev.id)}', event)"`;
 
+  // Distance pill — only rendered when both user location and event coords are available
+  let distPill = '';
+  if (_userLat !== null && _userLng !== null && ev.lat != null && ev.lng != null) {
+    const d = haversine(_userLat, _userLng, ev.lat, ev.lng);
+    distPill = `<span class="card-distance-pill">📍 ${fmtDistance(d)}</span>`;
+  }
+
   return `
     <a class="event-card" href="#" ${onclick}>
       <div class="card-billboard">
         <div class="billboard-content">
-          <span class="category-pill">${category}</span>
+          <div class="billboard-top-row">
+            <span class="category-pill">${category}</span>
+            ${distPill}
+          </div>
           <div class="card-title" style="background-image: ${gradient}">${headline}</div>
         </div>
         <span class="billboard-ghost">${headline}</span>
@@ -2990,8 +3291,115 @@ function matchesAgeFilter(ev, filter) {
   }
 }
 
+// ─── LOCATION ─────────────────────────────────────────────────────
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 3958.8; // Earth radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 +
+    Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function fmtDistance(miles) {
+  if (miles < 0.5) return '< 0.5 mi';
+  if (miles < 10)  return miles.toFixed(1) + ' mi';
+  return Math.round(miles) + ' mi';
+}
+
+function showLocState(state) {
+  // Mobile elements
+  const mDefault = document.getElementById('hloc-default');
+  const mInput   = document.getElementById('hloc-input');
+  const mSet     = document.getElementById('hloc-set');
+  // Desktop elements
+  const dInvite  = document.getElementById('dloc-invite');
+  const dInput   = document.getElementById('dloc-input');
+  const dSet     = document.getElementById('dloc-set');
+
+  if (mDefault) mDefault.style.display = state === 'default' ? 'flex' : 'none';
+  if (mInput)   mInput.style.display   = state === 'input'   ? 'flex' : 'none';
+  if (mSet)     mSet.style.display     = state === 'set'     ? 'flex' : 'none';
+  if (dInvite)  dInvite.style.display  = state === 'default' ? 'flex' : 'none';
+  if (dInput)   dInput.style.display   = state === 'input'   ? 'flex' : 'none';
+  if (dSet)     dSet.style.display     = state === 'set'     ? 'flex' : 'none';
+}
+
+function _updateLocBadges(zip, label) {
+  const text = label ? `📍 ${zip} · ${label}` : `📍 ${zip}`;
+  const mBadge = document.getElementById('hloc-badge-text');
+  const dBadge = document.getElementById('dloc-badge-text');
+  if (mBadge) mBadge.textContent = text;
+  if (dBadge) dBadge.textContent = text;
+}
+
+function initLocation() {
+  try {
+    const saved = localStorage.getItem('ezpz_zip');
+    if (saved) {
+      const { zip, lat, lng, label } = JSON.parse(saved);
+      _userLat = lat; _userLng = lng; _userZip = zip; _userLocLabel = label;
+      document.body.classList.add('location-active');
+      _updateLocBadges(zip, label);
+      showLocState('set');
+      return;
+    }
+  } catch(e) {}
+  showLocState('default');
+}
+
+function applyZip(zip) {
+  const entry = ZIP_COORDS[zip];
+  if (!entry) {
+    alert('Zip code not found. Try a Miami-Dade zip like 33133, 33139, or 33125.');
+    return;
+  }
+  _userLat = entry.lat; _userLng = entry.lng; _userZip = zip; _userLocLabel = entry.label;
+  try { localStorage.setItem('ezpz_zip', JSON.stringify({ zip, lat: entry.lat, lng: entry.lng, label: entry.label })); } catch(e) {}
+  document.body.classList.add('location-active');
+  _updateLocBadges(zip, entry.label);
+  showLocState('set');
+  renderContent();
+  gtag('event', 'location_set', { method: 'zip', zip });
+}
+
+function tryZipSubmit(inputId) {
+  const field = document.getElementById(inputId);
+  const zip = field ? field.value.trim() : '';
+  if (zip.length === 5 && /^\d{5}$/.test(zip)) { applyZip(zip); }
+  else if (zip.length > 0) { alert('Please enter a 5-digit Miami-Dade zip code.'); }
+}
+
+function tryGPS() {
+  if (!navigator.geolocation) { alert('Geolocation is not supported by your browser.'); return; }
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      _userLat = pos.coords.latitude;
+      _userLng = pos.coords.longitude;
+      _userZip = 'GPS'; _userLocLabel = null;
+      try { localStorage.setItem('ezpz_zip', JSON.stringify({ zip: 'GPS', lat: _userLat, lng: _userLng, label: null })); } catch(e) {}
+      document.body.classList.add('location-active');
+      _updateLocBadges('My Area', null);
+      showLocState('set');
+      renderContent();
+      gtag('event', 'location_set', { method: 'gps' });
+    },
+    () => { alert('Could not get your location. Try entering a zip code instead.'); }
+  );
+}
+
+function clearLocation() {
+  _userLat = null; _userLng = null; _userZip = null; _userLocLabel = null;
+  try { localStorage.removeItem('ezpz_zip'); } catch(e) {}
+  document.body.classList.remove('location-active');
+  showLocState('default');
+  renderContent();
+  gtag('event', 'location_clear');
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────
 loadEvents();
+initLocation();
 
 // Re-measure sticky offsets on resize (mobile ↔ desktop switch)
 window.addEventListener('resize', () => { updateTabUnderline(); });
