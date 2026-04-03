@@ -1762,8 +1762,31 @@
       flex-shrink: 0;
     }
 
-    /* Location bar hidden on mobile; shown only via desktop media query */
-    @media (max-width: 959px) { .location-bar { display: none !important; } }
+    /* ─────────────────────────────────────────────
+       MOBILE: Fixed header + tab bar
+       position:sticky has edge cases on iOS Safari
+       (browser chrome resize on scroll). Fixed is
+       bulletproof. Body padding compensates for the
+       space they no longer occupy in the flow.
+    ───────────────────────────────────────────── */
+    @media (max-width: 959px) {
+      .header {
+        position: fixed;
+        left: 0;
+        right: 0;
+      }
+      .tab-bar-wrap {
+        position: fixed;
+        top: var(--header-h);
+        left: 0;
+        right: 0;
+      }
+      body {
+        padding-top: calc(var(--header-h) + var(--tab-h));
+      }
+      /* Location bar hidden on mobile */
+      .location-bar { display: none !important; }
+    }
   </style>
 </head>
 <body>
