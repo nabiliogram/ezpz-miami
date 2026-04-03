@@ -1495,7 +1495,7 @@
         letter-spacing: 0.02em;
         white-space: nowrap;
       }
-      /* Remove the <br> line-break inside labels on desktop */
+      /* Hide the <br> line-break on desktop (space char in HTML handles word gap) */
       .tab-label br { display: none; }
       .tab-badge {
         font-size: 11px;
@@ -1512,7 +1512,11 @@
       /* === DATE STRIP — constrained === */
       .date-strip {
         top: 64px; /* header height on desktop */
+        max-width: 960px;
         margin: 0 auto;
+        border-radius: 0 0 12px 12px;
+        border-left: 2px solid #FCD34D;
+        border-right: 2px solid #FCD34D;
       }
       .date-strip-inner {
         max-width: 960px;
@@ -1647,17 +1651,17 @@
   <nav class="tab-bar" id="tab-bar">
     <button class="tab-btn active" data-tab="events" onclick="switchTab('events')">
       <span class="tab-icon">🎪</span>
-      <span class="tab-label">Local<br>Events</span>
+      <span class="tab-label">Local <br>Events</span>
       <span class="tab-badge">0</span>
     </button>
     <button class="tab-btn" data-tab="library" onclick="switchTab('library')">
       <span class="tab-icon">📚</span>
-      <span class="tab-label">Library<br>Programs</span>
+      <span class="tab-label">Library <br>Programs</span>
       <span class="tab-badge">0</span>
     </button>
     <button class="tab-btn" data-tab="places" onclick="switchTab('places')">
       <span class="tab-icon">📍</span>
-      <span class="tab-label">Anytime<br>Spots</span>
+      <span class="tab-label">Anytime <br>Spots</span>
       <span class="tab-badge">15</span>
     </button>
   </nav>
