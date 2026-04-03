@@ -1650,8 +1650,9 @@
         align-items: center;
         gap: 12px;
       }
-      .dloc-invite { display: flex; align-items: center; gap: 10px; }
-      .dloc-invite-text { font-size: 12px; font-weight: 500; color: var(--teal); opacity: 0.85; }
+      .dloc-invite { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+      .dloc-invite-text { font-size: 13px; font-weight: 500; color: var(--text-1); opacity: 0.85; }
+      .dloc-invite-text strong { font-weight: 900; color: var(--text-1); }
       .dloc-invite-btn {
         display: flex; align-items: center; gap: 6px;
         padding: 7px 16px;
@@ -1818,9 +1819,9 @@
   <div class="location-bar-inner">
     <!-- Invite state -->
     <div class="dloc-invite" id="dloc-invite">
-      <span class="dloc-invite-text">📍 Add your zip — closest activities surface first</span>
+      <span class="dloc-invite-text">📍 <strong>Add your zip</strong> and the nearest activities rise to the top</span>
       <button class="dloc-invite-btn" onclick="showLocState('input');document.getElementById('dloc-zip').focus()">
-        Set Area
+        Set Your Area
       </button>
     </div>
     <!-- Input state -->
