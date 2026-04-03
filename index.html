@@ -872,74 +872,55 @@
       flex-direction: column;
       gap: 16px;
     }
+    /* ── Venue card — billboard style (no logo) ── */
     .venue-card {
       background: var(--bg-white);
       border-radius: 16px;
       overflow: hidden;
       border: 1.5px solid var(--border-med);
-      border-top: 3px solid var(--teal);
       display: flex;
       flex-direction: column;
-      text-decoration: none;
       color: inherit;
       -webkit-tap-highlight-color: transparent;
-      position: relative;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
     }
-    .venue-card-top {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      gap: 16px;
-      padding: 20px;
+    .venue-billboard {
+      padding: 18px 20px 16px;
+      background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%);
+      border-bottom: 1px solid rgba(13,148,136,0.12);
     }
-    .venue-logo {
-      width: 96px;
-      height: 96px;
-      border-radius: 14px;
-      background: #f5f5f5;
-      display: flex;
+    .venue-type-pill {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    .venue-logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      padding: 8px;
-    }
-    .venue-logo-fallback {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: rgba(13,148,136,0.15);
       font-family: 'Montserrat', sans-serif;
-      font-size: 32px;
+      font-size: 8px;
       font-weight: 900;
-      color: white;
-      background: linear-gradient(135deg, var(--teal), var(--violet));
-    }
-    .venue-info {
-      flex: 1;
-      min-width: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--teal);
     }
     .venue-name {
       font-family: 'Montserrat', sans-serif;
-      font-size: 18px;
-      font-weight: 800;
+      font-size: 20px;
+      font-weight: 900;
       text-transform: uppercase;
       letter-spacing: -0.02em;
-      line-height: 1.15;
+      line-height: 1.1;
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-image: linear-gradient(to right, var(--teal), #0d9488);
-      margin-bottom: 10px;
-      padding-right: 72px;
+      background-image: linear-gradient(to right, #0D9488, #0f766e);
+      margin-top: 8px;
+    }
+    .venue-card-body {
+      padding: 16px 20px 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
     .venue-meta-grid {
       display: grid;
@@ -980,49 +961,53 @@
       font-style: italic;
       line-height: 1.6;
       color: var(--text-2);
-      padding: 0 20px 16px;
+      margin: 0;
+    }
+    .venue-footer-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 4px;
     }
     .venue-visit-btn {
-      position: absolute;
-      top: 12px;
-      right: 12px;
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 5px 10px;
-      background: rgba(13, 148, 136, 0.08);
-      border: none;
-      border-radius: 6px;
-      font-size: 11px;
+      padding: 8px 14px;
+      background: transparent;
+      border: 1.5px solid var(--teal);
+      border-radius: 8px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--teal);
       cursor: pointer;
       text-decoration: none;
       transition: background 0.15s;
       -webkit-tap-highlight-color: transparent;
-      z-index: 2;
     }
-    .venue-visit-btn:hover { background: rgba(13, 148, 136, 0.15); }
+    .venue-visit-btn:hover { background: rgba(13, 148, 136, 0.06); }
     .venue-cta {
-      padding: 12px 20px;
-      border-top: 1px solid var(--border);
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      background: transparent;
+      padding: 8px 14px;
+      background: var(--teal);
       border: none;
-      color: var(--teal);
+      border-radius: 8px;
+      color: white;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
       transition: background 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
-    .venue-cta:hover { background: rgba(13, 148, 136, 0.06); }
+    .venue-cta:hover { background: #0f766e; }
     .venue-events {
       display: none;
       flex-direction: column;
       background: var(--bg-yellow);
+      border-top: 1px solid #FEE9AA;
     }
     .venue-card.expanded .venue-events { display: flex; }
     .venue-event-row {
@@ -1616,10 +1601,13 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
       }
-      .venue-name { font-size: 20px; }
+      .venue-billboard { padding: 22px 28px 20px; }
+      .venue-name { font-size: 24px; }
       .venue-desc { font-size: 15px; }
       .venue-meta-label { font-size: 9px; }
       .venue-meta-value { font-size: 12px; }
+      .venue-card-body { padding: 20px 28px 24px; }
+      .venue-footer-actions { padding-top: 8px; }
 
       /* === MODAL — wider on desktop === */
       .modal-sheet {
@@ -2090,6 +2078,52 @@ const ZIP_COORDS = {
   '33196': { lat: 25.6648, lng: -80.4365, label: 'Kendall' },
   '33199': { lat: 25.7579, lng: -80.3762, label: 'Doral/FIU' },
 };
+
+// Miami-Dade Public Library branch name → lat/lng (keyword-based lookup)
+const LIBRARY_BRANCH_COORDS = [
+  { keywords: ['main library', 'w flagler', 'civic center'],          lat: 25.7743, lng: -80.1941 },
+  { keywords: ['coconut grove'],                                        lat: 25.7306, lng: -80.2356 },
+  { keywords: ['coral gables'],                                         lat: 25.7448, lng: -80.2616 },
+  { keywords: ['coral reef'],                                           lat: 25.6063, lng: -80.3694 },
+  { keywords: ['culmer', 'overtown'],                                   lat: 25.7873, lng: -80.2038 },
+  { keywords: ['doral'],                                                lat: 25.8203, lng: -80.3565 },
+  { keywords: ['edison center', 'edison'],                              lat: 25.8434, lng: -80.2126 },
+  { keywords: ['hialeah gardens'],                                      lat: 25.9077, lng: -80.3297 },
+  { keywords: ['hialeah'],                                              lat: 25.8625, lng: -80.2917 },
+  { keywords: ['homestead'],                                            lat: 25.4695, lng: -80.4774 },
+  { keywords: ['kendall'],                                              lat: 25.6764, lng: -80.3565 },
+  { keywords: ['lemon city'],                                           lat: 25.8425, lng: -80.1928 },
+  { keywords: ['little havana'],                                        lat: 25.7641, lng: -80.2194 },
+  { keywords: ['little river'],                                         lat: 25.8536, lng: -80.1900 },
+  { keywords: ['miami beach regional', 'miami beach'],                  lat: 25.7918, lng: -80.1316 },
+  { keywords: ['miami lakes'],                                          lat: 25.9202, lng: -80.3161 },
+  { keywords: ['model city'],                                           lat: 25.8391, lng: -80.2178 },
+  { keywords: ['north central'],                                        lat: 25.8888, lng: -80.2410 },
+  { keywords: ['north dade regional', 'carol city'],                    lat: 25.9371, lng: -80.2391 },
+  { keywords: ['north miami beach', 'ojus'],                            lat: 25.9325, lng: -80.1494 },
+  { keywords: ['north miami'],                                          lat: 25.8959, lng: -80.1867 },
+  { keywords: ['north shore'],                                          lat: 25.8524, lng: -80.1263 },
+  { keywords: ['opa-locka', 'opa locka'],                               lat: 25.9010, lng: -80.2485 },
+  { keywords: ['palmetto bay'],                                         lat: 25.5882, lng: -80.3361 },
+  { keywords: ['pinecrest'],                                            lat: 25.6742, lng: -80.3117 },
+  { keywords: ['shenandoah'],                                           lat: 25.7634, lng: -80.2408 },
+  { keywords: ['south dade regional', 'cutler bay'],                    lat: 25.5825, lng: -80.4018 },
+  { keywords: ['south miami'],                                          lat: 25.7055, lng: -80.2886 },
+  { keywords: ['west dade regional', 'west dade'],                      lat: 25.7597, lng: -80.4060 },
+  { keywords: ['westchester'],                                          lat: 25.7597, lng: -80.3321 },
+];
+
+// Returns {lat, lng} for a library branch name, or null if not found
+function _libCoords(venueName) {
+  if (!venueName) return null;
+  const lower = venueName.toLowerCase();
+  for (const entry of LIBRARY_BRANCH_COORDS) {
+    if (entry.keywords.some(kw => lower.includes(kw))) {
+      return { lat: entry.lat, lng: entry.lng };
+    }
+  }
+  return null;
+}
 
 // ─── TAB SWITCHING ────────────────────────────────────────────────
 function switchTab(tab) {
@@ -2586,6 +2620,20 @@ function renderLibraryPrograms() {
     const dateObj = parseDateKey(key);
     const label = fmtDisplayDate(dateObj);
     const programGroups = groupByProgram(dayEvents);
+    // Sort by distance to nearest branch when user location is set
+    if (_userLat !== null) {
+      const _groupMinDist = (group) => {
+        let best = Infinity;
+        for (const ev of group) {
+          const c = _libCoords(ev.venue_name || ev.neighborhood || '');
+          if (!c) continue;
+          const d = haversine(_userLat, _userLng, c.lat, c.lng);
+          if (d < best) best = d;
+        }
+        return best;
+      };
+      programGroups.sort((a, b) => _groupMinDist(a) - _groupMinDist(b));
+    }
     totalPrograms += programGroups.length;
 
     html += `
@@ -2668,7 +2716,8 @@ function renderLibraryGroup(group) {
   if (isSingle) {
     // ── Single branch: clickable card with billboard + summary + meta grid ──
     const summary = firstEvents[0].parent_summary || firstEvents[0].description || '';
-    const distPillSingle = _distPill(firstEvents[0].lat, firstEvents[0].lng);
+    const singleCoords = _libCoords(firstVenue);
+    const distPillSingle = singleCoords ? _distPill(singleCoords.lat, singleCoords.lng) : '';
     return `
       <div class="library-group" onclick="openModal('${esc(firstEvents[0].id)}')">
         <div class="library-billboard">
@@ -2706,14 +2755,18 @@ function renderLibraryGroup(group) {
 
   // ── Multiple branches: clickable card with billboard + summary + meta grid + expanding rows ──
   const multiSummary = group[0].parent_summary || group[0].description || '';
-  // Closest branch distance
-  const closestEv = group.reduce((best, ev) => {
-    if (_userLat === null || ev.lat == null) return best;
-    const d = haversine(_userLat, _userLng, ev.lat, ev.lng);
-    if (!best || d < haversine(_userLat, _userLng, best.lat, best.lng)) return ev;
-    return best;
-  }, null);
-  const distPillMulti = closestEv ? _distPill(closestEv.lat, closestEv.lng) : '';
+  // Closest branch distance (via LIBRARY_BRANCH_COORDS lookup — library events have no lat/lng in DB)
+  let distPillMulti = '';
+  if (_userLat !== null) {
+    let bestDist = Infinity, bestCoords = null;
+    for (const [venue] of branchMap) {
+      const c = _libCoords(venue);
+      if (!c) continue;
+      const d = haversine(_userLat, _userLng, c.lat, c.lng);
+      if (d < bestDist) { bestDist = d; bestCoords = c; }
+    }
+    if (bestCoords) distPillMulti = _distPill(bestCoords.lat, bestCoords.lng);
+  }
   let html = `
     <div class="library-group expandable-card">
       <div class="library-billboard">
@@ -2814,13 +2867,6 @@ function renderPlaces() {
     });
   });
 
-  // Handle broken venue logo images
-  document.querySelectorAll('.venue-logo img').forEach(img => {
-    img.onerror = function() {
-      const fallback = this.dataset.fallback || '?';
-      this.parentElement.innerHTML = `<div class="venue-logo-fallback">${fallback}</div>`;
-    };
-  });
 }
 
 function renderVenueCard(venue) {
@@ -2832,11 +2878,6 @@ function renderVenueCard(venue) {
     return venue.source && ev.source === venue.source;
   });
 
-  const initial = venue.name.charAt(0).toUpperCase();
-  const logoHtml = venue.logo
-    ? `<img src="${esc(venue.logo)}" alt="${esc(venue.name)}" data-fallback="${initial}">`
-    : `<div class="venue-logo-fallback">${initial}</div>`;
-
   const iconClock = `<svg class="venue-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
   const iconPin = `<svg class="venue-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
   const iconTag = `<svg class="venue-meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`;
@@ -2844,48 +2885,46 @@ function renderVenueCard(venue) {
 
   const isFree = venue.priceLabel.toLowerCase().includes('free');
   const priceClass = isFree ? ' is-free' : '';
-
   const visitUrl = venue.website && venue.website !== '#' ? venue.website : null;
+  const distPill = _distPill(venue.lat, venue.lng);
 
   let html = `
     <div class="venue-card" data-venue-id="${venue.id}">
-      ${visitUrl ? `<a class="venue-visit-btn" href="${esc(visitUrl)}" target="_blank" rel="noopener">Visit Site →</a>` : ''}
-      <div class="venue-card-top">
-        <div class="venue-logo">${logoHtml}</div>
-        <div class="venue-info">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <div class="venue-name">${esc(venue.name)}</div>
-            ${_distPill(venue.lat, venue.lng)}
+      <div class="venue-billboard">
+        <div class="billboard-top-row">
+          <span class="venue-type-pill">${esc(venue.type)}</span>
+          ${distPill}
+        </div>
+        <div class="venue-name">${esc(venue.name)}</div>
+      </div>
+      <div class="venue-card-body">
+        <div class="venue-meta-grid">
+          <div class="venue-meta-item">
+            ${iconClock}
+            <div><div class="venue-meta-label">Hours</div><div class="venue-meta-value">${esc(venue.hours)}</div></div>
           </div>
-          <div class="venue-meta-grid">
-            <div class="venue-meta-item">
-              ${iconClock}
-              <div><div class="venue-meta-label">Hours</div><div class="venue-meta-value">${esc(venue.hours)}</div></div>
-            </div>
-            <div class="venue-meta-item">
-              ${iconPin}
-              <div><div class="venue-meta-label">Location</div><div class="venue-meta-value">${esc(venue.neighborhood)}</div></div>
-            </div>
-            <div class="venue-meta-item">
-              ${iconTag}
-              <div><div class="venue-meta-label">Price</div><div class="venue-meta-value${priceClass}">${esc(venue.priceLabel)}</div></div>
-            </div>
-            <div class="venue-meta-item">
-              ${iconUser}
-              <div><div class="venue-meta-label">Ages</div><div class="venue-meta-value">${esc(venue.ages)}</div></div>
-            </div>
+          <div class="venue-meta-item">
+            ${iconPin}
+            <div><div class="venue-meta-label">Location</div><div class="venue-meta-value">${esc(venue.neighborhood)}</div></div>
           </div>
+          <div class="venue-meta-item">
+            ${iconTag}
+            <div><div class="venue-meta-label">Price</div><div class="venue-meta-value${priceClass}">${esc(venue.priceLabel)}</div></div>
+          </div>
+          <div class="venue-meta-item">
+            ${iconUser}
+            <div><div class="venue-meta-label">Ages</div><div class="venue-meta-value">${esc(venue.ages)}</div></div>
+          </div>
+        </div>
+        ${venue.desc ? `<p class="venue-desc">"${esc(venue.desc)}"</p>` : ''}
+        <div class="venue-footer-actions">
+          ${visitUrl ? `<a class="venue-visit-btn" href="${esc(visitUrl)}" target="_blank" rel="noopener">Visit Site →</a>` : ''}
+          ${venueEvents.length > 0 ? `<button class="venue-cta">View ${venueEvents.length} upcoming event${venueEvents.length !== 1 ? 's' : ''}</button>` : ''}
         </div>
       </div>`;
 
-  if (venue.desc) {
-    html += `<div class="venue-desc">"${esc(venue.desc)}"</div>`;
-  }
-
   if (venueEvents.length > 0) {
-    html += `<button class="venue-cta">View ${venueEvents.length} upcoming event${venueEvents.length !== 1 ? 's' : ''}</button>`;
     html += `<div class="venue-events">`;
-
     venueEvents.slice(0, 10).forEach(ev => {
       const date = fmtDisplayDate(parseDateKey(toDateKey(new Date(ev.start_date))));
       const summary = ev.parent_summary || ev.description || '';
@@ -2898,7 +2937,6 @@ function renderVenueCard(venue) {
           <a class="venue-event-link" data-event-id="${esc(ev.id)}">View details →</a>
         </div>`;
     });
-
     html += `</div>`;
   }
 
