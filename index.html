@@ -2148,11 +2148,20 @@ async function loadEvents() {
   if (error) { showError(error.message); return; }
   // Defense-in-depth: filter out teen/adult events client-side
   // even if they slipped through backend is_kid_friendly checks
+  // Current time in Eastern (handles EST/EDT automatically)
+  const nowET = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+
   _allEvents = (data || []).filter(ev => {
     const ageMin = ev.age_min;
     const ageMax = ev.age_max;
     // Skip events where age_min >= 13 and no young-kid overlap
     if (ageMin != null && ageMin >= 13 && (ageMax == null || ageMax >= 13)) return false;
+    // Hide events whose end time (or start time) has already passed in ET
+    const endStr = ev.end_date || ev.start_date;
+    if (endStr) {
+      const endET = new Date(new Date(endStr).toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      if (endET < nowET) return false;
+    }
     return true;
   });
   buildDateStrip();
