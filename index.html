@@ -2801,14 +2801,29 @@ function renderLibraryGroup(group) {
       </div>
       <div class="library-branches">`;
 
-  for (const [venue, events] of branchMap) {
+  // Sort branches by distance when user location is set
+  let branchEntries = [...branchMap.entries()];
+  if (_userLat !== null) {
+    branchEntries.sort(([venueA], [venueB]) => {
+      const ca = _libCoords(venueA), cb = _libCoords(venueB);
+      const da = ca ? haversine(_userLat, _userLng, ca.lat, ca.lng) : Infinity;
+      const db = cb ? haversine(_userLat, _userLng, cb.lat, cb.lng) : Infinity;
+      return da - db;
+    });
+  }
+
+  for (const [venue, events] of branchEntries) {
     const time = fmtTimeRange(events[0].start_date, events[0].end_date);
     const hood = events[0].neighborhood ? titleCase(events[0].neighborhood) : '';
+    const bc = _libCoords(venue);
+    const branchDist = (bc && _userLat !== null)
+      ? ` · <span style="color:var(--teal);font-weight:700">📍 ${fmtDistance(haversine(_userLat, _userLng, bc.lat, bc.lng))}</span>`
+      : '';
     html += `
       <div class="library-branch">
         <div class="library-branch-info">
           <div class="library-branch-name">${esc(venue)}</div>
-          <div class="library-branch-meta">${time}${hood ? ' · ' + esc(hood) : ''}</div>
+          <div class="library-branch-meta">${time}${hood ? ' · ' + esc(hood) : ''}${branchDist}</div>
         </div>
         <button class="library-branch-btn" onclick="event.stopPropagation(); openModal('${esc(events[0].id)}')">Details</button>
       </div>`;
@@ -2831,9 +2846,11 @@ function renderPlaces() {
     </div>
     <div class="venues-list">`;
 
-  CURATED_VENUES.forEach((venue, idx) => {
-    html += renderVenueCard(venue);
-  });
+  const sortedVenues = (_userLat !== null)
+    ? [...CURATED_VENUES].sort((a, b) =>
+        haversine(_userLat, _userLng, a.lat, a.lng) - haversine(_userLat, _userLng, b.lat, b.lng))
+    : CURATED_VENUES;
+  sortedVenues.forEach(venue => { html += renderVenueCard(venue); });
 
   html += `</div><div class="footer"><span class="footer-text display">Your EZPZ Miami Play &mdash; Book</span></div>`;
   content.innerHTML = html;
