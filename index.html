@@ -656,8 +656,14 @@
     /* ─────────────────────────────────────────────
        LIBRARY SECTION (Card-based)
     ───────────────────────────────────────────── */
+    .library-list-wrap {
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
     .library-group {
-      margin-bottom: 16px;
+      margin-bottom: 0;
       background: var(--bg-white);
       border-radius: 16px;
       border: 1.5px solid var(--border-med);
@@ -1412,18 +1418,213 @@
     .m-btn-icon.wa:hover { background: #25D366; color: white; }
 
     /* ─────────────────────────────────────────────
-       RESPONSIVE
+       RESPONSIVE — Small screens
     ───────────────────────────────────────────── */
     @media (max-width: 480px) {
       .section-date { font-size: 30px; }
       .card-title { font-size: 22px; }
       .billboard-ghost { font-size: 56px; }
     }
-    @media (min-width: 721px) {
-      .section-date { font-size: 40px; }
+
+    /* ─────────────────────────────────────────────
+       RESPONSIVE — Desktop (960px+)
+       Mobile layout is untouched. Everything below
+       is additive, scoped to large viewports only.
+    ───────────────────────────────────────────── */
+    @media (min-width: 960px) {
+
+      /* === LAYOUT WIDTH BUMP === */
+      .header-inner,
+      .tab-bar,
+      .date-strip-inner,
+      .age-filter-bar,
+      .page {
+        max-width: 960px;
+      }
+
+      /* === HEADER — taller, with inline tabs === */
+      .header {
+        height: auto;
+        border-bottom: 3px solid var(--flamingo);
+        transition: border-color 0.2s ease;
+      }
+      .header.tab-library { border-bottom-color: var(--violet); }
+      .header.tab-places  { border-bottom-color: var(--teal); }
+      .header-inner {
+        height: 64px;
+        padding: 0 32px;
+      }
+      .logo-name { font-size: 28px; }
+      .logo-tag  { font-size: 9px; }
+
+      /* Move tab-bar into header via visual positioning */
+      .tab-bar-wrap {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 100;
+        background: transparent;
+        padding: 0;
+        pointer-events: none;
+      }
+      .tab-accent-line { display: none; }
+      .tab-bar {
+        max-width: 960px;
+        margin: 0 auto;
+        justify-content: flex-end;
+        padding: 0 32px;
+        height: 64px;
+        align-items: center;
+        gap: 6px;
+        pointer-events: auto;
+      }
+      .tab-btn {
+        flex: 0 0 auto;
+        flex-direction: row;
+        border: 1.5px solid var(--border-med);
+        border-radius: 10px;
+        padding: 7px 16px;
+        gap: 7px;
+        background: var(--bg-white);
+      }
+      .tab-icon { font-size: 15px; }
+      .tab-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+      /* Remove the <br> line-break inside labels on desktop */
+      .tab-label br { display: none; }
+      .tab-badge {
+        font-size: 11px;
+        height: 20px;
+        min-width: 24px;
+        padding: 0 8px;
+        border-radius: 10px;
+      }
+      /* Active pill states (override card-style) */
+      .tab-btn[data-tab="events"].active  { border-color: var(--flamingo); }
+      .tab-btn[data-tab="library"].active { border-color: var(--violet); }
+      .tab-btn[data-tab="places"].active  { border-color: var(--teal); }
+
+      /* === DATE STRIP — constrained === */
+      .date-strip {
+        top: 64px; /* header height on desktop */
+        margin: 0 auto;
+      }
+      .date-strip-inner {
+        max-width: 960px;
+        padding: 0 24px;
+      }
+      .date-btn { width: 64px; }
+      .date-btn .day-name { font-size: 10px; }
+      .date-btn .day-num  { font-size: 22px; }
+      .date-btn .day-count { font-size: 10px; }
+
+      /* === AGE FILTER BAR (Library) === */
+      .age-filter-bar {
+        top: calc(64px + var(--date-h));
+        max-width: 960px;
+        padding: 10px 24px;
+      }
+      .age-chip { font-size: 14px; padding: 7px 16px; }
+      .hood-pill { font-size: 14px; }
+
+      /* Neighborhood dropdown — centered panel instead of bottom sheet */
+      .hood-dropdown {
+        position: fixed;
+        bottom: auto;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.95);
+        opacity: 0;
+        border-radius: 16px;
+        max-height: 65vh;
+        width: 420px;
+        transition: transform 0.22s ease, opacity 0.22s ease;
+      }
+      .hood-dropdown-overlay.open .hood-dropdown {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+
+      /* === PAGE / CONTENT AREA === */
+      .page { padding: 0 24px; }
+
+      /* === SECTION HEADERS — tighter === */
+      .section-header { padding: 24px 8px 0; }
+      .section-date { font-size: 42px; }
+      .section-count { font-size: 13px; }
+
+      /* === 2-COLUMN EVENT CARD GRID === */
+      .events-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        padding: 16px 0;
+      }
+
+      /* === EVENT CARD — desktop refinements === */
       .card-billboard { padding: 22px 28px; }
-      .card-title { font-size: 30px; }
-      .card-body { padding: 24px 28px 28px; }
+      .category-pill { font-size: 8px; padding: 3px 9px; }
+      .card-title { font-size: 24px; }
+      .card-body { padding: 20px 24px 24px; }
+      .card-summary {
+        font-size: 15px;
+        margin-bottom: 20px;
+        -webkit-line-clamp: 3;
+      }
+
+      /* Meta grid → single row */
+      .meta-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px 16px;
+        padding-top: 16px;
+      }
+      .meta-label { font-size: 9px; }
+      .meta-value { font-size: 12px; }
+
+      /* === LIBRARY CARDS — 2 columns + meta tweaks === */
+      .library-list-wrap {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .library-billboard { padding: 20px 24px; }
+      .library-title-name { font-size: 22px; }
+      .library-summary { font-size: 15px; padding: 16px 24px 0; }
+      .library-card-top { padding: 16px 24px 0; }
+      .library-meta-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px 16px;
+      }
+      .library-meta-label { font-size: 9px; }
+      .library-meta-value { font-size: 12px; }
+      .library-card-actions { padding: 0 24px 16px; }
+      .library-details-btn { font-size: 14px; padding: 9px 18px; }
+      .library-locations-btn { font-size: 14px; padding: 9px 16px; }
+
+      /* === VENUE CARDS — 2 columns + meta tweaks === */
+      .venues-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .venue-name { font-size: 20px; }
+      .venue-desc { font-size: 15px; }
+      .venue-meta-label { font-size: 9px; }
+      .venue-meta-value { font-size: 12px; }
+
+      /* === MODAL — wider on desktop === */
+      .modal-sheet {
+        max-width: 720px;
+      }
+
+      /* === FOOTER === */
+      .footer { padding: 40px 0 16px; }
+      .footer-text { font-size: 11px; }
     }
   </style>
 </head>
@@ -1631,6 +1832,13 @@ function updateTabUI() {
   });
   const accentLine = document.getElementById('tab-accent-line');
   if (accentLine) accentLine.dataset.active = _activeTab;
+  // Desktop: update header border color to match active tab
+  const hdr = document.querySelector('.header');
+  if (hdr) {
+    hdr.classList.remove('tab-library', 'tab-places');
+    if (_activeTab === 'library') hdr.classList.add('tab-library');
+    else if (_activeTab === 'places') hdr.classList.add('tab-places');
+  }
 }
 
 function updateDateStripVisibility() {
@@ -1657,10 +1865,18 @@ function updateAgeFilterVisibility() {
 function updateTabUnderline() {
   // Active state is now handled purely via CSS box-shadow on .tab-btn.active
   // This function updates sticky position CSS vars based on measured heights
-  const tabWrap = document.getElementById('tab-bar-wrap');
-  if (tabWrap) {
-    const tabH = tabWrap.offsetHeight;
-    document.documentElement.style.setProperty('--tab-h', tabH + 'px');
+  const isDesktop = window.innerWidth >= 960;
+  if (isDesktop) {
+    // On desktop, tabs are inside the header — no extra height offset
+    document.documentElement.style.setProperty('--tab-h', '0px');
+    document.documentElement.style.setProperty('--header-h', '64px');
+  } else {
+    document.documentElement.style.setProperty('--header-h', '68px');
+    const tabWrap = document.getElementById('tab-bar-wrap');
+    if (tabWrap) {
+      const tabH = tabWrap.offsetHeight;
+      document.documentElement.style.setProperty('--tab-h', tabH + 'px');
+    }
   }
 }
 
@@ -2074,8 +2290,10 @@ function renderLibraryPrograms() {
           <div class="section-bar violet"></div>
           <div class="section-count">${programGroups.length} program${programGroups.length !== 1 ? 's' : ''}</div>
         </div>
-      </div>`;
+      </div>
+      <div class="library-list-wrap">`;
     programGroups.forEach(group => { html += renderLibraryGroup(group); });
+    html += `</div>`;
   }
 
   if (totalPrograms === 0) {
@@ -2761,6 +2979,9 @@ function matchesAgeFilter(ev, filter) {
 
 // ─── INIT ─────────────────────────────────────────────────────────
 loadEvents();
+
+// Re-measure sticky offsets on resize (mobile ↔ desktop switch)
+window.addEventListener('resize', () => { updateTabUnderline(); });
 
 // Auto-open modal if URL has ?id= on initial load (shared link)
 const _initId = new URLSearchParams(location.search).get('id');
