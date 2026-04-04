@@ -261,7 +261,7 @@
     .age-filter-bar {
       display: none;
       position: sticky;
-      top: calc(var(--header-h) + var(--tab-h));
+      top: calc(var(--header-h) + var(--tab-h) + var(--date-h));
       z-index: 85;
       max-width: 720px;
       margin: 0 auto;
@@ -1658,7 +1658,7 @@
 
       /* Sticky offset updates for desktop location bar presence */
       .date-strip { top: 115px; } /* 64px header + 3px border + 48px location bar */
-      .age-filter-bar { top: 115px; } /* date strip hidden on Library tab */
+      .age-filter-bar { top: calc(115px + var(--date-h)); } /* stacks below date strip */
 
       /* Hide mobile header location controls on desktop */
       .header-loc { display: none !important; }
@@ -2202,9 +2202,10 @@ function positionTabSlider() {
 
 function updateDateStripVisibility() {
   const dateStrip = document.getElementById('date-strip');
-  if (_activeTab === 'places' || _activeTab === 'library') {
+  if (_activeTab === 'places') {
     dateStrip.classList.add('hidden');
   } else {
+    // Show date strip for both events and library tabs
     dateStrip.classList.remove('hidden');
     dateStrip.dataset.tab = _activeTab;
   }
