@@ -104,97 +104,72 @@
     /* Calendar button removed — space reserved for disclaimer link */
 
     /* ─────────────────────────────────────────────
-       TAB BAR — Accent Line + Hanging Tag Cards
+       TAB BAR — Segmented Control
     ───────────────────────────────────────────── */
     .tab-accent-line {
       height: 3px;
       background: var(--flamingo);
-      transition: background 0.2s ease;
+      transition: background 0.3s ease;
     }
     .tab-accent-line[data-active="library"] { background: var(--violet); }
-    .tab-accent-line[data-active="places"] { background: var(--teal); }
+    .tab-accent-line[data-active="places"]  { background: var(--teal); }
 
     .tab-bar-wrap {
       position: sticky;
       top: var(--header-h);
       z-index: 95;
       background: var(--bg-white);
-      padding: 0 12px 10px;
+    }
+    .tab-tray {
+      background: #F3F2F0;
+      padding: 4px;
     }
     .tab-bar {
       display: flex;
-      gap: 8px;
+      position: relative;
       max-width: 720px;
       margin: 0 auto;
     }
+    .tab-slider {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      border-radius: 10px;
+      transition: left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s ease;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .tab-slider[data-color="flamingo"] { background: rgba(255,68,119,0.08); }
+    .tab-slider[data-color="violet"]   { background: rgba(139,92,246,0.08); }
+    .tab-slider[data-color="teal"]     { background: rgba(13,148,136,0.08); }
     .tab-btn {
       flex: 1;
-      border: 1.5px solid #E8E6E3;
-      border-top: none;
-      background: #FAFAF9;
-      border-radius: 0 0 14px 14px;
-      padding: 10px 6px;
+      position: relative;
+      z-index: 2;
+      border: none;
+      background: transparent;
+      padding: 8px 6px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      font-family: 'Inter', -apple-system, sans-serif;
-      transition: all 0.2s ease;
+      justify-content: center;
+      gap: 1px;
       -webkit-tap-highlight-color: transparent;
     }
-    .tab-icon {
-      font-size: 16px;
-      line-height: 1;
-    }
-    .tab-label {
+    .tab-line {
+      font-family: 'Montserrat', sans-serif;
       font-size: 11px;
       font-weight: 800;
-      color: var(--text-2);
-      text-align: center;
-      line-height: 1.25;
+      color: var(--text-3);
       text-transform: uppercase;
       letter-spacing: 0.3px;
+      line-height: 1.2;
+      text-align: center;
     }
-    .tab-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 22px;
-      height: 18px;
-      padding: 0 7px;
-      border-radius: 10px;
-      background: #E5E4E1;
-      font-size: 10.5px;
-      font-weight: 800;
-      color: var(--text-2);
-      line-height: 1;
-    }
-    .tab-btn:hover { background: #F5F4F2; }
-    /* Active states — colored fill + border + shadow */
-    .tab-btn[data-tab="events"].active {
-      background: rgba(255, 68, 119, 0.06);
-      border-color: var(--flamingo);
-      box-shadow: 0 3px 8px rgba(255, 68, 119, 0.1);
-    }
-    .tab-btn[data-tab="events"].active .tab-label { color: var(--flamingo); }
-    .tab-btn[data-tab="events"].active .tab-badge { background: var(--flamingo); color: white; }
-
-    .tab-btn[data-tab="library"].active {
-      background: rgba(139, 92, 246, 0.06);
-      border-color: var(--violet);
-      box-shadow: 0 3px 8px rgba(139, 92, 246, 0.1);
-    }
-    .tab-btn[data-tab="library"].active .tab-label { color: var(--violet); }
-    .tab-btn[data-tab="library"].active .tab-badge { background: var(--violet); color: white; }
-
-    .tab-btn[data-tab="places"].active {
-      background: rgba(13, 148, 136, 0.06);
-      border-color: var(--teal);
-      box-shadow: 0 3px 8px rgba(13, 148, 136, 0.1);
-    }
-    .tab-btn[data-tab="places"].active .tab-label { color: var(--teal); }
-    .tab-btn[data-tab="places"].active .tab-badge { background: var(--teal); color: white; }
+    .tab-btn.active[data-color="flamingo"] .tab-line { color: var(--flamingo); }
+    .tab-btn.active[data-color="violet"]   .tab-line { color: var(--violet); }
+    .tab-btn.active[data-color="teal"]     .tab-line { color: var(--teal); }
 
     /* ─────────────────────────────────────────────
        DATE PICKER STRIP
@@ -243,7 +218,7 @@
     }
     .date-btn .day-name {
       font-family: 'Montserrat', sans-serif;
-      font-size: 9px;
+      font-size: 7.5px;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: -0.03em;
@@ -252,33 +227,21 @@
     .date-btn.active .day-name { color: var(--text-1); }
     .date-btn .day-num {
       font-family: 'Montserrat', sans-serif;
-      font-size: 20px;
+      font-size: 15px;
       font-weight: 900;
       color: var(--text-3);
     }
     .date-btn.active .day-num { color: var(--flamingo); }
     .date-btn .day-dot {
-      width: 18px;
-      height: 3px;
+      width: 12px;
+      height: 2px;
       border-radius: 2px;
       background: var(--flamingo);
       opacity: 0;
       margin-top: 1px;
     }
     .date-btn.active .day-dot { opacity: 1; }
-    .date-btn .day-count {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 9px;
-      font-weight: 800;
-      color: var(--text-3);
-      margin-top: 1px;
-      min-height: 10px;
-      opacity: 0;
-      transition: opacity 0.15s;
-      line-height: 1;
-    }
-    .date-btn .day-count.has-events { opacity: 0.55; }
-    .date-btn.active .day-count.has-events { opacity: 1; color: var(--flamingo); }
+    .date-btn .day-count { display: none; }
     /* Date color variants */
     .date-strip[data-tab="library"] .date-btn.active .day-num { color: var(--violet); }
     .date-strip[data-tab="library"] .date-btn.active .day-dot { background: var(--violet); }
@@ -292,7 +255,7 @@
     .age-filter-bar {
       display: none;
       position: sticky;
-      top: calc(var(--header-h) + var(--tab-h) + var(--date-h));
+      top: calc(var(--header-h) + var(--tab-h));
       z-index: 85;
       max-width: 720px;
       margin: 0 auto;
@@ -1454,6 +1417,8 @@
         pointer-events: none;
       }
       .tab-accent-line { display: none; }
+      .tab-tray { display: none; }
+      .tab-slider { display: none; }
       .tab-bar {
         max-width: 960px;
         margin: 0 auto;
@@ -1463,6 +1428,7 @@
         align-items: center;
         gap: 6px;
         pointer-events: auto;
+        position: static;
       }
       .tab-btn {
         flex: 0 0 auto;
@@ -1470,29 +1436,25 @@
         border: 1.5px solid var(--border-med);
         border-radius: 10px;
         padding: 7px 16px;
-        gap: 7px;
+        gap: 4px;
         background: var(--bg-white);
       }
-      .tab-icon { font-size: 15px; }
-      .tab-label {
+      .tab-line {
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.02em;
         white-space: nowrap;
+        color: var(--text-2);
       }
-      /* Hide the <br> line-break on desktop (space char in HTML handles word gap) */
-      .tab-label br { display: none; }
-      .tab-badge {
-        font-size: 11px;
-        height: 20px;
-        min-width: 24px;
-        padding: 0 8px;
-        border-radius: 10px;
-      }
-      /* Active pill states (override card-style) */
-      .tab-btn[data-tab="events"].active  { border-color: var(--flamingo); }
-      .tab-btn[data-tab="library"].active { border-color: var(--violet); }
-      .tab-btn[data-tab="places"].active  { border-color: var(--teal); }
+      /* On desktop, show the two lines inline as one label */
+      .tab-line:first-child::after { content: '\00a0'; }
+      /* Active pill states */
+      .tab-btn[data-tab="events"].active  { border-color: var(--flamingo); background: rgba(255,68,119,0.04); }
+      .tab-btn[data-tab="library"].active { border-color: var(--violet);   background: rgba(139,92,246,0.04); }
+      .tab-btn[data-tab="places"].active  { border-color: var(--teal);     background: rgba(13,148,136,0.04); }
+      .tab-btn[data-tab="events"].active  .tab-line { color: var(--flamingo); }
+      .tab-btn[data-tab="library"].active .tab-line { color: var(--violet); }
+      .tab-btn[data-tab="places"].active  .tab-line { color: var(--teal); }
 
       /* === DATE STRIP — constrained === */
       .date-strip {
@@ -1514,7 +1476,7 @@
 
       /* === AGE FILTER BAR (Library) === */
       .age-filter-bar {
-        top: calc(64px + var(--date-h));
+        top: 64px;
         max-width: 960px;
         padding: 10px 24px;
       }
@@ -1687,7 +1649,7 @@
 
       /* Sticky offset updates for desktop location bar presence */
       .date-strip { top: 115px; } /* 64px header + 3px border + 48px location bar */
-      .age-filter-bar { top: calc(115px + var(--date-h)); }
+      .age-filter-bar { top: 115px; } /* date strip hidden on Library tab */
 
       /* Hide mobile header location controls on desktop */
       .header-loc { display: none !important; }
@@ -1700,16 +1662,15 @@
     ───────────────────────────────────────────── */
     .header-loc { display: flex; align-items: center; }
     .hloc-default { display: flex; align-items: center; gap: 10px; }
-    .hloc-default-tip {
-      font-size: 10px; font-weight: 500; color: var(--teal); opacity: 0.8;
-      text-align: right; line-height: 1.3; white-space: nowrap;
-    }
+    .hloc-default-tip { display: none; }
     .hloc-default-btn {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 13px; background: var(--teal); border: none; border-radius: 10px;
-      font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900;
-      text-transform: uppercase; color: white; cursor: pointer; white-space: nowrap;
-      box-shadow: 0 2px 8px rgba(13,148,136,0.25);
+      display: flex; align-items: center; gap: 5px;
+      padding: 6px 11px;
+      background: rgba(255,68,119,0.05);
+      border: 1.5px solid rgba(255,68,119,0.15);
+      border-radius: 20px;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10.5px; font-weight: 700;
+      color: var(--flamingo); cursor: pointer; white-space: nowrap;
       -webkit-tap-highlight-color: transparent;
     }
     .hloc-input { display: none; align-items: center; gap: 6px; }
@@ -1727,11 +1688,7 @@
       text-transform: uppercase; color: white; cursor: pointer; white-space: nowrap;
       -webkit-tap-highlight-color: transparent;
     }
-    .hloc-gps-btn {
-      padding: 7px 10px; background: transparent; border: 1.5px solid var(--border-med);
-      border-radius: 8px; cursor: pointer; font-size: 14px; line-height: 1;
-      -webkit-tap-highlight-color: transparent;
-    }
+    .hloc-gps-btn { display: none; }
     .hloc-cancel-btn {
       padding: 7px 6px; background: transparent; border: none; cursor: pointer;
       font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase;
@@ -1800,19 +1757,17 @@
     </a>
     <!-- Mobile location controls (hidden on desktop via CSS) -->
     <div class="header-loc" id="header-loc">
-      <!-- Default state: tip + Set Area button -->
+      <!-- Default state: Sort by Nearest button -->
       <div class="hloc-default" id="hloc-default">
-        <span class="hloc-default-tip">nearest<br>events first</span>
         <button class="hloc-default-btn" onclick="showLocState('input');document.getElementById('hloc-zip').focus()">
-          📍 Set Area
+          📍 Sort by Nearest
         </button>
       </div>
-      <!-- Input state: zip field + Go + GPS + Cancel -->
+      <!-- Input state: zip field + Go + Cancel -->
       <div class="hloc-input" id="hloc-input">
         <input class="hloc-zip-field" id="hloc-zip" type="tel" inputmode="numeric" maxlength="5" placeholder="33133"
                onkeydown="if(event.key==='Enter')tryZipSubmit('hloc-zip')">
         <button class="hloc-go-btn" onclick="tryZipSubmit('hloc-zip')">Go</button>
-        <button class="hloc-gps-btn" onclick="tryGPS()" title="Use my location">📡</button>
         <button class="hloc-cancel-btn" onclick="showLocState('default')">✕</button>
       </div>
       <!-- Set state: location badge (tap to clear) -->
@@ -1856,23 +1811,23 @@
 <!-- Tab Bar -->
 <div class="tab-bar-wrap" id="tab-bar-wrap">
   <div class="tab-accent-line" id="tab-accent-line" data-active="events"></div>
-  <nav class="tab-bar" id="tab-bar">
-    <button class="tab-btn active" data-tab="events" onclick="switchTab('events')">
-      <span class="tab-icon">🎪</span>
-      <span class="tab-label">Local <br>Events</span>
-      <span class="tab-badge">0</span>
-    </button>
-    <button class="tab-btn" data-tab="library" onclick="switchTab('library')">
-      <span class="tab-icon">📚</span>
-      <span class="tab-label">Library <br>Programs</span>
-      <span class="tab-badge">0</span>
-    </button>
-    <button class="tab-btn" data-tab="places" onclick="switchTab('places')">
-      <span class="tab-icon">🗺️</span>
-      <span class="tab-label">Anytime <br>Spots</span>
-      <span class="tab-badge">15</span>
-    </button>
-  </nav>
+  <div class="tab-tray">
+    <nav class="tab-bar" id="tab-bar">
+      <div class="tab-slider" id="tab-slider" data-color="flamingo"></div>
+      <button class="tab-btn active" data-tab="events" data-color="flamingo" onclick="switchTab('events')">
+        <span class="tab-line">Local</span>
+        <span class="tab-line">Events</span>
+      </button>
+      <button class="tab-btn" data-tab="library" data-color="violet" onclick="switchTab('library')">
+        <span class="tab-line">Library</span>
+        <span class="tab-line">Programs</span>
+      </button>
+      <button class="tab-btn" data-tab="places" data-color="teal" onclick="switchTab('places')">
+        <span class="tab-line">Anytime</span>
+        <span class="tab-line">Spots</span>
+      </button>
+    </nav>
+  </div>
 </div>
 
 <!-- Date picker strip -->
@@ -2196,6 +2151,13 @@ function updateTabUI() {
   });
   const accentLine = document.getElementById('tab-accent-line');
   if (accentLine) accentLine.dataset.active = _activeTab;
+  // Update slider color
+  const activeBtn = document.querySelector('.tab-btn.active');
+  const slider = document.getElementById('tab-slider');
+  if (slider && activeBtn) {
+    slider.setAttribute('data-color', activeBtn.dataset.color || 'flamingo');
+  }
+  positionTabSlider();
   // Desktop: update header border color to match active tab
   const hdr = document.querySelector('.header');
   if (hdr) {
@@ -2205,9 +2167,19 @@ function updateTabUI() {
   }
 }
 
+function positionTabSlider() {
+  const bar = document.getElementById('tab-bar');
+  const slider = document.getElementById('tab-slider');
+  if (!bar || !slider) return;
+  const active = bar.querySelector('.tab-btn.active');
+  if (!active) return;
+  slider.style.left = active.offsetLeft + 'px';
+  slider.style.width = active.offsetWidth + 'px';
+}
+
 function updateDateStripVisibility() {
   const dateStrip = document.getElementById('date-strip');
-  if (_activeTab === 'places') {
+  if (_activeTab === 'places' || _activeTab === 'library') {
     dateStrip.classList.add('hidden');
   } else {
     dateStrip.classList.remove('hidden');
@@ -3528,9 +3500,11 @@ function clearLocation() {
 // ─── INIT ─────────────────────────────────────────────────────────
 loadEvents();
 initLocation();
+// Position tab slider after fonts/layout settle
+requestAnimationFrame(() => { positionTabSlider(); });
 
 // Re-measure sticky offsets on resize (mobile ↔ desktop switch)
-window.addEventListener('resize', () => { updateTabUnderline(); });
+window.addEventListener('resize', () => { updateTabUnderline(); positionTabSlider(); });
 
 // Auto-open modal if URL has ?id= on initial load (shared link)
 const _initId = new URLSearchParams(location.search).get('id');
