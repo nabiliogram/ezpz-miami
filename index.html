@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover" />
   <title>EZPZ Miami — The Play-Book for Miami Parents</title>
   <meta name="description" content="The easiest way to find kid-friendly events in Miami this weekend." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -2145,6 +2145,7 @@ function switchTab(tab) {
   updateDateStripVisibility();
   updateAgeFilterVisibility();
   renderContent();
+  window.scrollTo({ top: 0, behavior: 'auto' });
   updateTabUnderline();
   gtag('event', 'tab_switch', { tab_name: tab });
 }
@@ -2618,7 +2619,6 @@ function renderLocalEvents() {
   html += `<div class="footer"><span class="footer-text display">Your EZPZ Miami Play &mdash; Book</span></div>`;
   content.innerHTML = html;
   updateTabBadge('events', totalEvents);
-  window.scrollTo({ top: 0, behavior: 'auto' });
   _setupScrollObserver();
 }
 
@@ -2697,7 +2697,6 @@ function renderLibraryPrograms() {
   html += `<div class="footer"><span class="footer-text display">Your EZPZ Miami Play &mdash; Book</span></div>`;
   content.innerHTML = html;
   updateTabBadge('library', totalPrograms);
-  window.scrollTo({ top: 0, behavior: 'auto' });
   _setupScrollObserver();
 
   // Attach expand handlers (multi-branch cards — click card to toggle)
@@ -2884,7 +2883,6 @@ function renderPlaces() {
   html += `</div><div class="footer"><span class="footer-text display">Your EZPZ Miami Play &mdash; Book</span></div>`;
   content.innerHTML = html;
   updateTabBadge('places', 15);
-  window.scrollTo({ top: 0, behavior: 'auto' });
 
   // Attach venue event handlers
   document.querySelectorAll('.venue-cta').forEach(btn => {
