@@ -1425,7 +1425,8 @@
         pointer-events: none;
       }
       .tab-accent-line { display: none; }
-      .tab-tray { display: none; }
+      /* Hide the pill-tray visuals but keep children (tab-bar) visible */
+      .tab-tray { display: block; background: transparent; padding: 0; }
       .tab-slider { display: none; }
       .tab-bar {
         max-width: 960px;
@@ -1728,23 +1729,35 @@
     }
 
     /* ─────────────────────────────────────────────
-       MOBILE: Fixed header + tab bar
-       position:sticky has edge cases on iOS Safari
-       (browser chrome resize on scroll). Fixed is
-       bulletproof. Body padding compensates for the
-       space they no longer occupy in the flow.
+       MOBILE: Sticky header + tab bar
+       position:fixed on iOS Safari is unreliable —
+       the URL-bar collapse temporarily de-composites
+       fixed layers causing visible jump. Sticky rides
+       the layout flow and is immune to this jitter.
+       Both elements are in-flow so no body padding
+       is needed for the header/tab space.
     ───────────────────────────────────────────── */
     @media (max-width: 959px) {
-      /* header is position:fixed in base — no override needed */
+      /* Override fixed→sticky for iOS-safe header pinning */
+      .header {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        /* Remove GPU-layer transform — not needed for sticky,
+           and transform on sticky elements causes stacking issues */
+        transform: none;
+        -webkit-transform: none;
+      }
+      /* Tab-bar-wrap: already sticky in base CSS, just cancel the
+         fixed overrides and ensure it tracks below the header */
       .tab-bar-wrap {
-        position: fixed;
-        top: var(--header-h);
-        left: 0;
-        right: 0;
+        position: -webkit-sticky;
+        position: sticky;
+        left: auto;
+        right: auto;
       }
-      body {
-        padding-top: calc(var(--header-h) + var(--tab-h));
-      }
+      /* No padding needed — header + tab-bar are now in flow */
+      body { padding-top: 0; }
       /* Location bar hidden on mobile */
       .location-bar { display: none !important; }
     }
