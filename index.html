@@ -39,7 +39,7 @@
       --free-bg:      #ECFDF5;
       --header-h:     68px;
       --date-h:       72px;
-      --tab-h:        68px;
+      --tab-h:        52px; /* Approximate — JS measures & corrects this on load */
     }
 
     html { scroll-behavior: smooth; }
@@ -59,14 +59,20 @@
        HEADER
     ───────────────────────────────────────────── */
     .header {
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
       z-index: 100;
       height: var(--header-h);
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: none;
+      /* Force GPU layer — prevents iOS Safari fixed-position jitter */
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
     }
     .header-inner {
       max-width: 720px;
@@ -1390,13 +1396,8 @@
         max-width: 960px;
       }
 
-      /* === HEADER — fixed, with inline tabs === */
+      /* === HEADER — desktop sizing & border (position:fixed in base CSS) === */
       .header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
         height: auto;
         border-bottom: 3px solid var(--flamingo);
         transition: border-color 0.2s ease;
@@ -1734,11 +1735,7 @@
        space they no longer occupy in the flow.
     ───────────────────────────────────────────── */
     @media (max-width: 959px) {
-      .header {
-        position: fixed;
-        left: 0;
-        right: 0;
-      }
+      /* header is position:fixed in base — no override needed */
       .tab-bar-wrap {
         position: fixed;
         top: var(--header-h);
@@ -3507,8 +3504,8 @@ function clearLocation() {
 // ─── INIT ─────────────────────────────────────────────────────────
 loadEvents();
 initLocation();
-// Position tab slider after fonts/layout settle
-requestAnimationFrame(() => { positionTabSlider(); });
+// Measure real tab height and position slider as soon as DOM is laid out
+requestAnimationFrame(() => { updateTabUnderline(); positionTabSlider(); });
 
 // Re-measure sticky offsets on resize (mobile ↔ desktop switch)
 window.addEventListener('resize', () => { updateTabUnderline(); positionTabSlider(); });
