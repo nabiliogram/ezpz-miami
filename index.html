@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EZPZ Miami — The Play-Book for Miami Parents</title>
   <meta name="description" content="The easiest way to find kid-friendly events in Miami this weekend." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1757,7 +1757,12 @@
         right: auto;
       }
       /* No padding needed — header + tab-bar are now in flow */
-      body { padding-top: 0; }
+      body {
+        padding-top: 0;
+        /* Prevent rubber-band overscroll, which triggers iOS URL bar
+           collapse and can de-sync sticky element positions */
+        overscroll-behavior-y: none;
+      }
       /* Location bar hidden on mobile */
       .location-bar { display: none !important; }
     }
