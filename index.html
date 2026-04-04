@@ -1390,8 +1390,13 @@
         max-width: 960px;
       }
 
-      /* === HEADER — taller, with inline tabs === */
+      /* === HEADER — fixed, with inline tabs === */
       .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
         height: auto;
         border-bottom: 3px solid var(--flamingo);
         transition: border-color 0.2s ease;
@@ -1402,6 +1407,8 @@
         height: 64px;
         padding: 0 32px;
       }
+      /* Body padding to compensate for fixed header (64px + 3px border) */
+      body { padding-top: 67px; }
       .logo-name { font-size: 28px; }
       .logo-tag  { font-size: 9px; }
 
@@ -3426,7 +3433,7 @@ function showLocState(state) {
 }
 
 function _updateLocBadges(zip, label) {
-  const text = label ? `📍 ${zip} · ${label}` : `📍 ${zip}`;
+  const text = label ? `📍 ${label}` : `📍 ${zip}`;
   const mBadge = document.getElementById('hloc-badge-text');
   const dBadge = document.getElementById('dloc-badge-text');
   if (mBadge) mBadge.textContent = text;
