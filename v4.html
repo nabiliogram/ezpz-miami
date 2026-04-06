@@ -113,9 +113,9 @@ const HOODS = [
 ];
 function getCk(n){const m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?decodeURIComponent(m[1]):null;}
 function setCk(n,v){document.cookie=`${n}=${encodeURIComponent(v)};path=/;max-age=${60*60*24*90};SameSite=Lax`;}
-function getSavedLoc(){const r=getCk('ezpz_loc');if(!r)return null;try{return JSON.parse(r);}catch{return null;}}
+function getSavedLoc(){const r=getCk('ezpz_loc');if(!r)return null;try{const o=JSON.parse(r);if(o&&typeof o.la==='number'&&typeof o.ln==='number'&&!isNaN(o.la)&&!isNaN(o.ln))return o;return null;}catch{return null;}}
 function saveLoc(loc){setCk('ezpz_loc',JSON.stringify(loc));}
-function hav(la1,ln1,la2,ln2){const R=3959,dLa=(la2-la1)*Math.PI/180,dLn=(ln2-ln1)*Math.PI/180,a=Math.sin(dLa/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLn/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function hav(la1,ln1,la2,ln2){la1=+la1;ln1=+ln1;la2=+la2;ln2=+ln2;if([la1,ln1,la2,ln2].some(isNaN))return null;const R=3959,dLa=(la2-la1)*Math.PI/180,dLn=(ln2-ln1)*Math.PI/180,a=Math.sin(dLa/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLn/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function driveMin(mi){return Math.round(mi*2.5);}
 
 /* ═══════════════ DATA TRANSFORM ═══════════════ */
