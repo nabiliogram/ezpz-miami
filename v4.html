@@ -3,353 +3,221 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EZPZ Miami — v4 Live</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" />
+  <title>EZPZ Miami — The Play-Book for Miami Parents</title>
+  <meta name="description" content="The easiest way to find kid-friendly events in Miami this weekend." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=Montserrat:wght@800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
   <style>
+    :root {
+      --flamingo: #FF4477;
+      --yellow: #FACC15;
+      --teal: #0D9488;
+      --violet: #8B5CF6;
+      --bg: #FDFCFB;
+      --text-1: #0F172A;
+      --text-2: #475569;
+      --text-3: #94A3B8;
+      --border: #F1F5F9;
+      --header-h: 64px;
+      --strip-h: 64px;
+    }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:#F5F3F0;min-height:100vh;-webkit-font-smoothing:antialiased}
-    ::-webkit-scrollbar{width:0;height:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text-1);min-height:100vh;-webkit-font-smoothing:antialiased;padding-top:calc(var(--header-h) + var(--strip-h))}
 
+    /* ─── Header (matches live site) ─── */
+    .hdr{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--header-h);background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);transform:translateZ(0)}
+    .hdr-in{max-width:720px;margin:0 auto;padding:0 20px;height:100%;display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;flex-direction:column;text-decoration:none}
+    .logo-name{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:900;letter-spacing:-0.04em;text-transform:uppercase;color:var(--flamingo);line-height:1}
+    .logo-tag{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:800;color:var(--yellow);text-transform:uppercase;letter-spacing:0.25em;line-height:1;margin-top:3px}
+
+    /* ─── Date Strip (matches live site) ─── */
+    .date-strip{position:fixed;top:var(--header-h);left:0;right:0;z-index:90;background:linear-gradient(180deg,#FFF8E1 0%,#FFFBEB 100%);border-bottom:2px solid #FCD34D;border-top:1px solid #FDE68A;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;box-shadow:0 2px 8px rgba(250,204,21,0.15);transform:translateZ(0)}
+    .date-strip::-webkit-scrollbar{display:none}
+    .date-strip-in{display:flex;min-width:max-content;max-width:720px;margin:0 auto;padding:0 4px}
+    .d-btn{flex-shrink:0;width:52px;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:1px;border:none;background:transparent;cursor:pointer;border-radius:8px;margin:4px 1px;transition:background 0.15s}
+    .d-btn:hover{background:rgba(255,255,255,0.6)}
+    .d-btn.active{background:rgba(255,255,255,0.85);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+    .d-btn .dn{font-family:'Montserrat',sans-serif;font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:-0.03em;color:var(--text-3)}
+    .d-btn.active .dn{color:var(--text-1)}
+    .d-btn .dd{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:900;color:var(--text-3)}
+    .d-btn.active .dd{color:var(--flamingo)}
+    .d-btn .dot{width:12px;height:2px;border-radius:2px;background:var(--flamingo);opacity:0;margin-top:1px}
+    .d-btn.active .dot{opacity:1}
+    .d-btn .cnt{font-size:8px;font-weight:600;color:var(--text-3);min-height:10px}
+    .d-btn .cnt.has{color:var(--text-2)}
+
+    /* ─── Modal ─── */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:500;opacity:0;pointer-events:none;transition:opacity 0.2s ease;display:flex;align-items:flex-end;justify-content:center}
-    .modal-overlay.desk{align-items:center}
+    @media(min-width:700px){.modal-overlay{align-items:center}}
     .modal-overlay.open{opacity:1;pointer-events:auto}
     .bsheet{width:100%;max-height:85vh;background:white;border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;box-shadow:0 -4px 30px rgba(0,0,0,0.15)}
     .bsheet.open{transform:translateY(0)}
-    .dmodal{width:540px;max-height:85vh;background:white;border-radius:16px;transform:scale(0.95) translateY(10px);opacity:0;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.15)}
-    .dmodal.open{transform:scale(1) translateY(0);opacity:1}
+    @media(min-width:700px){.bsheet{max-width:540px;border-radius:16px;transform:scale(0.95) translateY(10px);opacity:0;box-shadow:0 8px 40px rgba(0,0,0,0.15)}.bsheet.open{transform:scale(1) translateY(0);opacity:1}}
 
-    .ctrl{position:sticky;top:0;z-index:999;background:rgba(15,23,42,0.97);backdrop-filter:blur(12px);padding:0 12px;display:flex;align-items:center;height:40px;gap:6px;overflow-x:auto}
-    .ctrl .l{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap}
-    .ct{display:flex;gap:1px;background:rgba(255,255,255,0.08);border-radius:5px;padding:2px;flex-shrink:0}
-    .ct button{padding:3px 8px;border-radius:4px;border:none;cursor:pointer;font-size:9px;font-weight:600;background:transparent;color:rgba(255,255,255,0.35);transition:all 0.15s;white-space:nowrap}
-    .ct button.a{background:rgba(255,255,255,0.15);color:white}
-    .loader{display:flex;align-items:center;justify-content:center;min-height:60vh;flex-direction:column;gap:12px}
-    .loader .spin{width:32px;height:32px;border:3px solid #F1F5F9;border-top-color:#FF4477;border-radius:50%;animation:sp 0.7s linear infinite}
+    /* ─── Loader ─── */
+    .loader{display:flex;align-items:center;justify-content:center;min-height:50vh;flex-direction:column;gap:12px}
+    .spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--flamingo);border-radius:50%;animation:sp 0.7s linear infinite}
     @keyframes sp{to{transform:rotate(360deg)}}
 
-    /* Image treatment */
-    .ev-img-wrap{position:relative;overflow:hidden;background:#E8E6E1}
-    .ev-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(0.85) contrast(1.05) brightness(1.02)}
-    .ev-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,240,230,0.08) 0%,rgba(0,0,0,0.02) 40%,rgba(0,0,0,0.5) 100%);pointer-events:none}
-    .ev-img-placeholder{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+    /* ─── Image treatment ─── */
+    .ev-img{position:relative;overflow:hidden;background:#E8E6E1}
+    .ev-img img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(0.85) contrast(1.05) brightness(1.02)}
+    .ev-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,240,230,0.08) 0%,rgba(0,0,0,0.02) 40%,rgba(0,0,0,0.5) 100%);pointer-events:none}
+    .ev-ph{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px}
+
+    /* ─── Location prompt ─── */
+    .loc-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(6px);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px}
   </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useCallback, useMemo } = React;
+const { useState, useEffect, useCallback, useMemo, useRef } = React;
 
-/* ═══════════════════════════════════ SUPABASE ═══════════════════════════════════ */
-const SUPABASE_URL = 'https://pomjqbjxosbfozvbvgsj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_8-9VIQPLrYfqxsoyGWjf8A_BO7UCLso';
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+/* ═══════════════ SUPABASE ═══════════════ */
+const SUPA_URL = 'https://pomjqbjxosbfozvbvgsj.supabase.co';
+const SUPA_KEY = 'sb_publishable_8-9VIQPLrYfqxsoyGWjf8A_BO7UCLso';
+const db = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 async function fetchEvents() {
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const { data, error } = await db
-    .from('events')
-    .select('id, title, editorial_headline, description, parent_summary, practical_notes, start_date, end_date, age_min, age_max, image_url, venue_name, neighborhood, is_free, price_min, price_max, source, activity_type, address, source_url, lat, lng')
-    .eq('is_canceled', false)
-    .eq('is_kid_friendly', true)
-    .gte('start_date', todayStr)
-    .order('start_date', { ascending: true })
-    .limit(400);
+  const today = new Date().toISOString().slice(0,10);
+  const { data, error } = await db.from('events')
+    .select('id,title,editorial_headline,description,parent_summary,practical_notes,start_date,end_date,age_min,age_max,image_url,venue_name,neighborhood,is_free,price_min,price_max,source,activity_type,address,source_url,lat,lng')
+    .eq('is_canceled',false).eq('is_kid_friendly',true).gte('start_date',today)
+    .order('start_date',{ascending:true}).limit(400);
   if (error) throw error;
-  return (data || []).filter(e => {
-    const amin = e.age_min, amax = e.age_max;
-    if (amin != null && amin >= 13 && (amax == null || amax >= 13)) return false;
+  return (data||[]).filter(e=>{
+    if(e.age_min!=null&&e.age_min>=13&&(e.age_max==null||e.age_max>=13)) return false;
     return true;
   });
 }
 
-/* ═══════════════════════════════════ LOCATION ═══════════════════════════════════ */
-const NEIGHBORHOODS = [
-  { label:"Edgewater", lat:25.7958, lng:-80.1867 },
-  { label:"Downtown", lat:25.7743, lng:-80.1937 },
-  { label:"Brickell", lat:25.7580, lng:-80.1917 },
-  { label:"Wynwood", lat:25.8016, lng:-80.1988 },
-  { label:"Midtown", lat:25.8050, lng:-80.1910 },
-  { label:"Design District", lat:25.8122, lng:-80.1927 },
-  { label:"Little Havana", lat:25.7657, lng:-80.2190 },
-  { label:"Coconut Grove", lat:25.7260, lng:-80.2405 },
-  { label:"Coral Gables", lat:25.7215, lng:-80.2684 },
-  { label:"South Miami", lat:25.7076, lng:-80.2937 },
-  { label:"Pinecrest", lat:25.6659, lng:-80.3077 },
-  { label:"Kendall", lat:25.6793, lng:-80.3472 },
-  { label:"Doral", lat:25.8195, lng:-80.3553 },
-  { label:"Miami Beach", lat:25.7907, lng:-80.1300 },
-  { label:"North Miami", lat:25.8901, lng:-80.1867 },
-  { label:"Aventura", lat:25.9565, lng:-80.1392 },
-  { label:"Key Biscayne", lat:25.6937, lng:-80.1628 },
-  { label:"Homestead", lat:25.4687, lng:-80.4776 },
+/* ═══════════════ LOCATION ═══════════════ */
+const HOODS = [
+  {l:"Edgewater",la:25.7958,ln:-80.1867},{l:"Downtown",la:25.7743,ln:-80.1937},
+  {l:"Brickell",la:25.7580,ln:-80.1917},{l:"Wynwood",la:25.8016,ln:-80.1988},
+  {l:"Midtown",la:25.8050,ln:-80.1910},{l:"Design District",la:25.8122,ln:-80.1927},
+  {l:"Little Havana",la:25.7657,ln:-80.2190},{l:"Coconut Grove",la:25.7260,ln:-80.2405},
+  {l:"Coral Gables",la:25.7215,ln:-80.2684},{l:"South Miami",la:25.7076,ln:-80.2937},
+  {l:"Pinecrest",la:25.6659,ln:-80.3077},{l:"Kendall",la:25.6793,ln:-80.3472},
+  {l:"Doral",la:25.8195,ln:-80.3553},{l:"Miami Beach",la:25.7907,ln:-80.1300},
+  {l:"North Miami",la:25.8901,ln:-80.1867},{l:"Aventura",la:25.9565,ln:-80.1392},
+  {l:"Key Biscayne",la:25.6937,ln:-80.1628},{l:"Homestead",la:25.4687,ln:-80.4776},
 ];
+function getCk(n){const m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?decodeURIComponent(m[1]):null;}
+function setCk(n,v){document.cookie=`${n}=${encodeURIComponent(v)};path=/;max-age=${60*60*24*90};SameSite=Lax`;}
+function getSavedLoc(){const r=getCk('ezpz_loc');if(!r)return null;try{return JSON.parse(r);}catch{return null;}}
+function saveLoc(loc){setCk('ezpz_loc',JSON.stringify(loc));}
+function hav(la1,ln1,la2,ln2){const R=3959,dLa=(la2-la1)*Math.PI/180,dLn=(ln2-ln1)*Math.PI/180,a=Math.sin(dLa/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLn/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function driveMin(mi){return Math.round(mi*2.5);}
 
-function getCookie(name) {
-  const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-  return m ? decodeURIComponent(m[1]) : null;
-}
-function setCookie(name, val) {
-  document.cookie = `${name}=${encodeURIComponent(val)};path=/;max-age=${60*60*24*90};SameSite=Lax`;
-}
-function getSavedLocation() {
-  const raw = getCookie('ezpz_loc');
-  if (!raw) return null;
-  try { return JSON.parse(raw); } catch { return null; }
-}
-function saveLocation(loc) { setCookie('ezpz_loc', JSON.stringify(loc)); }
+/* ═══════════════ DATA TRANSFORM ═══════════════ */
+const DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const FDN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const TL={museum:"Museum",outdoor:"Outdoor",festival:"Festival",craft:"Art & Craft",storytime:"Storytime",workshop:"Workshop",performance:"Film & Stage",sports:"Sports",class:"Music & Class",camp:"Camp",games:"Games",other:"Other"};
+const PG={museum:"linear-gradient(135deg,#FECDD3,#E11D48)",outdoor:"linear-gradient(135deg,#CCFBF1,#0D9488)",festival:"linear-gradient(135deg,#F5D0FE,#D946EF)",craft:"linear-gradient(135deg,#FEF3C7,#F59E0B)",storytime:"linear-gradient(135deg,#EDE9FE,#8B5CF6)",workshop:"linear-gradient(135deg,#DBEAFE,#3B82F6)",performance:"linear-gradient(135deg,#FCE7F3,#EC4899)",sports:"linear-gradient(135deg,#D1FAE5,#10B981)",class:"linear-gradient(135deg,#FFEDD5,#F97316)",camp:"linear-gradient(135deg,#D1FAE5,#059669)",games:"linear-gradient(135deg,#E0E7FF,#6366F1)",other:"linear-gradient(135deg,#F1F5F9,#94A3B8)"};
 
-function haversine(lat1, lng1, lat2, lng2) {
-  const R = 3959;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-function driveMin(miles) { return Math.round(miles * 2.5); }
+function etDate(d){return d.toLocaleDateString('en-CA',{timeZone:'America/New_York'});}
+function etTime(d){return d.toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit'});}
+function fmtDate(d){return `${FDN[d.getDay()]}, ${MN[d.getMonth()]} ${d.getDate()}`;}
 
-/* ═══════════════════════════════════ DATA TRANSFORM ═══════════════════════════════════ */
-function normalizeEvent(e, userLoc) {
-  const sd = new Date(e.start_date);
-  const etDate = sd.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
-  const etTime = sd.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
-  let timeStr = etTime;
-  if (e.end_date) {
-    const ed = new Date(e.end_date);
-    timeStr = `${etTime} – ${ed.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' })}`;
+function norm(e,uLoc){
+  const sd=new Date(e.start_date);
+  const dStr=etDate(sd), tStr=etTime(sd);
+  let tm=tStr;
+  if(e.end_date){tm=`${tStr} – ${etTime(new Date(e.end_date))}`;}
+  let pr='Free',free=e.is_free;
+  if(!free){
+    if(e.price_min&&e.price_max&&e.price_min!==e.price_max) pr=`$${Math.round(e.price_min)}–$${Math.round(e.price_max)}`;
+    else if(e.price_min) pr=`$${Math.round(e.price_min)}`;
+    else if(e.price_max) pr=`$${Math.round(e.price_max)}`;
+    else{pr='Free';free=true;}
   }
-
-  let prStr = 'Free', isFree = e.is_free;
-  if (!isFree) {
-    if (e.price_min && e.price_max && e.price_min !== e.price_max) prStr = `$${Math.round(e.price_min)}–$${Math.round(e.price_max)}`;
-    else if (e.price_min) prStr = `$${Math.round(e.price_min)}`;
-    else if (e.price_max) prStr = `$${Math.round(e.price_max)}`;
-    else { prStr = 'Free'; isFree = true; }
-  }
-
-  let ageStr = null;
-  if (e.age_min != null && e.age_max != null) ageStr = `${e.age_min}–${e.age_max}`;
-  else if (e.age_min != null) ageStr = `${e.age_min}+`;
-
-  let distMi = null, distMin = null;
-  if (userLoc && e.lat && e.lng) {
-    distMi = haversine(userLoc.lat, userLoc.lng, e.lat, e.lng);
-    distMin = driveMin(distMi);
-  }
-
-  const isFeatured = !!(e.editorial_headline && e.image_url);
-  const isLib = e.source === 'miami_dade_libraries';
-
-  // Build a clean 2-line editorial blurb (never truncated)
-  let blurb = e.parent_summary || (e.description ? e.description.slice(0, 120) : '');
-  // Cap at ~100 chars for a clean 2-line display
-  if (blurb.length > 100) {
-    const cut = blurb.lastIndexOf(' ', 100);
-    blurb = blurb.slice(0, cut > 60 ? cut : 100);
-  }
-
-  return {
-    id: e.id, t: e.editorial_headline || e.title, rawTitle: e.title,
-    v: e.venue_name || 'TBA', tm: timeStr, d: etDate,
-    distMi, dm: distMin, pr: prStr, free: isFree,
-    tp: isLib ? 'library' : 'event', at: e.activity_type || 'other',
-    ed: blurb, fullEd: e.parent_summary || e.description || '',
-    img: e.image_url, w: isFeatured ? 'f' : 's', age: ageStr,
-    neighborhood: e.neighborhood, source_url: e.source_url,
-    practical_notes: e.practical_notes, address: e.address,
-    source: e.source, lat: e.lat, lng: e.lng,
-  };
+  let age=null;
+  if(e.age_min!=null&&e.age_max!=null) age=`${e.age_min}–${e.age_max}`;
+  else if(e.age_min!=null) age=`${e.age_min}+`;
+  let mi=null,dm=null;
+  if(uLoc&&e.lat&&e.lng){mi=hav(uLoc.la,uLoc.ln,e.lat,e.lng);dm=driveMin(mi);}
+  const feat=!!(e.editorial_headline&&e.image_url);
+  const isLib=e.source==='miami_dade_libraries';
+  let blurb=e.parent_summary||(e.description?e.description.slice(0,120):'');
+  if(blurb.length>100){const c=blurb.lastIndexOf(' ',100);blurb=blurb.slice(0,c>60?c:100);}
+  return{id:e.id,t:e.editorial_headline||e.title,v:e.venue_name||'TBA',tm,d:dStr,mi,dm,pr,free,
+    lib:isLib,at:e.activity_type||'other',ed:blurb,fullEd:e.parent_summary||e.description||'',
+    img:e.image_url,feat,age,hood:e.neighborhood,srcUrl:e.source_url,
+    notes:e.practical_notes,addr:e.address,lat:e.lat,lng:e.lng};
 }
 
-function filterLibraryByRadius(events) {
-  const libs = events.filter(e => e.tp === 'library');
-  const nonLibs = events.filter(e => e.tp !== 'library');
-  if (libs.length === 0) return events;
-  const venueMap = {};
-  libs.forEach(e => {
-    if (!venueMap[e.v]) venueMap[e.v] = { minDist: e.distMi ?? 9999, events: [] };
-    if (e.distMi != null && e.distMi < venueMap[e.v].minDist) venueMap[e.v].minDist = e.distMi;
-    venueMap[e.v].events.push(e);
-  });
-  const sortedVenues = Object.entries(venueMap).sort((a,b) => a[1].minDist - b[1].minDist).slice(0, 3).map(([n]) => n);
-  return [...nonLibs, ...libs.filter(e => sortedVenues.includes(e.v))].sort((a,b) => a.d.localeCompare(b.d) || (a.dm??999)-(b.dm??999));
+function filterLibs(evs){
+  const libs=evs.filter(e=>e.lib),rest=evs.filter(e=>!e.lib);
+  if(!libs.length) return evs;
+  const vm={};
+  libs.forEach(e=>{if(!vm[e.v])vm[e.v]={d:e.mi??9999,evs:[]};if(e.mi!=null&&e.mi<vm[e.v].d)vm[e.v].d=e.mi;vm[e.v].evs.push(e);});
+  const top3=Object.entries(vm).sort((a,b)=>a[1].d-b[1].d).slice(0,3).map(([n])=>n);
+  return[...rest,...libs.filter(e=>top3.includes(e.v))].sort((a,b)=>a.d.localeCompare(b.d)||(a.dm??999)-(b.dm??999));
 }
 
-/* ═══════════════════════════════════ CONSTANTS ═══════════════════════════════════ */
-const IC = { museum:"🏛️", outdoor:"🌴", festival:"🎪", craft:"🎨", storytime:"📖", workshop:"🔧", performance:"🎬", sports:"🏃", class:"🎵", camp:"⛺", games:"🎲", other:"📌" };
-const TC = { museum:"#E11D48", outdoor:"#0D9488", festival:"#D946EF", craft:"#F59E0B", storytime:"#8B5CF6", workshop:"#3B82F6", performance:"#EC4899", sports:"#10B981", class:"#F97316", camp:"#059669", games:"#6366F1", other:"#94A3B8" };
-const TL = { museum:"Museum", outdoor:"Outdoor", festival:"Festival", craft:"Art & Craft", storytime:"Storytime", workshop:"Workshop", performance:"Film & Stage", sports:"Sports", class:"Music & Class", camp:"Camp", games:"Games", other:"Other" };
-const DN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const PG = {
-  museum:"linear-gradient(135deg, #FECDD3 0%, #FDA4AF 50%, #E11D48 100%)",
-  outdoor:"linear-gradient(135deg, #CCFBF1 0%, #5EEAD4 50%, #0D9488 100%)",
-  festival:"linear-gradient(135deg, #F5D0FE 0%, #E879F9 50%, #D946EF 100%)",
-  craft:"linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #F59E0B 100%)",
-  storytime:"linear-gradient(135deg, #EDE9FE 0%, #C4B5FD 50%, #8B5CF6 100%)",
-  workshop:"linear-gradient(135deg, #DBEAFE 0%, #93C5FD 50%, #3B82F6 100%)",
-  performance:"linear-gradient(135deg, #FCE7F3 0%, #F9A8D4 50%, #EC4899 100%)",
-  sports:"linear-gradient(135deg, #D1FAE5 0%, #6EE7B7 50%, #10B981 100%)",
-  class:"linear-gradient(135deg, #FFEDD5 0%, #FDBA74 50%, #F97316 100%)",
-  camp:"linear-gradient(135deg, #D1FAE5 0%, #6EE7B7 50%, #059669 100%)",
-  games:"linear-gradient(135deg, #E0E7FF 0%, #A5B4FC 50%, #6366F1 100%)",
-  other:"linear-gradient(135deg, #F1F5F9 0%, #CBD5E1 50%, #94A3B8 100%)",
-};
-
-/* Miami day-section palettes — calm, warm, beachy */
-const DAY_PALETTES = {
-  sat: { bg:"linear-gradient(180deg, #FFF8F0 0%, #FDF6F0 50%, #F5F3F0 100%)", accent:"#E8764B", head:"#C4572E" },
-  sun: { bg:"linear-gradient(180deg, #FFF5F6 0%, #FDF2F3 50%, #F5F3F0 100%)", accent:"#D4577A", head:"#B8405E" },
-  weekday: { bg:"linear-gradient(180deg, #F2F8F7 0%, #EFF6F4 50%, #F5F3F0 100%)", accent:"#2A9D8F", head:"#1E7A6D" },
-  library: { bg:"#F9F7FF", border:"#E8E0F5" },
-};
-function dayPalette(dateStr) {
-  const d = new Date(dateStr+"T12:00:00");
-  if (d.getDay()===6) return DAY_PALETTES.sat;
-  if (d.getDay()===0) return DAY_PALETTES.sun;
-  return DAY_PALETTES.weekday;
+/* ═══════════════ IMAGE ═══════════════ */
+function Img({src,at,h,br,children}){
+  if(src) return <div className="ev-img" style={{height:h,borderRadius:br||0,position:'relative'}}><img src={src} alt="" loading="lazy" style={{borderRadius:br||0}}/>{children}</div>;
+  return <div className="ev-img ev-ph" style={{height:h,borderRadius:br||0,background:PG[at]||PG.other,position:'relative'}}><span style={{fontSize:h>130?32:24,opacity:0.6}}>{TL[at]||'Event'}</span>{children}</div>;
 }
 
-function dsET(d){ return d.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
-function isWE(d){ return d.getDay()===0||d.getDay()===6; }
-function fmt(d){ return `${DN[d.getDay()]}, ${MN[d.getMonth()]} ${d.getDate()}`; }
-function shortD(d){ return DN[d.getDay()].slice(0,3); }
-function relLabel(d, today) {
-  const ts = dsET(today), es = dsET(d);
-  if (es===ts) return "Today";
-  const tom = new Date(today); tom.setDate(tom.getDate()+1);
-  if (es===dsET(tom)) return "Tomorrow";
-  return fmt(d);
+/* ═══════════════ DISTANCE ═══════════════ */
+function Dist({mi,dm}){
+  if(mi==null) return null;
+  const c=mi<=3?'#0D9488':mi<=8?'var(--text-2)':'var(--text-3)';
+  return <span style={{fontSize:11,color:c,fontWeight:600,display:'inline-flex',alignItems:'center',gap:3}}>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5"><rect x="1" y="6" width="22" height="12" rx="3"/><circle cx="6.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></svg>
+    {mi<10?mi.toFixed(1):Math.round(mi)} mi
+  </span>;
 }
 
-/* ─── Build layout ─── */
-function buildLayout(events, today) {
-  const ts = dsET(today);
-  const future = events.filter(e=>e.d>=ts).sort((a,b)=>a.d.localeCompare(b.d)||(a.dm??999)-(b.dm??999));
-  const bestFeatured = future.find(e=>e.w==="f" && e.img);
-  let nxSat = new Date(today); while(nxSat.getDay()!==6) nxSat.setDate(nxSat.getDate()+1);
-  const nxSun = new Date(nxSat); nxSun.setDate(nxSun.getDate()+1);
-  const isWknd = isWE(today);
-  const sections = [];
-  const todayEvents = future.filter(e=>e.d===ts);
-  const todayFeatured = todayEvents.filter(e=>e.w==="f");
-  if ((!isWknd || todayFeatured.length===0) && bestFeatured && bestFeatured.d!==ts) {
-    const hDate = new Date(bestFeatured.d+"T12:00:00");
-    sections.push({ type:"hero-teaser", event:bestFeatured, label:relLabel(hDate,today)==="Today"?"Today":(isWE(hDate)?"This Weekend":shortD(hDate)) });
-  }
-  const allDays = [...new Set(future.map(e=>e.d))].sort();
-  if (todayEvents.length) sections.push({ type:"day", date:new Date(ts+"T12:00:00"), events:todayEvents, isToday:true });
-  const preWeekend = allDays.filter(d=>d>ts && d<dsET(nxSat));
-  if (preWeekend.length) sections.push({ type:"weekgroup", label:isWknd?"Next Week":"This Week", days:preWeekend, events:future.filter(e=>preWeekend.includes(e.d)) });
-  if (!isWknd || dsET(nxSat)!==ts) {
-    [dsET(nxSat),dsET(nxSun)].filter(d=>d>ts||(isWknd&&d>=ts)).filter(d=>d!==ts).forEach((d,i,arr)=>{
-      const evs=future.filter(e=>e.d===d);
-      if(evs.length) sections.push({ type:"day", date:new Date(d+"T12:00:00"), events:evs, isToday:false, sectionTag:d===arr[0]?"This Weekend":null });
-    });
-  }
-  const beyond = allDays.filter(d=>d>dsET(nxSun));
-  if (beyond.length) {
-    const bWd=beyond.filter(d=>!isWE(new Date(d+"T12:00:00"))), bWe=beyond.filter(d=>isWE(new Date(d+"T12:00:00")));
-    if(bWd.length) sections.push({ type:"weekgroup", label:"Next Week", days:bWd, events:future.filter(e=>bWd.includes(e.d)) });
-    bWe.forEach((d,i)=>{ const evs=future.filter(e=>e.d===d); if(evs.length) sections.push({ type:"day", date:new Date(d+"T12:00:00"), events:evs, isToday:false, sectionTag:i===0?"Next Weekend":null }); });
-  }
-  return sections;
-}
-
-
-/* ═══════════════════════════════════ IMAGE COMPONENT ═══════════════════════════════════ */
-function EvImage({ src, at, venue, height, borderRadius, children }) {
-  const h = height||140, br = borderRadius||0;
-  if (src) return (
-    <div className="ev-img-wrap" style={{ height:h, borderRadius:br, position:"relative" }}>
-      <img src={src} alt="" loading="lazy" style={{ borderRadius:br }} />
-      {children}
-    </div>
-  );
-  return (
-    <div className="ev-img-wrap ev-img-placeholder" style={{ height:h, borderRadius:br, background:PG[at]||PG.other, position:"relative" }}>
-      <span style={{ fontSize:h>130?36:28, opacity:0.7 }}>{IC[at]||"📌"}</span>
-      {venue && <span style={{ fontSize:10, fontWeight:600, color:"rgba(255,255,255,0.85)", textAlign:"center", maxWidth:"80%", lineHeight:1.3 }}>{venue}</span>}
-      {children}
-    </div>
-  );
-}
-
-
-/* ═══════════════════════════════════ SHARED ATOMS ═══════════════════════════════════ */
-function DistChip({ mi, dm }) {
-  if (mi==null) return null;
-  const col = mi<=3?"#0D9488":mi<=8?"#64748B":"#94A3B8";
-  return (
-    <span style={{ display:"inline-flex", alignItems:"center", gap:3, fontSize:11, color:col, fontWeight:600 }}>
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={col} strokeWidth="2.5" strokeLinecap="round"><rect x="1" y="6" width="22" height="12" rx="3"/><circle cx="6.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></svg>
-      {mi<10?mi.toFixed(1):Math.round(mi)} mi
-    </span>
-  );
-}
-
-function Price({ e }) {
-  return <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:6, color:e.free?"#059669":"#64748B", background:e.free?"#ECFDF5":"#F1F5F9" }}>{e.pr}</span>;
-}
-
-function AgeChip({ age }) {
-  if (!age) return null;
-  return <span style={{ fontSize:10, fontWeight:600, color:"#6D28D9", background:"#EDE9FE", padding:"2px 6px", borderRadius:4 }}>Ages {age}</span>;
-}
-
-
-/* ═══════════════════════════════════ LOCATION PROMPT ═══════════════════════════════════ */
-function LocationPrompt({ onSelect }) {
-  const [mode, setMode] = useState('initial');
-  const [errMsg, setErrMsg] = useState('');
-  function handleGeo() {
-    if (!navigator.geolocation) { setMode('error'); setErrMsg('Geolocation not supported'); return; }
-    setMode('locating');
+/* ═══════════════ LOCATION PROMPT ═══════════════ */
+function LocPrompt({onSelect}){
+  const[mode,setMode]=useState('init');
+  const[err,setErr]=useState('');
+  function geo(){
+    if(!navigator.geolocation){setMode('err');setErr('Not supported');return;}
+    setMode('wait');
     navigator.geolocation.getCurrentPosition(
-      pos => {
-        const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude, label:'My Location' };
-        let best=NEIGHBORHOODS[0], bestD=999;
-        NEIGHBORHOODS.forEach(n=>{ const d=haversine(loc.lat,loc.lng,n.lat,n.lng); if(d<bestD){bestD=d;best=n;} });
-        loc.label = best.label;
-        saveLocation(loc); onSelect(loc);
-      },
-      err => { setMode('error'); setErrMsg(err.code===1?'Location denied. Pick your neighborhood instead.':'Could not get location.'); },
-      { enableHighAccuracy:false, timeout:8000 }
+      p=>{const loc={la:p.coords.latitude,ln:p.coords.longitude,l:'My Location'};
+        let b=HOODS[0],bd=999;HOODS.forEach(n=>{const d=hav(loc.la,loc.ln,n.la,n.ln);if(d<bd){bd=d;b=n;}});
+        loc.l=b.l;saveLoc(loc);onSelect(loc);},
+      e=>{setMode('err');setErr(e.code===1?'Location denied.':'Could not get location.');},
+      {enableHighAccuracy:false,timeout:8000}
     );
   }
-  function handlePick(n) { const loc={lat:n.lat,lng:n.lng,label:n.label}; saveLocation(loc); onSelect(loc); }
-
-  return (
-    <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.65)", backdropFilter:"blur(6px)", zIndex:600, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
-      <div style={{ background:"white", borderRadius:20, padding:"32px 28px", maxWidth:380, width:"100%", boxShadow:"0 16px 48px rgba(0,0,0,0.2)" }}>
-        <div style={{ textAlign:"center", marginBottom:20 }}>
-          <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:28, fontWeight:900, color:"#FF4477", letterSpacing:"-0.04em", textTransform:"uppercase" }}>EZPZ</div>
-          <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:8, fontWeight:800, color:"#FACC15", textTransform:"uppercase", letterSpacing:"0.2em", marginBottom:14 }}>MIAMI</div>
-          <h2 style={{ fontSize:18, fontWeight:700, color:"#0F172A", margin:"0 0 6px" }}>Where are you in Miami?</h2>
-          <p style={{ fontSize:13, color:"#94A3B8", margin:0, lineHeight:1.5 }}>We'll show drive times and your nearest libraries</p>
+  function pick(n){const loc={la:n.la,ln:n.ln,l:n.l};saveLoc(loc);onSelect(loc);}
+  return(
+    <div className="loc-overlay">
+      <div style={{background:'white',borderRadius:20,padding:'32px 28px',maxWidth:380,width:'100%',boxShadow:'0 16px 48px rgba(0,0,0,0.2)'}}>
+        <div style={{textAlign:'center',marginBottom:20}}>
+          <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:900,color:'var(--flamingo)',letterSpacing:'-0.04em',textTransform:'uppercase'}}>EZPZ Miami</div>
+          <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:8,fontWeight:800,color:'var(--yellow)',textTransform:'uppercase',letterSpacing:'0.25em',marginBottom:14}}>THE PARENT CHEAT SHEET</div>
+          <h2 style={{fontSize:17,fontWeight:700,color:'var(--text-1)',margin:'0 0 4px'}}>Where are you in Miami?</h2>
+          <p style={{fontSize:13,color:'var(--text-3)',margin:0}}>We'll show drive times and your nearest libraries</p>
         </div>
-        {(mode==='initial'||mode==='error') && <>
-          {mode==='error' && <div style={{ fontSize:12, color:"#E11D48", background:"#FFF1F2", padding:"8px 12px", borderRadius:8, marginBottom:12, textAlign:"center" }}>{errMsg}</div>}
-          <button onClick={handleGeo} style={{ width:"100%", padding:"14px", borderRadius:12, border:"none", background:"#FF4477", color:"white", fontSize:15, fontWeight:700, cursor:"pointer", marginBottom:10, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Use My Location
-          </button>
-          <button onClick={()=>setMode('picking')} style={{ width:"100%", padding:"12px", borderRadius:12, border:"1.5px solid #E2E8F0", background:"white", color:"#0F172A", fontSize:14, fontWeight:600, cursor:"pointer" }}>Pick My Neighborhood</button>
+        {(mode==='init'||mode==='err')&&<>
+          {mode==='err'&&<div style={{fontSize:12,color:'#E11D48',background:'#FFF1F2',padding:'8px 12px',borderRadius:8,marginBottom:12,textAlign:'center'}}>{err}</div>}
+          <button onClick={geo} style={{width:'100%',padding:14,borderRadius:12,border:'none',background:'var(--flamingo)',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',marginBottom:10}}>📍 Use My Location</button>
+          <button onClick={()=>setMode('pick')} style={{width:'100%',padding:12,borderRadius:12,border:'1.5px solid var(--border)',background:'white',color:'var(--text-1)',fontSize:14,fontWeight:600,cursor:'pointer'}}>Pick My Neighborhood</button>
         </>}
-        {mode==='locating' && <div style={{ textAlign:"center", padding:"24px 0" }}><div className="spin" style={{ width:28, height:28, border:"3px solid #F1F5F9", borderTopColor:"#FF4477", borderRadius:"50%", animation:"sp 0.7s linear infinite", margin:"0 auto 12px" }}/><p style={{ fontSize:13, color:"#64748B" }}>Finding your location...</p></div>}
-        {mode==='picking' && <div style={{ maxHeight:320, overflowY:"auto" }}>
-          <button onClick={()=>setMode('initial')} style={{ fontSize:12, fontWeight:600, color:"#FF4477", background:"none", border:"none", cursor:"pointer", marginBottom:8 }}>← Back</button>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
-            {NEIGHBORHOODS.map(n=>(
-              <button key={n.label} onClick={()=>handlePick(n)} style={{ padding:"10px 8px", borderRadius:10, border:"1.5px solid #F1F5F9", background:"white", cursor:"pointer", fontSize:13, fontWeight:500, color:"#0F172A", textAlign:"left", transition:"all 0.15s" }}
-                onMouseEnter={e=>{e.currentTarget.style.borderColor="#FF4477";e.currentTarget.style.background="#FFF5F7"}}
-                onMouseLeave={e=>{e.currentTarget.style.borderColor="#F1F5F9";e.currentTarget.style.background="white"}}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF4477" strokeWidth="2.5" style={{marginRight:4,verticalAlign:"middle"}}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>{n.label}
-              </button>
-            ))}
+        {mode==='wait'&&<div style={{textAlign:'center',padding:'24px 0'}}><div className="spin" style={{margin:'0 auto 12px'}}/><p style={{fontSize:13,color:'var(--text-2)'}}>Finding you...</p></div>}
+        {mode==='pick'&&<div style={{maxHeight:320,overflowY:'auto'}}>
+          <button onClick={()=>setMode('init')} style={{fontSize:12,fontWeight:600,color:'var(--flamingo)',background:'none',border:'none',cursor:'pointer',marginBottom:8}}>← Back</button>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+            {HOODS.map(n=><button key={n.l} onClick={()=>pick(n)} style={{padding:'10px 8px',borderRadius:10,border:'1.5px solid var(--border)',background:'white',cursor:'pointer',fontSize:13,fontWeight:500,color:'var(--text-1)',textAlign:'left',transition:'all 0.15s'}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--flamingo)';e.currentTarget.style.background='#FFF5F7'}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border)';e.currentTarget.style.background='white'}}>📍 {n.l}</button>)}
           </div>
         </div>}
       </div>
@@ -357,568 +225,293 @@ function LocationPrompt({ onSelect }) {
   );
 }
 
-
-/* ═══════════════════════════════════ MOBILE EVENT CARD ═══════════════════════════════════ */
-/*
-  New card design:
-  ┌──────────────────────────────────────────────┐
-  │ 🎨  Editorial Headline Goes Here Full        │
-  │     Two-line editorial blurb that describes   │
-  │     what the kid will actually do there       │
-  │     ─────────────────────────────────────     │
-  │     Venue Name · 10 AM            🚗 3.2 mi  │
-  └──────────────────────────────────────────────┘
-*/
-function EventCard({ event, onClick, isLibrary }) {
-  const c = TC[event.at]||"#94A3B8";
-  const bgColor = isLibrary ? DAY_PALETTES.library.bg : "white";
-  const borderColor = isLibrary ? DAY_PALETTES.library.border : "#F0EDE8";
-  return (
-    <div onClick={()=>onClick(event)} style={{
-      background:bgColor, borderRadius:12, padding:"14px 16px",
-      cursor:"pointer", border:`1px solid ${borderColor}`,
-      transition:"transform 0.1s, box-shadow 0.15s",
-      marginBottom:0,
-    }}>
-      {/* Row 1: Icon + Headline */}
-      <div style={{ display:"flex", gap:10, marginBottom:6 }}>
-        <div style={{ width:32, height:32, borderRadius:8, flexShrink:0, background:`${c}12`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:15, marginTop:1 }}>
-          {IC[event.at]||"📌"}
-        </div>
-        <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontSize:14.5, fontWeight:700, color:"#1A1A2E", lineHeight:1.35, letterSpacing:"-0.01em" }}>{event.t}</div>
-        </div>
-      </div>
-      {/* Row 2: Editorial blurb — always visible, never truncated */}
-      {event.ed && (
-        <div style={{ fontSize:13, color:"#5A6577", lineHeight:1.55, marginLeft:42, marginBottom:10 }}>{event.ed}</div>
-      )}
-      {/* Row 3: Metadata — structured, symmetric */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginLeft:42 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:4, fontSize:11.5, color:"#8B95A5" }}>
-          {isLibrary && <span style={{ fontSize:12, marginRight:1 }}>📚</span>}
-          <span style={{ fontWeight:500 }}>{event.v}</span>
-          <span style={{ color:"#D4D8E0" }}>·</span>
-          <span>{event.tm.split("–")[0].trim()}</span>
-          {event.age && <><span style={{ color:"#D4D8E0" }}>·</span><span style={{ color:"#7C6DB0", fontWeight:500 }}>{event.age} yrs</span></>}
-        </div>
-        <DistChip mi={event.distMi} dm={event.dm} />
-      </div>
-    </div>
-  );
-}
-
-
-/* ═══════════════════════════════════ HERO TEASER ═══════════════════════════════════ */
-function HeroTeaser({ event, label, onClick }) {
-  return (
-    <div onClick={()=>onClick(event)} style={{ margin:"12px 16px", borderRadius:16, overflow:"hidden", cursor:"pointer", background:"white", boxShadow:"0 2px 16px rgba(0,0,0,0.07)", border:"1px solid #F0EDE8" }}>
-      <EvImage src={event.img} at={event.at} venue={event.v} height={160} borderRadius="16px 16px 0 0">
-        <div style={{ position:"absolute", top:10, left:10, zIndex:1 }}>
-          <span style={{ fontSize:10, fontWeight:700, color:"white", background:"rgba(0,0,0,0.3)", backdropFilter:"blur(8px)", padding:"4px 10px", borderRadius:6, textTransform:"uppercase", letterSpacing:"0.05em" }}>{label}</span>
-        </div>
-        <div style={{ position:"absolute", bottom:12, left:14, right:14, zIndex:1 }}>
-          <h3 style={{ fontSize:19, fontWeight:800, color:"white", lineHeight:1.25, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 6px rgba(0,0,0,0.4)" }}>{event.t}</h3>
-        </div>
-      </EvImage>
-      <div style={{ padding:"12px 16px 14px" }}>
-        {event.ed && <p style={{ fontSize:13.5, color:"#5A6577", lineHeight:1.55, margin:"0 0 10px" }}>{event.ed}</p>}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <span style={{ fontSize:12, color:"#8B95A5", fontWeight:500 }}>{event.v} · {event.tm.split("–")[0].trim()}</span>
-          <DistChip mi={event.distMi} dm={event.dm} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-/* ═══════════════════════════════════ FEATURED CARD (carousel) ═══════════════════════════════════ */
-function FeatCard({ event, onClick, wide }) {
-  return (
-    <div onClick={()=>onClick(event)} style={{
-      background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer",
-      boxShadow:"0 2px 12px rgba(0,0,0,0.06)", border:"1px solid #F0EDE8",
-      width:wide?"auto":"min(290px, 78vw)", flexShrink:0,
-    }}>
-      <EvImage src={event.img} at={event.at} venue={event.v} height={wide?155:130} borderRadius="14px 14px 0 0">
-        <div style={{ position:"absolute", bottom:10, left:12, right:12, zIndex:1 }}>
-          <h3 style={{ fontSize:15, fontWeight:800, color:"white", lineHeight:1.25, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 4px rgba(0,0,0,0.35)" }}>{event.t}</h3>
-        </div>
-      </EvImage>
-      <div style={{ padding:"10px 14px 14px" }}>
-        {event.ed && <p style={{ fontSize:12.5, color:"#5A6577", lineHeight:1.5, margin:"0 0 10px" }}>{event.ed}</p>}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <span style={{ fontSize:11, color:"#8B95A5", fontWeight:500 }}>{event.v}</span>
-          <DistChip mi={event.distMi} dm={event.dm} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-/* ═══════════════════════════════════ DAY HEADER ═══════════════════════════════════ */
-function DayHead({ label, count, pal, isToday, tag }) {
-  return (
-    <div style={{ padding:"20px 16px 8px" }}>
-      {tag && <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:9, fontWeight:800, color:pal.accent, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:4 }}>{tag}</div>}
-      <div style={{ display:"flex", alignItems:"baseline", gap:8 }}>
-        <h2 style={{ fontFamily:"Montserrat,sans-serif", fontSize:17, fontWeight:900, color:pal.head||"#1A1A2E", letterSpacing:"-0.02em", margin:0 }}>{label}</h2>
-        {isToday && <span style={{ fontSize:8, fontWeight:700, color:"white", background:pal.accent, padding:"2px 7px", borderRadius:3, textTransform:"uppercase" }}>Today</span>}
-        <div style={{ flex:1 }} />
-        <span style={{ fontSize:11, color:"#B0B8C5" }}>{count} {count===1?"event":"events"}</span>
-      </div>
-    </div>
-  );
-}
-
-
-/* ═══════════════════════════════════ LIBRARY MINI-SECTION ═══════════════════════════════════ */
-function LibrarySection({ events, onClick }) {
-  if (events.length === 0) return null;
-  return (
-    <div style={{ margin:"6px 16px 10px", padding:"12px 14px", background:DAY_PALETTES.library.bg, borderRadius:12, border:`1px solid ${DAY_PALETTES.library.border}` }}>
-      <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:10 }}>
-        <span style={{ fontSize:14 }}>📚</span>
-        <span style={{ fontFamily:"Montserrat,sans-serif", fontSize:10, fontWeight:800, color:"#7C3AED", textTransform:"uppercase", letterSpacing:"0.06em" }}>At Your Library</span>
-        <div style={{ flex:1, height:1, background:"#E8E0F5" }} />
-      </div>
-      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-        {events.map(e => (
-          <div key={e.id} onClick={()=>onClick(e)} style={{ cursor:"pointer", display:"flex", gap:10, alignItems:"flex-start" }}>
-            <div style={{ width:28, height:28, borderRadius:7, flexShrink:0, background:"#EDE9FE", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, marginTop:1 }}>
-              {IC[e.at]||"📖"}
-            </div>
-            <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:13.5, fontWeight:600, color:"#1A1A2E", lineHeight:1.35, marginBottom:2 }}>{e.t}</div>
-              {e.ed && <div style={{ fontSize:12.5, color:"#7C6DB0", lineHeight:1.5, marginBottom:4 }}>{e.ed}</div>}
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", fontSize:11, color:"#9B8EC4" }}>
-                <span>{e.v} · {e.tm.split("–")[0].trim()}{e.age ? ` · ${e.age} yrs` : ''}</span>
-                <DistChip mi={e.distMi} dm={e.dm} />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-
-/* ═══════════════════════════════════ DESKTOP COMPONENTS ═══════════════════════════════════ */
-function DCard({ event, onClick, large }) {
-  return (
-    <div onClick={()=>onClick(event)} style={{
-      background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer",
-      boxShadow:"0 1px 6px rgba(0,0,0,0.04)", border:"1px solid #F0EDE8",
-      transition:"box-shadow 0.2s, transform 0.15s", display:"flex", flexDirection:"column",
-    }}
-    onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 6px 24px rgba(0,0,0,0.08)";e.currentTarget.style.transform="translateY(-2px)"}}
-    onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 1px 6px rgba(0,0,0,0.04)";e.currentTarget.style.transform="none"}}>
-      <EvImage src={event.img} at={event.at} venue={event.v} height={large?200:150}>
-        <div style={{ position:"absolute", bottom:10, left:12, right:12, zIndex:1 }}>
-          <h3 style={{ fontSize:large?20:15, fontWeight:800, color:"white", lineHeight:1.25, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 4px rgba(0,0,0,0.35)" }}>{event.t}</h3>
-        </div>
-      </EvImage>
-      <div style={{ padding:"12px 16px 16px", flex:1, display:"flex", flexDirection:"column" }}>
-        {event.ed && <p style={{ fontSize:13, color:"#5A6577", lineHeight:1.55, margin:"0 0 10px", flex:1 }}>{event.ed}</p>}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:"auto" }}>
-          <span style={{ fontSize:11.5, color:"#8B95A5" }}>{event.v} · {event.tm.split("–")[0].trim()}</span>
-          <DistChip mi={event.distMi} dm={event.dm} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DEventCard({ event, onClick, isLibrary }) {
-  const c = TC[event.at]||"#94A3B8";
-  const bg = isLibrary ? DAY_PALETTES.library.bg : "white";
-  const bc = isLibrary ? DAY_PALETTES.library.border : "#F0EDE8";
-  return (
-    <div onClick={()=>onClick(event)} style={{
-      display:"flex", gap:14, padding:"14px 18px", background:bg, borderRadius:10,
-      border:`1px solid ${bc}`, cursor:"pointer", transition:"box-shadow 0.15s",
-    }}
-    onMouseEnter={e=>e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.05)"}
-    onMouseLeave={e=>e.currentTarget.style.boxShadow="none"}>
-      <div style={{ width:34, height:34, borderRadius:8, flexShrink:0, background:`${c}12`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:15 }}>
-        {isLibrary ? "📚" : (IC[event.at]||"📌")}
-      </div>
-      <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ fontSize:14, fontWeight:700, color:"#1A1A2E", lineHeight:1.35, marginBottom:3 }}>{event.t}</div>
-        {event.ed && <div style={{ fontSize:12.5, color:isLibrary?"#7C6DB0":"#5A6577", lineHeight:1.5, marginBottom:6 }}>{event.ed}</div>}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", fontSize:11.5, color:"#8B95A5" }}>
-          <span>{event.v} · {event.tm.split("–")[0].trim()}{event.age ? ` · Ages ${event.age}` : ''}</span>
-          <DistChip mi={event.distMi} dm={event.dm} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-/* ═══════════════════════════════════ EVENT DETAIL ═══════════════════════════════════ */
-function Detail({ event, vp, onClose }) {
-  if (!event) return null;
-  const c = TC[event.at]||"#FF4477";
-  const mob = vp==="mobile";
-  const evDate = new Date(event.d+"T12:00:00");
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address||event.v+' Miami')}`;
-
-  const inner = (
-    <div>
-      {mob && <div style={{ width:36, height:4, borderRadius:2, background:"#E2E8F0", margin:"10px auto 6px" }} />}
-      {!mob && <div style={{ display:"flex", justifyContent:"flex-end", padding:"10px 14px 0" }}><button onClick={onClose} style={{ background:"#F8FAFC", border:"1px solid #F1F5F9", borderRadius:8, width:30, height:30, cursor:"pointer", fontSize:13, color:"#94A3B8", display:"flex", alignItems:"center", justifyContent:"center" }}>✕</button></div>}
-      <EvImage src={event.img} at={event.at} venue={event.v} height={mob?180:210} borderRadius={mob?0:12} />
-      <div style={{ padding:"16px 20px 28px" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:8, flexWrap:"wrap" }}>
-          <span style={{ fontSize:10, fontWeight:600, color:c, background:`${c}10`, padding:"3px 8px", borderRadius:5 }}>{IC[event.at]} {TL[event.at]||'Event'}</span>
-          {event.tp==="library" && <span style={{ fontSize:10, fontWeight:600, color:"#7C3AED", background:"#F3F0FF", padding:"3px 8px", borderRadius:5 }}>📚 Library</span>}
-          {event.age && <AgeChip age={event.age} />}
-        </div>
-        <h2 style={{ fontSize:21, fontWeight:900, color:"#1A1A2E", lineHeight:1.25, margin:"0 0 8px", fontFamily:"Montserrat,sans-serif" }}>{event.t}</h2>
-        {event.fullEd && <p style={{ fontSize:14, color:"#5A6577", lineHeight:1.65, margin:"0 0 12px" }}>{event.fullEd}</p>}
-        {event.practical_notes && <p style={{ fontSize:13, color:"#8B95A5", lineHeight:1.55, margin:"0 0 16px", fontStyle:"italic" }}>{event.practical_notes}</p>}
-        <div style={{ background:"#FAFAF8", borderRadius:12, border:"1px solid #F0EDE8", overflow:"hidden", marginBottom:16 }}>
-          {[
-            { i:"📍", l:event.v, r: event.distMi!=null ? <DistChip mi={event.distMi} dm={event.dm} /> : event.neighborhood },
-            { i:"🗓", l:fmt(evDate), r:event.tm },
-            { i:"💰", l:event.pr },
-            event.age ? { i:"👶", l:`Ages ${event.age}` } : null,
-          ].filter(Boolean).map((r,i,a)=>(
-            <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"11px 16px", borderBottom:i<a.length-1?"1px solid #F0EDE8":"none" }}>
-              <span style={{ fontSize:14 }}>{r.i}</span>
-              <span style={{ fontSize:13, fontWeight:600, color:"#1A1A2E", flex:1 }}>{r.l}</span>
-              {r.r && <span style={{ fontSize:12, color:"#8B95A5" }}>{typeof r.r==='string'?r.r:r.r}</span>}
-            </div>
-          ))}
-        </div>
-        {event.source_url && <a href={event.source_url} target="_blank" rel="noopener" style={{ display:"block", textAlign:"center", fontSize:14, fontWeight:700, color:"white", background:"#FF4477", textDecoration:"none", padding:"13px", borderRadius:12, marginBottom:10 }}>View & Get Tickets →</a>}
-        <div style={{ display:"flex", gap:8 }}>
-          <button onClick={()=>window.open(mapsUrl,'_blank')} style={{ flex:1, fontSize:12, fontWeight:600, color:"#64748B", background:"white", border:"1.5px solid #E2E8F0", borderRadius:10, padding:"10px 6px", cursor:"pointer" }}>🗺 Directions</button>
-          <button onClick={()=>{
-            const text=`Check out ${event.t} at ${event.v}!${event.source_url?' '+event.source_url:''}`;
-            if(navigator.share) navigator.share({title:event.t,text,url:event.source_url});
-            else window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,'_blank');
-          }} style={{ flex:1, fontSize:12, fontWeight:600, color:"#64748B", background:"white", border:"1.5px solid #E2E8F0", borderRadius:10, padding:"10px 6px", cursor:"pointer" }}>↗ Share</button>
-        </div>
-      </div>
-    </div>
-  );
-  return (
-    <div className={`modal-overlay open ${!mob?"desk":""}`} onClick={onClose}>
-      <div className={mob?"bsheet open":"dmodal open"} onClick={e=>e.stopPropagation()}>{inner}</div>
-    </div>
-  );
-}
-
-
-/* ═══════════════════════════════════ MAIN APP ═══════════════════════════════════ */
-function App() {
-  const [vp, setVp] = useState(window.innerWidth<700?"mobile":"desktop");
-  const [rawEvents, setRawEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [sel, setSel] = useState(null);
-  const [simOverride, setSimOverride] = useState(null);
-  const [userLoc, setUserLoc] = useState(()=>getSavedLocation());
-  const [showLocPrompt, setShowLocPrompt] = useState(false);
-  const oc = useCallback(e=>setSel(e),[]);
-  const cl = useCallback(()=>setSel(null),[]);
-
+/* ═══════════════ DATE STRIP ═══════════════ */
+function DateStrip({dates,activeDate,onSelect,eventCounts}){
+  const ref=useRef(null);
   useEffect(()=>{
-    fetchEvents().then(d=>{setRawEvents(d);setLoading(false);}).catch(e=>{setError(e.message);setLoading(false);});
-  },[]);
-  useEffect(()=>{ if(!loading&&!error&&!userLoc) setShowLocPrompt(true); },[loading,error,userLoc]);
-  useEffect(()=>{ const h=()=>setVp(window.innerWidth<700?"mobile":"desktop"); window.addEventListener('resize',h); return()=>window.removeEventListener('resize',h); },[]);
+    if(!ref.current) return;
+    const el=ref.current.querySelector(`[data-d="${activeDate}"]`);
+    if(el) el.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+  },[activeDate]);
+  const dayN=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  return(
+    <nav className="date-strip"><div className="date-strip-in" ref={ref}>
+      {dates.map(ds=>{
+        const d=new Date(ds+'T12:00:00');
+        const cnt=eventCounts[ds]||0;
+        const isAct=ds===activeDate;
+        return <button key={ds} data-d={ds} className={`d-btn${isAct?' active':''}`} onClick={()=>onSelect(ds)}>
+          <span className="dn">{dayN[d.getDay()]}</span>
+          <span className="dd">{String(d.getDate()).padStart(2,'0')}</span>
+          <span className="dot"/>
+          <span className={`cnt${cnt?' has':''}`}>{cnt?`(${cnt})`:''}</span>
+        </button>;
+      })}
+    </div></nav>
+  );
+}
 
-  const events = useMemo(()=>{
-    let evs = rawEvents.map(e=>normalizeEvent(e,userLoc));
-    if(userLoc) evs = filterLibraryByRadius(evs);
-    return evs;
-  },[rawEvents,userLoc]);
-
-  const libBranches = useMemo(()=>{
-    if(!userLoc) return 0;
-    return new Set(events.filter(e=>e.tp==='library').map(e=>e.v)).size;
-  },[events,userLoc]);
-
-  const today = simOverride ? new Date(simOverride+"T12:00:00") : new Date();
-  const layout = buildLayout(events, today);
-  const mob = vp==="mobile";
-
-  const uniqueDates = [...new Set(events.map(e=>e.d))].sort().slice(0,8);
-  const simDays = uniqueDates.map(d=>{ const dt=new Date(d+"T12:00:00"); return { k:d, l:`${shortD(dt)} ${dt.getDate()}` }; });
-
-  if (loading) return <div className="loader"><div className="spin"/><div style={{fontSize:13,color:"#8B95A5",fontWeight:500}}>Loading events...</div></div>;
-  if (error) return <div style={{maxWidth:400,margin:"80px auto",padding:24,background:"white",borderRadius:12,textAlign:"center",color:"#5A6577",fontSize:14}}><div style={{fontSize:24,marginBottom:8}}>😵</div><div style={{fontWeight:600,color:"#1A1A2E",marginBottom:4}}>Failed to load events</div><div>{error}</div></div>;
-
-  function LocButton({style:s}) {
-    return <button onClick={()=>setShowLocPrompt(true)} style={{ display:"flex", alignItems:"center", gap:5, fontSize:s?.fontSize||11, fontWeight:600, color:"#1A1A2E", background:"#F8F7F5", padding:s?.padding||"6px 10px", borderRadius:8, border:"1px solid #E8E5DE", cursor:"pointer", ...s }}>
-      <svg width={s?.iconSize||12} height={s?.iconSize||12} viewBox="0 0 24 24" fill="none" stroke="#FF4477" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      {userLoc ? userLoc.label : "Set Location"}
-    </button>;
-  }
-
-  /* ─── Render a day section (mobile) ─── */
-  function renderDayMobile(s, i) {
-    const nonLib = s.events.filter(e=>e.tp!=='library');
-    const libEvs = s.events.filter(e=>e.tp==='library');
-    const feat = nonLib.filter(e=>e.w==='f');
-    const standard = nonLib.filter(e=>e.w!=='f');
-    const pal = dayPalette(s.events[0].d);
-    const heroId = layout[0]?.type==="hero-teaser" ? layout[0].event.id : null;
-    const showFeat = feat.filter(e=>e.id!==heroId);
-
-    return (
-      <div key={i} style={{ background:pal.bg, padding:"0 0 6px" }}>
-        <DayHead label={relLabel(s.date,today)} count={s.events.length} pal={pal} isToday={s.isToday} tag={s.sectionTag} />
-        {/* Featured carousel */}
-        {showFeat.length >= 2 ? (
-          <div style={{ display:"flex", gap:12, overflowX:"auto", scrollbarWidth:"none", padding:"6px 16px 10px", WebkitOverflowScrolling:"touch" }}>
-            {showFeat.map(e=><FeatCard key={e.id} event={e} onClick={oc} />)}
-          </div>
-        ) : showFeat.length===1 ? (
-          <div style={{ padding:"6px 16px 10px" }}><FeatCard event={showFeat[0]} onClick={oc} wide /></div>
-        ) : null}
-        {/* Standard event cards */}
-        <div style={{ display:"flex", flexDirection:"column", gap:8, padding:"2px 16px 4px" }}>
-          {standard.map(e=><EventCard key={e.id} event={e} onClick={oc} isLibrary={false} />)}
-        </div>
-        {/* Library mini-section */}
-        <LibrarySection events={libEvs} onClick={oc} />
+/* ═══════════════ EVENT CARD ═══════════════ */
+function EventCard({ev,onClick}){
+  const isLib=ev.lib;
+  return(
+    <div onClick={()=>onClick(ev)} style={{
+      background:isLib?'#F9F7FF':'white',
+      borderRadius:12,padding:'14px 16px',cursor:'pointer',
+      border:isLib?'1px solid #E8E0F5':'1px solid #F0EDE8',
+      transition:'box-shadow 0.15s',
+    }}
+    onMouseEnter={e=>e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'}
+    onMouseLeave={e=>e.currentTarget.style.boxShadow='none'}>
+      {/* Headline */}
+      <div style={{fontSize:14.5,fontWeight:700,color:'var(--text-1)',lineHeight:1.4,marginBottom:4,letterSpacing:'-0.01em'}}>
+        {isLib&&<span style={{color:'var(--violet)',fontWeight:800,marginRight:5}}>📚</span>}
+        {ev.t}
       </div>
-    );
-  }
-
-  function renderMobile() {
-    return (
-      <div style={{ width:"100%", maxWidth:430, margin:"0 auto", background:"#FDFCFA", borderRadius:mob?0:20, overflow:"hidden", boxShadow:mob?"none":"0 4px 24px rgba(0,0,0,0.12)", minHeight:700 }}>
-        {/* Header */}
-        <div style={{ padding:"14px 16px", background:"white", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #F0EDE8" }}>
-          <div>
-            <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:22, fontWeight:900, color:"#FF4477", letterSpacing:"-0.04em", textTransform:"uppercase", lineHeight:1 }}>EZPZ</div>
-            <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:7, fontWeight:800, color:"#FACC15", textTransform:"uppercase", letterSpacing:"0.2em", marginTop:1 }}>MIAMI</div>
-          </div>
-          <LocButton />
+      {/* Editorial blurb */}
+      {ev.ed&&<div style={{fontSize:13,color:isLib?'#7C6DB0':'var(--text-2)',lineHeight:1.55,marginBottom:10}}>{ev.ed}</div>}
+      {/* Metadata row */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{display:'flex',alignItems:'center',gap:4,fontSize:11.5,color:'var(--text-3)'}}>
+          <span style={{fontWeight:500}}>{ev.v}</span>
+          <span style={{color:'#E2E8F0'}}>·</span>
+          <span>{ev.tm.split('–')[0].trim()}</span>
+          {ev.age&&<><span style={{color:'#E2E8F0'}}>·</span><span style={{color:'var(--violet)',fontWeight:500}}>{ev.age} yrs</span></>}
         </div>
-
-        {events.length===0 ? (
-          <div style={{ padding:"60px 20px", textAlign:"center", color:"#8B95A5" }}>
-            <div style={{ fontSize:32, marginBottom:8 }}>🌴</div>
-            <div style={{ fontSize:14, fontWeight:600, color:"#1A1A2E" }}>No upcoming events found</div>
-            <div style={{ fontSize:12, marginTop:4 }}>Check back soon — we update twice daily!</div>
-          </div>
-        ) : layout.map((s,i) => {
-          if (s.type==="hero-teaser") return <HeroTeaser key={i} event={s.event} label={s.label} onClick={oc} />;
-          if (s.type==="day") return renderDayMobile(s, i);
-          if (s.type==="weekgroup") {
-            const byDay = {}; s.events.forEach(e=>{(byDay[e.d]=byDay[e.d]||[]).push(e);});
-            const sorted = Object.keys(byDay).sort();
-            return (
-              <div key={i} style={{ background:DAY_PALETTES.weekday.bg, padding:"0 0 6px" }}>
-                <div style={{ padding:"20px 16px 6px" }}>
-                  <h2 style={{ fontFamily:"Montserrat,sans-serif", fontSize:17, fontWeight:900, color:"#1A1A2E", margin:0 }}>{s.label}</h2>
-                  <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:4 }}>
-                    <div style={{ height:2, width:20, borderRadius:1, background:DAY_PALETTES.weekday.accent }} />
-                    <span style={{ fontSize:11, color:"#B0B8C5" }}>{s.events.length} events near you</span>
-                  </div>
-                </div>
-                {sorted.map(dk => {
-                  const d = new Date(dk+"T12:00:00");
-                  const evs = byDay[dk];
-                  const nonLib = evs.filter(e=>e.tp!=='library');
-                  const libEvs = evs.filter(e=>e.tp==='library');
-                  return (
-                    <div key={dk}>
-                      <div style={{ padding:"10px 16px 4px", display:"flex", alignItems:"center", gap:6 }}>
-                        <span style={{ fontFamily:"Montserrat,sans-serif", fontSize:11, fontWeight:800, color:"#5A6577", textTransform:"uppercase" }}>{shortD(d)}</span>
-                        <span style={{ fontSize:11, color:"#B0B8C5" }}>{MN[d.getMonth()]} {d.getDate()}</span>
-                        <div style={{ flex:1, height:1, background:"#E8E5DE" }} />
-                      </div>
-                      <div style={{ display:"flex", flexDirection:"column", gap:8, padding:"4px 16px 4px" }}>
-                        {nonLib.map(e=><EventCard key={e.id} event={e} onClick={oc} isLibrary={false} />)}
-                      </div>
-                      {libEvs.length > 0 && <LibrarySection events={libEvs} onClick={oc} />}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          }
-          return null;
-        })}
-
-        <div style={{ padding:"24px 16px 32px", textAlign:"center", background:"linear-gradient(180deg, #FDFCFA 0%, #FFF5F6 100%)" }}>
-          <p style={{ fontSize:12, color:"#8B95A5", margin:"0 0 10px" }}>Know about an event we're missing?</p>
-          <button style={{ background:"white", color:"#FF4477", border:"1.5px solid #FF4477", borderRadius:10, padding:"10px 22px", fontSize:12, fontWeight:700, cursor:"pointer" }}>Submit an Event</button>
-        </div>
+        <Dist mi={ev.mi} dm={ev.dm}/>
       </div>
-    );
-  }
-
-  function renderDesktop() {
-    return (
-      <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 32px" }}>
-        <div style={{ padding:"20px 0 18px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #F0EDE8" }}>
-          <div>
-            <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:28, fontWeight:900, color:"#FF4477", letterSpacing:"-0.04em", textTransform:"uppercase", lineHeight:1 }}>EZPZ</div>
-            <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:8, fontWeight:800, color:"#FACC15", textTransform:"uppercase", letterSpacing:"0.2em", marginTop:2 }}>THE PLAYBOOK FOR MIAMI PARENTS</div>
-          </div>
-          <LocButton style={{fontSize:13,padding:"8px 14px",iconSize:14}} />
-        </div>
-
-        {events.length===0 ? (
-          <div style={{padding:"80px 20px",textAlign:"center",color:"#8B95A5"}}><div style={{fontSize:40,marginBottom:12}}>🌴</div><div style={{fontSize:16,fontWeight:600,color:"#1A1A2E"}}>No upcoming events found</div></div>
-        ) : layout.map((s,i) => {
-          if (s.type==="hero-teaser") {
-            const e = s.event;
-            return (
-              <div key={i} onClick={()=>oc(e)} style={{ margin:"24px 0 16px", borderRadius:16, overflow:"hidden", cursor:"pointer", display:"flex", background:"white", boxShadow:"0 2px 16px rgba(0,0,0,0.06)", border:"1px solid #F0EDE8", transition:"box-shadow 0.2s" }}
-                onMouseEnter={ev=>ev.currentTarget.style.boxShadow="0 6px 28px rgba(0,0,0,0.1)"}
-                onMouseLeave={ev=>ev.currentTarget.style.boxShadow="0 2px 16px rgba(0,0,0,0.06)"}>
-                <EvImage src={e.img} at={e.at} venue={e.v} height={260}>
-                  <div style={{position:"absolute",top:14,left:14,zIndex:1}}>
-                    <span style={{fontSize:11,fontWeight:700,color:"white",background:"rgba(0,0,0,0.3)",backdropFilter:"blur(8px)",padding:"4px 12px",borderRadius:6,textTransform:"uppercase",letterSpacing:"0.05em"}}>{s.label}</span>
-                  </div>
-                </EvImage>
-                <div style={{ flex:1, padding:"28px 32px", display:"flex", flexDirection:"column", justifyContent:"center" }}>
-                  <h3 style={{ fontFamily:"Montserrat,sans-serif", fontSize:23, fontWeight:900, color:"#1A1A2E", lineHeight:1.25, margin:"0 0 10px", letterSpacing:"-0.02em" }}>{e.t}</h3>
-                  {e.ed && <p style={{ fontSize:14.5, color:"#5A6577", lineHeight:1.6, margin:"0 0 16px" }}>{e.ed}</p>}
-                  <div style={{ display:"flex", alignItems:"center", gap:12, fontSize:12.5, color:"#8B95A5" }}>
-                    <span style={{fontWeight:500}}>{e.v}</span>
-                    <span style={{color:"#D4D8E0"}}>·</span>
-                    <span>{e.tm}</span>
-                    {e.distMi!=null && <><span style={{color:"#D4D8E0"}}>·</span><DistChip mi={e.distMi} dm={e.dm}/></>}
-                  </div>
-                </div>
-              </div>
-            );
-          }
-          if (s.type==="day") {
-            const nonLib = s.events.filter(e=>e.tp!=='library');
-            const libEvs = s.events.filter(e=>e.tp==='library');
-            const feat = nonLib.filter(e=>e.w==='f');
-            const standard = nonLib.filter(e=>e.w!=='f');
-            const pal = dayPalette(s.events[0].d);
-            const heroId = layout[0]?.type==="hero-teaser"?layout[0].event.id:null;
-            const showFeat = feat.filter(e=>e.id!==heroId);
-
-            return (
-              <div key={i} style={{ margin:"24px 0", padding:"20px 24px", background:pal.bg, borderRadius:16, border:"1px solid #F0EDE8" }}>
-                <div style={{ display:"flex", alignItems:"baseline", gap:10, marginBottom:16 }}>
-                  {s.sectionTag && <span style={{ fontFamily:"Montserrat,sans-serif", fontSize:10, fontWeight:800, color:pal.accent, textTransform:"uppercase", letterSpacing:"0.1em" }}>{s.sectionTag}</span>}
-                  {s.sectionTag && <span style={{color:"#D4D8E0"}}>·</span>}
-                  <h2 style={{ fontFamily:"Montserrat,sans-serif", fontSize:20, fontWeight:900, color:pal.head, margin:0 }}>{relLabel(s.date,today)}</h2>
-                  {s.isToday && <span style={{fontSize:10,fontWeight:700,color:"white",background:pal.accent,padding:"2px 8px",borderRadius:4,textTransform:"uppercase"}}>Today</span>}
-                  <div style={{flex:1}}/>
-                  <span style={{fontSize:12,color:"#B0B8C5"}}>{s.events.length} events</span>
-                </div>
-                {/* Featured cards grid */}
-                {showFeat.length>0 && (
-                  <div style={{ display:"grid", gridTemplateColumns:`repeat(${Math.min(showFeat.length,3)}, 1fr)`, gap:16, marginBottom:16 }}>
-                    {showFeat.map(e=><DCard key={e.id} event={e} onClick={oc} />)}
-                  </div>
-                )}
-                {/* Standard + library event cards */}
-                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                  {standard.map(e=><DEventCard key={e.id} event={e} onClick={oc} isLibrary={false} />)}
-                  {libEvs.map(e=><DEventCard key={e.id} event={e} onClick={oc} isLibrary={true} />)}
-                </div>
-              </div>
-            );
-          }
-          if (s.type==="weekgroup") {
-            const byDay={}; s.events.forEach(e=>{(byDay[e.d]=byDay[e.d]||[]).push(e);});
-            const sorted=Object.keys(byDay).sort();
-            return (
-              <div key={i} style={{ margin:"24px 0", padding:"20px 24px", background:DAY_PALETTES.weekday.bg, borderRadius:16, border:"1px solid #E0ECE8" }}>
-                <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:16}}>
-                  <h2 style={{fontFamily:"Montserrat,sans-serif",fontSize:20,fontWeight:900,color:"#1A1A2E",margin:0}}>{s.label}</h2>
-                  <span style={{fontSize:12,color:"#B0B8C5"}}>{s.events.length} events near you</span>
-                </div>
-                <div style={{ display:"grid", gridTemplateColumns:sorted.length<=2?"1fr 1fr":`repeat(${Math.min(sorted.length,3)}, 1fr)`, gap:14 }}>
-                  {sorted.map(dk=>{
-                    const d=new Date(dk+"T12:00:00"), evs=byDay[dk];
-                    const nonLib=evs.filter(e=>e.tp!=='library'), libEvs=evs.filter(e=>e.tp==='library');
-                    return (
-                      <div key={dk} style={{ background:"white", borderRadius:12, padding:"14px 16px", border:"1px solid #F0EDE8" }}>
-                        <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:11, fontWeight:800, color:"#1A1A2E", textTransform:"uppercase", marginBottom:10 }}>
-                          {shortD(d)} <span style={{fontWeight:500,color:"#B0B8C5",textTransform:"none"}}>{MN[d.getMonth()]} {d.getDate()}</span>
-                        </div>
-                        {nonLib.map(e=>(
-                          <div key={e.id} onClick={()=>oc(e)} style={{ display:"flex", gap:8, padding:"8px 0", cursor:"pointer", borderBottom:"1px solid #F8F7F5" }}>
-                            <span style={{fontSize:14}}>{IC[e.at]}</span>
-                            <div style={{flex:1,minWidth:0}}>
-                              <div style={{fontSize:13,fontWeight:600,color:"#1A1A2E",lineHeight:1.35,marginBottom:2}}>{e.t}</div>
-                              {e.ed && <div style={{fontSize:11.5,color:"#8B95A5",lineHeight:1.45,marginBottom:3}}>{e.ed}</div>}
-                              <div style={{display:"flex",justifyContent:"space-between",fontSize:10.5,color:"#B0B8C5"}}>
-                                <span>{e.tm.split("–")[0].trim()}</span>
-                                <DistChip mi={e.distMi} dm={e.dm}/>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                        {libEvs.length>0 && (
-                          <div style={{marginTop:8,padding:"8px 0 0",borderTop:"1px dashed #E8E0F5"}}>
-                            <div style={{fontSize:9,fontWeight:700,color:"#7C3AED",textTransform:"uppercase",marginBottom:6}}>📚 Library</div>
-                            {libEvs.map(e=>(
-                              <div key={e.id} onClick={()=>oc(e)} style={{display:"flex",gap:6,padding:"5px 0",cursor:"pointer"}}>
-                                <span style={{fontSize:12}}>{IC[e.at]}</span>
-                                <div style={{flex:1,minWidth:0}}>
-                                  <div style={{fontSize:12,fontWeight:600,color:"#1A1A2E",lineHeight:1.3}}>{e.t}</div>
-                                  <div style={{fontSize:10.5,color:"#9B8EC4"}}>{e.tm.split("–")[0].trim()}{e.age?` · ${e.age} yrs`:''}</div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          }
-          return null;
-        })}
-
-        <div style={{padding:"32px 0 48px",textAlign:"center"}}>
-          <p style={{fontSize:13,color:"#B0B8C5",margin:"0 0 10px"}}>Know about an event we're missing?</p>
-          <button style={{background:"white",color:"#FF4477",border:"1.5px solid #FF4477",borderRadius:10,padding:"10px 24px",fontSize:13,fontWeight:700,cursor:"pointer"}}>Submit an Event</button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ minHeight:"100vh" }}>
-      <div className="ctrl">
-        <span className="l">Sim Day:</span>
-        <div className="ct">
-          <button className={!simOverride?"a":""} onClick={()=>setSimOverride(null)}>Live</button>
-          {simDays.map(d=>(<button key={d.k} className={simOverride===d.k?"a":""} onClick={()=>setSimOverride(d.k)}>{d.l}</button>))}
-        </div>
-        <span className="l" style={{marginLeft:8}}>View:</span>
-        <div className="ct">
-          {["mobile","desktop"].map(v=>(<button key={v} className={vp===v?"a":""} onClick={()=>setVp(v)}>{v==="mobile"?"📱 Mobile":"🖥 Desktop"}</button>))}
-        </div>
-        <span className="l" style={{marginLeft:8}}>{events.length} events · {libBranches} libraries</span>
-      </div>
-
-      <div style={{ padding:mob?"0 0 60px":"24px 0 40px" }}>
-        {mob ? renderMobile() : renderDesktop()}
-      </div>
-
-      {sel && <Detail event={sel} vp={vp} onClose={cl} />}
-      {showLocPrompt && <LocationPrompt onSelect={loc=>{setUserLoc(loc);setShowLocPrompt(false);}} />}
     </div>
   );
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+/* ═══════════════ FEATURED CARD ═══════════════ */
+function FeatCard({ev,onClick,wide}){
+  return(
+    <div onClick={()=>onClick(ev)} style={{
+      background:'white',borderRadius:14,overflow:'hidden',cursor:'pointer',
+      boxShadow:'0 2px 12px rgba(0,0,0,0.06)',border:'1px solid #F0EDE8',
+      width:wide?'auto':'min(290px,78vw)',flexShrink:0,
+    }}>
+      <Img src={ev.img} at={ev.at} h={wide?155:130} br="14px 14px 0 0">
+        <div style={{position:'absolute',bottom:10,left:12,right:12,zIndex:1}}>
+          <h3 style={{fontSize:15,fontWeight:800,color:'white',lineHeight:1.25,margin:0,fontFamily:"'Montserrat',sans-serif",textShadow:'0 1px 4px rgba(0,0,0,0.35)'}}>{ev.t}</h3>
+        </div>
+      </Img>
+      <div style={{padding:'10px 14px 14px'}}>
+        {ev.ed&&<p style={{fontSize:12.5,color:'var(--text-2)',lineHeight:1.5,margin:'0 0 10px'}}>{ev.ed}</p>}
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <span style={{fontSize:11,color:'var(--text-3)',fontWeight:500}}>{ev.v}</span>
+          <Dist mi={ev.mi} dm={ev.dm}/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════ HERO TEASER ═══════════════ */
+function HeroTeaser({ev,label,onClick}){
+  return(
+    <div onClick={()=>onClick(ev)} style={{margin:'12px 16px',borderRadius:16,overflow:'hidden',cursor:'pointer',background:'white',boxShadow:'0 2px 16px rgba(0,0,0,0.07)',border:'1px solid #F0EDE8'}}>
+      <Img src={ev.img} at={ev.at} h={160} br="16px 16px 0 0">
+        <div style={{position:'absolute',top:10,left:10,zIndex:1}}>
+          <span style={{fontSize:10,fontWeight:700,color:'white',background:'rgba(0,0,0,0.3)',backdropFilter:'blur(8px)',padding:'4px 10px',borderRadius:6,textTransform:'uppercase',letterSpacing:'0.05em'}}>{label}</span>
+        </div>
+        <div style={{position:'absolute',bottom:12,left:14,right:14,zIndex:1}}>
+          <h3 style={{fontSize:19,fontWeight:800,color:'white',lineHeight:1.25,margin:0,fontFamily:"'Montserrat',sans-serif",textShadow:'0 1px 6px rgba(0,0,0,0.4)'}}>{ev.t}</h3>
+        </div>
+      </Img>
+      <div style={{padding:'12px 16px 14px'}}>
+        {ev.ed&&<p style={{fontSize:13.5,color:'var(--text-2)',lineHeight:1.55,margin:'0 0 10px'}}>{ev.ed}</p>}
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <span style={{fontSize:12,color:'var(--text-3)',fontWeight:500}}>{ev.v} · {ev.tm.split('–')[0].trim()}</span>
+          <Dist mi={ev.mi} dm={ev.dm}/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════ DETAIL SHEET ═══════════════ */
+function Detail({ev,onClose}){
+  if(!ev) return null;
+  const d=new Date(ev.d+'T12:00:00');
+  const mUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.addr||ev.v+' Miami')}`;
+  return(
+    <div className="modal-overlay open" onClick={onClose}>
+      <div className="bsheet open" onClick={e=>e.stopPropagation()}>
+        <div style={{width:36,height:4,borderRadius:2,background:'#E2E8F0',margin:'10px auto 6px'}}/>
+        <Img src={ev.img} at={ev.at} h={180}/>
+        <div style={{padding:'16px 20px 28px'}}>
+          <div style={{display:'flex',gap:6,marginBottom:8,flexWrap:'wrap'}}>
+            <span style={{fontSize:10,fontWeight:600,color:'var(--text-2)',background:'var(--border)',padding:'3px 8px',borderRadius:5}}>{TL[ev.at]||'Event'}</span>
+            {ev.lib&&<span style={{fontSize:10,fontWeight:600,color:'var(--violet)',background:'#F3F0FF',padding:'3px 8px',borderRadius:5}}>📚 Library</span>}
+            {ev.age&&<span style={{fontSize:10,fontWeight:600,color:'var(--violet)',background:'#EDE9FE',padding:'3px 8px',borderRadius:5}}>Ages {ev.age}</span>}
+          </div>
+          <h2 style={{fontSize:21,fontWeight:900,color:'var(--text-1)',lineHeight:1.25,margin:'0 0 8px',fontFamily:"'Montserrat',sans-serif"}}>{ev.t}</h2>
+          {ev.fullEd&&<p style={{fontSize:14,color:'var(--text-2)',lineHeight:1.65,margin:'0 0 12px'}}>{ev.fullEd}</p>}
+          {ev.notes&&<p style={{fontSize:13,color:'var(--text-3)',lineHeight:1.55,margin:'0 0 16px',fontStyle:'italic'}}>{ev.notes}</p>}
+          <div style={{background:'#FAFAF8',borderRadius:12,border:'1px solid #F0EDE8',overflow:'hidden',marginBottom:16}}>
+            {[
+              {i:'📍',l:ev.v,r:ev.mi!=null?<Dist mi={ev.mi} dm={ev.dm}/>:ev.hood},
+              {i:'🗓',l:fmtDate(d),r:ev.tm},
+              {i:'💰',l:ev.pr},
+              ev.age?{i:'👶',l:`Ages ${ev.age}`}:null,
+            ].filter(Boolean).map((r,i,a)=>(
+              <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'11px 16px',borderBottom:i<a.length-1?'1px solid #F0EDE8':'none'}}>
+                <span style={{fontSize:14}}>{r.i}</span>
+                <span style={{fontSize:13,fontWeight:600,color:'var(--text-1)',flex:1}}>{r.l}</span>
+                {r.r&&<span style={{fontSize:12,color:'var(--text-3)'}}>{typeof r.r==='string'?r.r:r.r}</span>}
+              </div>
+            ))}
+          </div>
+          {ev.srcUrl&&<a href={ev.srcUrl} target="_blank" rel="noopener" style={{display:'block',textAlign:'center',fontSize:14,fontWeight:700,color:'white',background:'var(--flamingo)',textDecoration:'none',padding:13,borderRadius:12,marginBottom:10}}>View & Get Tickets →</a>}
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={()=>window.open(mUrl,'_blank')} style={{flex:1,fontSize:12,fontWeight:600,color:'var(--text-2)',background:'white',border:'1.5px solid #E2E8F0',borderRadius:10,padding:'10px 6px',cursor:'pointer'}}>🗺 Directions</button>
+            <button onClick={()=>{const t=`Check out ${ev.t} at ${ev.v}!${ev.srcUrl?' '+ev.srcUrl:''}`;if(navigator.share)navigator.share({title:ev.t,text:t,url:ev.srcUrl});else window.open(`https://wa.me/?text=${encodeURIComponent(t)}`,'_blank');}} style={{flex:1,fontSize:12,fontWeight:600,color:'var(--text-2)',background:'white',border:'1.5px solid #E2E8F0',borderRadius:10,padding:'10px 6px',cursor:'pointer'}}>↗ Share</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════ APP ═══════════════ */
+function App(){
+  const[raw,setRaw]=useState([]);
+  const[loading,setLoading]=useState(true);
+  const[error,setError]=useState(null);
+  const[sel,setSel]=useState(null);
+  const[uLoc,setULoc]=useState(()=>getSavedLoc());
+  const[showLoc,setShowLoc]=useState(false);
+  const[activeDate,setActiveDate]=useState(null);
+  const oc=useCallback(e=>setSel(e),[]);
+
+  useEffect(()=>{fetchEvents().then(d=>{setRaw(d);setLoading(false);}).catch(e=>{setError(e.message);setLoading(false);});},[]);
+  useEffect(()=>{if(!loading&&!error&&!uLoc)setShowLoc(true);},[loading,error,uLoc]);
+
+  const events=useMemo(()=>{let e=raw.map(x=>norm(x,uLoc));if(uLoc)e=filterLibs(e);return e;},[raw,uLoc]);
+
+  // Build 14-day date list
+  const dates=useMemo(()=>{
+    const out=[];const t=new Date();
+    for(let i=0;i<14;i++){const d=new Date(t);d.setDate(t.getDate()+i);out.push(etDate(d));}
+    return out;
+  },[]);
+
+  // Event counts per date
+  const eventCounts=useMemo(()=>{
+    const m={};events.forEach(e=>{m[e.d]=(m[e.d]||0)+1;});return m;
+  },[events]);
+
+  // Set initial active date to first date with events
+  useEffect(()=>{
+    if(!activeDate&&events.length){
+      const first=dates.find(d=>eventCounts[d]>0)||dates[0];
+      setActiveDate(first);
+    }
+  },[events,dates,eventCounts,activeDate]);
+
+  // Events for active date
+  const dayEvents=useMemo(()=>{
+    if(!activeDate) return[];
+    return events.filter(e=>e.d===activeDate).sort((a,b)=>(a.dm??999)-(b.dm??999));
+  },[events,activeDate]);
+
+  const feat=dayEvents.filter(e=>e.feat&&!e.lib);
+  const standard=dayEvents.filter(e=>!e.feat&&!e.lib);
+  const libEvs=dayEvents.filter(e=>e.lib);
+
+  // Day label
+  const dayLabel=useMemo(()=>{
+    if(!activeDate) return '';
+    const today=etDate(new Date());
+    if(activeDate===today) return 'Today';
+    const tom=new Date();tom.setDate(tom.getDate()+1);
+    if(activeDate===etDate(tom)) return 'Tomorrow';
+    const d=new Date(activeDate+'T12:00:00');
+    return fmtDate(d);
+  },[activeDate]);
+
+  if(loading) return <div className="loader"><div className="spin"/><div style={{fontSize:13,color:'var(--text-3)',fontWeight:500}}>Loading events...</div></div>;
+  if(error) return <div style={{maxWidth:400,margin:'80px auto',padding:24,background:'white',borderRadius:12,textAlign:'center'}}><div style={{fontSize:24,marginBottom:8}}>😵</div><div style={{fontWeight:600,marginBottom:4}}>Failed to load events</div><div style={{color:'var(--text-3)'}}>{error}</div></div>;
+
+  return(
+    <div style={{minHeight:'100vh'}}>
+      {/* ─── Header ─── */}
+      <header className="hdr"><div className="hdr-in">
+        <a className="logo" href="#">
+          <span className="logo-name">EZPZ Miami</span>
+          <span className="logo-tag">The Parent Cheat Sheet</span>
+        </a>
+        <button onClick={()=>setShowLoc(true)} style={{display:'flex',alignItems:'center',gap:5,fontSize:12,fontWeight:600,color:'var(--text-1)',background:'#F8F7F5',padding:'7px 12px',borderRadius:8,border:'1px solid var(--border)',cursor:'pointer'}}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--flamingo)" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {uLoc?uLoc.l:'Set Location'}
+        </button>
+      </div></header>
+
+      {/* ─── Date Strip ─── */}
+      <DateStrip dates={dates} activeDate={activeDate} onSelect={setActiveDate} eventCounts={eventCounts}/>
+
+      {/* ─── Content ─── */}
+      <div style={{maxWidth:720,margin:'0 auto',padding:'16px 16px 80px'}}>
+        {/* Day header */}
+        <div style={{marginBottom:12}}>
+          <h2 style={{fontFamily:"'Montserrat',sans-serif",fontSize:18,fontWeight:900,color:'var(--text-1)',letterSpacing:'-0.02em',margin:0}}>{dayLabel}</h2>
+          <span style={{fontSize:12,color:'var(--text-3)'}}>{dayEvents.length} {dayEvents.length===1?'event':'events'}</span>
+        </div>
+
+        {dayEvents.length===0?(
+          <div style={{padding:'40px 20px',textAlign:'center',color:'var(--text-3)'}}>
+            <div style={{fontSize:28,marginBottom:8}}>🌴</div>
+            <div style={{fontSize:14,fontWeight:600,color:'var(--text-2)'}}>Nothing scheduled this day</div>
+            <div style={{fontSize:12,marginTop:4}}>Try another date above</div>
+          </div>
+        ):<>
+          {/* Featured carousel / card */}
+          {feat.length>=2?(
+            <div style={{display:'flex',gap:12,overflowX:'auto',scrollbarWidth:'none',marginBottom:14,WebkitOverflowScrolling:'touch',padding:'2px 0'}}>
+              {feat.map(e=><FeatCard key={e.id} ev={e} onClick={oc}/>)}
+            </div>
+          ):feat.length===1?(
+            <div style={{marginBottom:14}}><FeatCard ev={feat[0]} onClick={oc} wide/></div>
+          ):null}
+
+          {/* Standard events */}
+          {standard.length>0&&(
+            <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:libEvs.length?14:0}}>
+              {standard.map(e=><EventCard key={e.id} ev={e} onClick={oc}/>)}
+            </div>
+          )}
+
+          {/* Library section */}
+          {libEvs.length>0&&(
+            <div style={{padding:'14px 16px',background:'#F9F7FF',borderRadius:14,border:'1px solid #E8E0F5'}}>
+              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:12}}>
+                <span style={{fontSize:14}}>📚</span>
+                <span style={{fontFamily:"'Montserrat',sans-serif",fontSize:10,fontWeight:800,color:'var(--violet)',textTransform:'uppercase',letterSpacing:'0.06em'}}>At Your Library</span>
+                <div style={{flex:1,height:1,background:'#E8E0F5'}}/>
+                <span style={{fontSize:10,color:'#9B8EC4'}}>{libEvs.length}</span>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {libEvs.map(e=><EventCard key={e.id} ev={e} onClick={oc}/>)}
+              </div>
+            </div>
+          )}
+        </>}
+
+        <div style={{padding:'28px 0',textAlign:'center'}}>
+          <p style={{fontSize:12,color:'var(--text-3)',margin:'0 0 10px'}}>Know about an event we're missing?</p>
+          <button style={{background:'white',color:'var(--flamingo)',border:'1.5px solid var(--flamingo)',borderRadius:10,padding:'10px 22px',fontSize:12,fontWeight:700,cursor:'pointer'}}>Submit an Event</button>
+        </div>
+      </div>
+
+      {sel&&<Detail ev={sel} onClose={()=>setSel(null)}/>}
+      {showLoc&&<LocPrompt onSelect={loc=>{setULoc(loc);setShowLoc(false);}}/>}
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>,document.getElementById('root'));
 </script>
 </body>
 </html>
