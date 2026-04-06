@@ -31,12 +31,18 @@
     .loader .spin{width:32px;height:32px;border:3px solid #F1F5F9;border-top-color:#FF4477;border-radius:50%;animation:sp 0.7s linear infinite}
     @keyframes sp{to{transform:rotate(360deg)}}
     .err-box{max-width:400px;margin:80px auto;padding:24px;background:white;border-radius:12px;text-align:center;color:#64748B;font-size:14px}
+
+    /* ── Image treatment layer ── */
+    .ev-img-wrap{position:relative;overflow:hidden;background:#F1F0EE}
+    .ev-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(0.85) contrast(1.05) brightness(1.02)}
+    .ev-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,240,230,0.08) 0%,rgba(0,0,0,0.02) 40%,rgba(0,0,0,0.45) 100%);pointer-events:none}
+    .ev-img-placeholder{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
   </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useCallback } = React;
+const { useState, useEffect, useCallback, useMemo } = React;
 
 /* ═══════════════════════════════════ SUPABASE ═══════════════════════════════════ */
 const SUPABASE_URL = 'https://pomjqbjxosbfozvbvgsj.supabase.co';
@@ -55,21 +61,70 @@ async function fetchEvents() {
     .limit(400);
   if (error) throw error;
   return (data || []).filter(e => {
-    // Exclude adult-only events
     const amin = e.age_min, amax = e.age_max;
     if (amin != null && amin >= 13 && (amax == null || amax >= 13)) return false;
     return true;
   });
 }
 
+/* ═══════════════════════════════════ LOCATION ═══════════════════════════════════ */
+const NEIGHBORHOODS = [
+  { label:"Edgewater", lat:25.7958, lng:-80.1867 },
+  { label:"Downtown", lat:25.7743, lng:-80.1937 },
+  { label:"Brickell", lat:25.7580, lng:-80.1917 },
+  { label:"Wynwood", lat:25.8016, lng:-80.1988 },
+  { label:"Midtown", lat:25.8050, lng:-80.1910 },
+  { label:"Design District", lat:25.8122, lng:-80.1927 },
+  { label:"Little Havana", lat:25.7657, lng:-80.2190 },
+  { label:"Coconut Grove", lat:25.7260, lng:-80.2405 },
+  { label:"Coral Gables", lat:25.7215, lng:-80.2684 },
+  { label:"South Miami", lat:25.7076, lng:-80.2937 },
+  { label:"Pinecrest", lat:25.6659, lng:-80.3077 },
+  { label:"Kendall", lat:25.6793, lng:-80.3472 },
+  { label:"Doral", lat:25.8195, lng:-80.3553 },
+  { label:"Miami Beach", lat:25.7907, lng:-80.1300 },
+  { label:"North Miami", lat:25.8901, lng:-80.1867 },
+  { label:"Aventura", lat:25.9565, lng:-80.1392 },
+  { label:"Key Biscayne", lat:25.6937, lng:-80.1628 },
+  { label:"Homestead", lat:25.4687, lng:-80.4776 },
+];
+
+function getCookie(name) {
+  const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+function setCookie(name, val) {
+  document.cookie = `${name}=${encodeURIComponent(val)};path=/;max-age=${60*60*24*90};SameSite=Lax`;
+}
+function getSavedLocation() {
+  const raw = getCookie('ezpz_loc');
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+function saveLocation(loc) {
+  setCookie('ezpz_loc', JSON.stringify(loc));
+}
+
+// Haversine distance in miles
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 3959;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// Rough drive time for Miami: ~2.5 min/mile average
+function driveMin(miles) {
+  return Math.round(miles * 2.5);
+}
+
 /* ═══════════════════════════════════ DATA TRANSFORM ═══════════════════════════════════ */
-function normalizeEvent(e) {
+function normalizeEvent(e, userLoc) {
   const sd = new Date(e.start_date);
-  // ET timezone date string
   const etDate = sd.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
   const etTime = sd.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
 
-  // End time
   let timeStr = etTime;
   if (e.end_date) {
     const ed = new Date(e.end_date);
@@ -77,7 +132,6 @@ function normalizeEvent(e) {
     timeStr = `${etTime} – ${etEnd}`;
   }
 
-  // Price string
   let prStr = 'Free';
   let isFree = e.is_free;
   if (!isFree) {
@@ -88,23 +142,22 @@ function normalizeEvent(e) {
     } else if (e.price_max) {
       prStr = `$${Math.round(e.price_max)}`;
     } else {
-      prStr = 'Free';
-      isFree = true;
+      prStr = 'Free'; isFree = true;
     }
   }
 
-  // Age string
   let ageStr = null;
-  if (e.age_min != null && e.age_max != null) {
-    ageStr = `${e.age_min}–${e.age_max}`;
-  } else if (e.age_min != null) {
-    ageStr = `${e.age_min}+`;
+  if (e.age_min != null && e.age_max != null) ageStr = `${e.age_min}–${e.age_max}`;
+  else if (e.age_min != null) ageStr = `${e.age_min}+`;
+
+  // Distance from user
+  let distMi = null, distMin = null;
+  if (userLoc && e.lat && e.lng) {
+    distMi = haversine(userLoc.lat, userLoc.lng, e.lat, e.lng);
+    distMin = driveMin(distMi);
   }
 
-  // Determine if "featured" — has editorial_headline AND image_url
   const isFeatured = !!(e.editorial_headline && e.image_url);
-
-  // Is it a library source?
   const isLib = e.source === 'miami_dade_libraries';
 
   return {
@@ -114,10 +167,8 @@ function normalizeEvent(e) {
     v: e.venue_name || 'TBA',
     tm: timeStr,
     d: etDate,
-    dist: null, // TODO: compute from user location
-    dm: null,
-    pr: prStr,
-    free: isFree,
+    distMi, dm: distMin,
+    pr: prStr, free: isFree,
     tp: isLib ? 'library' : 'event',
     at: e.activity_type || 'other',
     ed: e.parent_summary || (e.description ? e.description.slice(0, 200) : null),
@@ -129,7 +180,34 @@ function normalizeEvent(e) {
     practical_notes: e.practical_notes,
     address: e.address,
     source: e.source,
+    lat: e.lat, lng: e.lng,
   };
+}
+
+/* Filter library events to 3 nearest branches */
+function filterLibraryByRadius(events) {
+  const libs = events.filter(e => e.tp === 'library');
+  const nonLibs = events.filter(e => e.tp !== 'library');
+
+  if (libs.length === 0) return events;
+
+  // Group by venue, find closest distance per venue
+  const venueMap = {};
+  libs.forEach(e => {
+    const v = e.v;
+    if (!venueMap[v]) venueMap[v] = { minDist: e.distMi ?? 9999, events: [] };
+    if (e.distMi != null && e.distMi < venueMap[v].minDist) venueMap[v].minDist = e.distMi;
+    venueMap[v].events.push(e);
+  });
+
+  // Sort venues by distance, keep 3 nearest
+  const sortedVenues = Object.entries(venueMap)
+    .sort((a, b) => a[1].minDist - b[1].minDist)
+    .slice(0, 3)
+    .map(([name]) => name);
+
+  const keptLibs = libs.filter(e => sortedVenues.includes(e.v));
+  return [...nonLibs, ...keptLibs].sort((a, b) => a.d.localeCompare(b.d) || (a.dm ?? 999) - (b.dm ?? 999));
 }
 
 /* ═══════════════════════════════════ CONSTANTS ═══════════════════════════════════ */
@@ -138,8 +216,22 @@ const TC = { museum:"#E11D48", outdoor:"#0D9488", festival:"#D946EF", craft:"#F5
 const TL = { museum:"Museum", outdoor:"Outdoor", festival:"Festival", craft:"Art & Craft", storytime:"Storytime", workshop:"Workshop", performance:"Film & Stage", sports:"Sports", class:"Music & Class", camp:"Camp", games:"Games", other:"Other" };
 const DN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+// Branded placeholder gradients per activity type
+const PG = {
+  museum:"linear-gradient(135deg, #FECDD3 0%, #FDA4AF 50%, #E11D48 100%)",
+  outdoor:"linear-gradient(135deg, #CCFBF1 0%, #5EEAD4 50%, #0D9488 100%)",
+  festival:"linear-gradient(135deg, #F5D0FE 0%, #E879F9 50%, #D946EF 100%)",
+  craft:"linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #F59E0B 100%)",
+  storytime:"linear-gradient(135deg, #EDE9FE 0%, #C4B5FD 50%, #8B5CF6 100%)",
+  workshop:"linear-gradient(135deg, #DBEAFE 0%, #93C5FD 50%, #3B82F6 100%)",
+  performance:"linear-gradient(135deg, #FCE7F3 0%, #F9A8D4 50%, #EC4899 100%)",
+  sports:"linear-gradient(135deg, #D1FAE5 0%, #6EE7B7 50%, #10B981 100%)",
+  class:"linear-gradient(135deg, #FFEDD5 0%, #FDBA74 50%, #F97316 100%)",
+  camp:"linear-gradient(135deg, #D1FAE5 0%, #6EE7B7 50%, #059669 100%)",
+  games:"linear-gradient(135deg, #E0E7FF 0%, #A5B4FC 50%, #6366F1 100%)",
+  other:"linear-gradient(135deg, #F1F5F9 0%, #CBD5E1 50%, #94A3B8 100%)",
+};
 
-function ds(d){ return d.toISOString().slice(0,10); }
 function dsET(d){ return d.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
 function isWE(d){ return d.getDay()===0||d.getDay()===6; }
 function fmt(d){ return `${DN[d.getDay()]}, ${MN[d.getMonth()]} ${d.getDate()}`; }
@@ -155,12 +247,9 @@ function relLabel(d, today) {
 /* ─── Build layout sections relative to "today" ─── */
 function buildLayout(events, today) {
   const ts = dsET(today);
-  const future = events.filter(e=>e.d>=ts).sort((a,b)=>a.d.localeCompare(b.d));
-
-  // Find best featured event in next 14 days for hero teaser
+  const future = events.filter(e=>e.d>=ts).sort((a,b)=>a.d.localeCompare(b.d) || (a.dm??999)-(b.dm??999));
   const bestFeatured = future.find(e=>e.w==="f" && e.img);
 
-  // Find next Saturday
   let nxSat = new Date(today);
   while(nxSat.getDay()!==6) nxSat.setDate(nxSat.getDate()+1);
   const nxSun = new Date(nxSat); nxSun.setDate(nxSun.getDate()+1);
@@ -168,54 +257,37 @@ function buildLayout(events, today) {
   const isWknd = isWE(today);
   const sections = [];
 
-  // HERO TEASER: always show the best upcoming featured event at the very top
-  // On weekends where carousel is already at top, skip this (the carousel IS the hero)
   const todayEvents = future.filter(e=>e.d===ts);
   const todayFeatured = todayEvents.filter(e=>e.w==="f");
   const needsHeroTeaser = !isWknd || todayFeatured.length === 0;
 
   if (needsHeroTeaser && bestFeatured && bestFeatured.d !== ts) {
     const hDate = new Date(bestFeatured.d+"T12:00:00");
-    sections.push({
-      type: "hero-teaser",
-      event: bestFeatured,
-      label: relLabel(hDate, today) === "Today" ? "Today" : (isWE(hDate) ? "This Weekend" : shortD(hDate)),
-    });
+    sections.push({ type:"hero-teaser", event:bestFeatured, label: relLabel(hDate, today)==="Today"?"Today":(isWE(hDate)?"This Weekend":shortD(hDate)) });
   }
 
-  // Group remaining days
   const allDays = [...new Set(future.map(e=>e.d))].sort();
 
-  // TODAY section
-  if (todayEvents.length) {
-    sections.push({ type:"day", date:new Date(ts+"T12:00:00"), events:todayEvents, isToday:true });
-  }
+  if (todayEvents.length) sections.push({ type:"day", date:new Date(ts+"T12:00:00"), events:todayEvents, isToday:true });
 
-  // Remaining days until next weekend
   const preWeekend = allDays.filter(d => d > ts && d < dsET(nxSat));
   if (preWeekend.length) {
-    const evs = future.filter(e => preWeekend.includes(e.d));
-    sections.push({ type:"weekgroup", label: isWknd ? "Next Week" : "This Week", days:preWeekend, events:evs });
+    sections.push({ type:"weekgroup", label: isWknd?"Next Week":"This Week", days:preWeekend, events:future.filter(e=>preWeekend.includes(e.d)) });
   }
 
-  // Weekend (if not today)
   if (!isWknd || dsET(nxSat) !== ts) {
     const wkndDays = [dsET(nxSat), dsET(nxSun)].filter(d => d > ts || (isWknd && d >= ts));
-    const actualWkndDays = wkndDays.filter(d => d !== ts);
-    actualWkndDays.forEach(d => {
+    wkndDays.filter(d => d !== ts).forEach(d => {
       const evs = future.filter(e=>e.d===d);
-      if (evs.length) sections.push({ type:"day", date:new Date(d+"T12:00:00"), events:evs, isToday:false, sectionTag:d===actualWkndDays[0]?"This Weekend":null });
+      if (evs.length) sections.push({ type:"day", date:new Date(d+"T12:00:00"), events:evs, isToday:false, sectionTag:d===wkndDays.filter(x=>x!==ts)[0]?"This Weekend":null });
     });
   }
 
-  // Beyond this weekend
   const beyond = allDays.filter(d => d > dsET(nxSun));
   if (beyond.length) {
     const bWeekdays = beyond.filter(d => !isWE(new Date(d+"T12:00:00")));
     const bWeekends = beyond.filter(d => isWE(new Date(d+"T12:00:00")));
-    if (bWeekdays.length) {
-      sections.push({ type:"weekgroup", label:"Next Week", days:bWeekdays, events:future.filter(e=>bWeekdays.includes(e.d)) });
-    }
+    if (bWeekdays.length) sections.push({ type:"weekgroup", label:"Next Week", days:bWeekdays, events:future.filter(e=>bWeekdays.includes(e.d)) });
     bWeekends.forEach((d,i) => {
       const evs = future.filter(e=>e.d===d);
       if (evs.length) sections.push({ type:"day", date:new Date(d+"T12:00:00"), events:evs, isToday:false, sectionTag:i===0?"Next Weekend":null });
@@ -226,9 +298,35 @@ function buildLayout(events, today) {
 }
 
 
+/* ═══════════════════════════════════ IMAGE COMPONENT ═══════════════════════════════════ */
+/* Unified image wrapper: shows treated image or branded placeholder */
+function EvImage({ src, at, venue, height, borderRadius, children }) {
+  const h = height || 140;
+  const br = borderRadius || 0;
+  if (src) {
+    return (
+      <div className="ev-img-wrap" style={{ height:h, borderRadius:br, position:"relative" }}>
+        <img src={src} alt="" loading="lazy" style={{ borderRadius:br }} />
+        {children}
+      </div>
+    );
+  }
+  // Branded placeholder
+  const grad = PG[at] || PG.other;
+  const icon = IC[at] || "📌";
+  return (
+    <div className="ev-img-wrap ev-img-placeholder" style={{ height:h, borderRadius:br, background:grad, position:"relative" }}>
+      <span style={{ fontSize:h > 130 ? 36 : 28, opacity:0.7 }}>{icon}</span>
+      {venue && <span style={{ fontSize:10, fontWeight:600, color:"rgba(255,255,255,0.85)", textAlign:"center", maxWidth:"80%", lineHeight:1.3 }}>{venue}</span>}
+      {children}
+    </div>
+  );
+}
+
+
 /* ═══════════════════════════════════ SHARED UI ATOMS ═══════════════════════════════════ */
 function Drive({ m }) {
-  if (!m) return null;
+  if (m == null) return null;
   const col = m<=10?"#059669":m<=20?"#78716C":"#94A3B8";
   return (
     <span style={{ display:"inline-flex", alignItems:"center", gap:3, fontSize:11, color:col, fontWeight:m<=10?600:500 }}>
@@ -238,12 +336,13 @@ function Drive({ m }) {
   );
 }
 
-function Neighborhood({ n }) {
-  if (!n) return null;
+function DistBadge({ mi, dm }) {
+  if (mi == null) return null;
+  const col = mi<=3?"#059669":mi<=8?"#78716C":"#94A3B8";
   return (
-    <span style={{ display:"inline-flex", alignItems:"center", gap:3, fontSize:11, color:"#64748B", fontWeight:500 }}>
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF4477" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      {n}
+    <span style={{ display:"inline-flex", alignItems:"center", gap:3, fontSize:11, color:col, fontWeight:mi<=3?600:500 }}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={col} strokeWidth="2.5" strokeLinecap="round"><rect x="1" y="6" width="22" height="12" rx="3"/><circle cx="6.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></svg>
+      {mi < 10 ? mi.toFixed(1) : Math.round(mi)} mi · {dm} min
     </span>
   );
 }
@@ -262,30 +361,111 @@ function AgeChip({ age }) {
 }
 
 
+/* ═══════════════════════════════════ LOCATION PROMPT ═══════════════════════════════════ */
+function LocationPrompt({ onSelect }) {
+  const [mode, setMode] = useState('initial'); // initial | picking | locating | error
+  const [errMsg, setErrMsg] = useState('');
+
+  function handleGeo() {
+    if (!navigator.geolocation) { setMode('error'); setErrMsg('Geolocation not supported by your browser'); return; }
+    setMode('locating');
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude, label: 'My Location' };
+        // Find nearest neighborhood name
+        let best = NEIGHBORHOODS[0], bestD = 999;
+        NEIGHBORHOODS.forEach(n => {
+          const d = haversine(loc.lat, loc.lng, n.lat, n.lng);
+          if (d < bestD) { bestD = d; best = n; }
+        });
+        loc.label = best.label;
+        saveLocation(loc);
+        onSelect(loc);
+      },
+      err => {
+        setMode('error');
+        setErrMsg(err.code === 1 ? 'Location access denied. Pick your neighborhood instead.' : 'Could not get location. Pick your neighborhood instead.');
+      },
+      { enableHighAccuracy: false, timeout: 8000 }
+    );
+  }
+
+  function handlePick(n) {
+    const loc = { lat: n.lat, lng: n.lng, label: n.label };
+    saveLocation(loc);
+    onSelect(loc);
+  }
+
+  return (
+    <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.7)", backdropFilter:"blur(4px)", zIndex:600, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
+      <div style={{ background:"white", borderRadius:20, padding:"28px 24px", maxWidth:380, width:"100%", boxShadow:"0 16px 48px rgba(0,0,0,0.2)" }}>
+        <div style={{ textAlign:"center", marginBottom:16 }}>
+          <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:28, fontWeight:900, color:"#FF4477", letterSpacing:"-0.04em", textTransform:"uppercase" }}>EZPZ</div>
+          <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:8, fontWeight:800, color:"#FACC15", textTransform:"uppercase", letterSpacing:"0.2em", marginBottom:12 }}>MIAMI</div>
+          <h2 style={{ fontSize:18, fontWeight:700, color:"#0F172A", margin:"0 0 4px" }}>Where are you in Miami?</h2>
+          <p style={{ fontSize:13, color:"#64748B", margin:0, lineHeight:1.5 }}>We'll show drive times and your nearest libraries</p>
+        </div>
+
+        {(mode === 'initial' || mode === 'error') && (
+          <>
+            {mode === 'error' && <div style={{ fontSize:12, color:"#E11D48", background:"#FFF1F2", padding:"8px 12px", borderRadius:8, marginBottom:12, textAlign:"center" }}>{errMsg}</div>}
+            <button onClick={handleGeo} style={{ width:"100%", padding:"14px", borderRadius:12, border:"none", background:"#FF4477", color:"white", fontSize:15, fontWeight:700, cursor:"pointer", marginBottom:10, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Use My Location
+            </button>
+            <button onClick={()=>setMode('picking')} style={{ width:"100%", padding:"12px", borderRadius:12, border:"1.5px solid #E2E8F0", background:"white", color:"#0F172A", fontSize:14, fontWeight:600, cursor:"pointer" }}>
+              Pick My Neighborhood
+            </button>
+          </>
+        )}
+
+        {mode === 'locating' && (
+          <div style={{ textAlign:"center", padding:"24px 0" }}>
+            <div className="spin" style={{ width:28, height:28, border:"3px solid #F1F5F9", borderTopColor:"#FF4477", borderRadius:"50%", animation:"sp 0.7s linear infinite", margin:"0 auto 12px" }} />
+            <p style={{ fontSize:13, color:"#64748B" }}>Finding your location...</p>
+          </div>
+        )}
+
+        {mode === 'picking' && (
+          <div style={{ maxHeight:320, overflowY:"auto" }}>
+            <button onClick={()=>setMode('initial')} style={{ fontSize:12, fontWeight:600, color:"#FF4477", background:"none", border:"none", cursor:"pointer", marginBottom:8 }}>← Back</button>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+              {NEIGHBORHOODS.map(n => (
+                <button key={n.label} onClick={()=>handlePick(n)} style={{ padding:"10px 8px", borderRadius:10, border:"1.5px solid #F1F5F9", background:"white", cursor:"pointer", fontSize:13, fontWeight:500, color:"#0F172A", textAlign:"left", transition:"all 0.15s" }}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor="#FF4477";e.currentTarget.style.background="#FFF5F7"}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor="#F1F5F9";e.currentTarget.style.background="white"}}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF4477" strokeWidth="2.5" style={{marginRight:4,verticalAlign:"middle"}}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  {n.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 /* ═══════════════════════════════════ MOBILE COMPONENTS ═══════════════════════════════════ */
 
-/* Hero Teaser — always above the fold on thin days */
 function HeroTeaser({ event, label, onClick }) {
-  const c = TC[event.at]||"#FF4477";
   return (
     <div onClick={()=>onClick(event)} style={{ margin:"12px 16px", borderRadius:14, overflow:"hidden", cursor:"pointer", background:"white", boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
-      {event.img && (
-        <div style={{ height:150, background:`url(${event.img}) center/cover`, position:"relative" }}>
-          <div style={{ position:"absolute", inset:0, background:"linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 40%, transparent 70%)" }} />
-          <div style={{ position:"absolute", top:10, left:10 }}>
-            <span style={{ fontSize:10, fontWeight:700, color:"white", background:"rgba(255,255,255,0.2)", backdropFilter:"blur(8px)", padding:"3px 10px", borderRadius:6, textTransform:"uppercase", letterSpacing:"0.05em" }}>{label}</span>
-          </div>
-          <div style={{ position:"absolute", bottom:12, left:14, right:14 }}>
-            <h3 style={{ fontSize:18, fontWeight:800, color:"white", lineHeight:1.2, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 4px rgba(0,0,0,0.3)" }}>{event.t}</h3>
-          </div>
+      <EvImage src={event.img} at={event.at} venue={event.v} height={150} borderRadius="14px 14px 0 0">
+        <div style={{ position:"absolute", top:10, left:10, zIndex:1 }}>
+          <span style={{ fontSize:10, fontWeight:700, color:"white", background:"rgba(255,255,255,0.2)", backdropFilter:"blur(8px)", padding:"3px 10px", borderRadius:6, textTransform:"uppercase", letterSpacing:"0.05em" }}>{label}</span>
         </div>
-      )}
+        <div style={{ position:"absolute", bottom:12, left:14, right:14, zIndex:1 }}>
+          <h3 style={{ fontSize:18, fontWeight:800, color:"white", lineHeight:1.2, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 4px rgba(0,0,0,0.3)" }}>{event.t}</h3>
+        </div>
+      </EvImage>
       <div style={{ padding:"10px 14px 12px" }}>
         {event.ed && <p style={{ fontSize:12.5, color:"#475569", lineHeight:1.5, margin:"0 0 8px", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{event.ed}</p>}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <span style={{ fontSize:11, color:"#94A3B8" }}>{event.v}</span>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <Neighborhood n={event.neighborhood} />
+            <DistBadge mi={event.distMi} dm={event.dm} />
             <Price e={event} />
           </div>
         </div>
@@ -294,7 +474,6 @@ function HeroTeaser({ event, label, onClick }) {
   );
 }
 
-/* Featured Card (for carousel) */
 function MFeatCard({ event, onClick, wide }) {
   return (
     <div onClick={()=>onClick(event)} style={{
@@ -302,55 +481,45 @@ function MFeatCard({ event, onClick, wide }) {
       boxShadow:"0 1px 6px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04)",
       width:wide?"auto":"min(290px, 78vw)", flexShrink:0,
     }}>
-      {event.img && (
-        <div style={{ height:wide?150:125, background:`url(${event.img}) center/cover`, position:"relative" }}>
-          <div style={{ position:"absolute", inset:0, background:"linear-gradient(0deg, rgba(0,0,0,0.55) 0%, transparent 50%)" }} />
-          <div style={{ position:"absolute", bottom:10, left:12, right:12 }}>
-            <h3 style={{ fontSize:15, fontWeight:800, color:"white", lineHeight:1.2, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 3px rgba(0,0,0,0.3)" }}>{event.t}</h3>
-          </div>
-          <div style={{ position:"absolute", top:8, right:8 }}><Price e={event} /></div>
+      <EvImage src={event.img} at={event.at} venue={event.v} height={wide?150:125} borderRadius="14px 14px 0 0">
+        <div style={{ position:"absolute", bottom:10, left:12, right:12, zIndex:1 }}>
+          <h3 style={{ fontSize:15, fontWeight:800, color:"white", lineHeight:1.2, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 3px rgba(0,0,0,0.3)" }}>{event.t}</h3>
         </div>
-      )}
+        <div style={{ position:"absolute", top:8, right:8, zIndex:1 }}><Price e={event} /></div>
+      </EvImage>
       <div style={{ padding:"10px 12px 12px" }}>
         {event.ed && <p style={{ fontSize:12, color:"#64748B", lineHeight:1.5, margin:"0 0 8px", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{event.ed}</p>}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <span style={{ fontSize:11, color:"#94A3B8" }}>{event.v}</span>
-          <Neighborhood n={event.neighborhood} />
+          <DistBadge mi={event.distMi} dm={event.dm} />
         </div>
       </div>
     </div>
   );
 }
 
-/* ─── Event Row (v4: structured two-line layout) ─── */
 function MRow({ event, onClick }) {
   const isLib = event.tp === "library";
   const c = TC[event.at]||"#94A3B8";
   return (
     <div onClick={()=>onClick(event)} style={{ padding:"10px 16px", cursor:"pointer", transition:"background 0.1s" }}>
       <div style={{ display:"flex", gap:11 }}>
-        {/* Left: icon */}
         <div style={{ width:34, height:34, borderRadius:9, flexShrink:0, background:`${c}0A`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, marginTop:1 }}>
           {IC[event.at]||"📌"}
         </div>
-        {/* Middle: content */}
         <div style={{ flex:1, minWidth:0 }}>
-          {/* Line 1: Title */}
           <div style={{ fontSize:14, fontWeight:600, color:"#0F172A", lineHeight:1.3, marginBottom:3, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{event.t}</div>
-          {/* Line 2: Metadata */}
           <div style={{ display:"flex", alignItems:"center", gap:0, fontSize:11, color:"#94A3B8", flexWrap:"wrap" }}>
             <span style={{ fontWeight:500, color:"#64748B" }}>{event.v}</span>
             <span style={{ margin:"0 5px", color:"#E2E8F0" }}>·</span>
             <span>{event.tm}</span>
-            {event.neighborhood && <><span style={{ margin:"0 5px", color:"#E2E8F0" }}>·</span><Neighborhood n={event.neighborhood} /></>}
+            {event.dm != null && <><span style={{ margin:"0 5px", color:"#E2E8F0" }}>·</span><DistBadge mi={event.distMi} dm={event.dm} /></>}
             {isLib && <><span style={{ margin:"0 5px", color:"#E2E8F0" }}>·</span><LibChip /></>}
             {event.age && <><span style={{ margin:"0 5px", color:"#E2E8F0" }}>·</span><AgeChip age={event.age} /></>}
           </div>
         </div>
-        {/* Right: price */}
         <div style={{ flexShrink:0, paddingTop:2 }}><Price e={event} /></div>
       </div>
-      {/* Separator */}
       <div style={{ height:1, background:"#F1F5F9", marginTop:10, marginLeft:45 }} />
     </div>
   );
@@ -381,24 +550,18 @@ function DCard({ event, onClick, large }) {
   return (
     <div onClick={()=>onClick(event)} style={{
       background:"white", borderRadius:12, overflow:"hidden", cursor:"pointer",
-      boxShadow:"0 1px 4px rgba(0,0,0,0.04)",
-      transition:"box-shadow 0.2s, transform 0.15s",
+      boxShadow:"0 1px 4px rgba(0,0,0,0.04)", transition:"box-shadow 0.2s, transform 0.15s",
       display:"flex", flexDirection:"column",
     }}
     onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,0.08)";e.currentTarget.style.transform="translateY(-2px)"}}
-    onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 1px 4px rgba(0,0,0,0.04)";e.currentTarget.style.transform="none"}}
-    >
-      {event.img && (
-        <div style={{ height:large?200:140, background:`url(${event.img}) center/cover`, position:"relative" }}>
-          <div style={{ position:"absolute", inset:0, background:"linear-gradient(0deg, rgba(0,0,0,0.5) 0%, transparent 50%)" }} />
-          <div style={{ position:"absolute", bottom:10, left:12, right:12 }}>
-            <h3 style={{ fontSize:large?20:15, fontWeight:800, color:"white", lineHeight:1.2, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 3px rgba(0,0,0,0.3)" }}>{event.t}</h3>
-          </div>
-          <div style={{ position:"absolute", top:8, right:8 }}><Price e={event} /></div>
+    onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 1px 4px rgba(0,0,0,0.04)";e.currentTarget.style.transform="none"}}>
+      <EvImage src={event.img} at={event.at} venue={event.v} height={large?200:140}>
+        <div style={{ position:"absolute", bottom:10, left:12, right:12, zIndex:1 }}>
+          <h3 style={{ fontSize:large?20:15, fontWeight:800, color:"white", lineHeight:1.2, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 3px rgba(0,0,0,0.3)" }}>{event.t}</h3>
         </div>
-      )}
+        <div style={{ position:"absolute", top:8, right:8, zIndex:1 }}><Price e={event} /></div>
+      </EvImage>
       <div style={{ padding:"10px 14px 14px", flex:1, display:"flex", flexDirection:"column" }}>
-        {!event.img && <h3 style={{ fontSize:15, fontWeight:700, color:"#0F172A", lineHeight:1.3, margin:"0 0 4px" }}>{event.t}</h3>}
         {event.ed && <p style={{ fontSize:12, color:"#64748B", lineHeight:1.5, margin:"0 0 8px", display:"-webkit-box", WebkitLineClamp:large?3:2, WebkitBoxOrient:"vertical", overflow:"hidden", flex:1 }}>{event.ed}</p>}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:"auto" }}>
           <div style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color:"#94A3B8" }}>
@@ -406,7 +569,7 @@ function DCard({ event, onClick, large }) {
             <span style={{ color:"#E2E8F0" }}>·</span>
             <span>{event.tm}</span>
           </div>
-          <Neighborhood n={event.neighborhood} />
+          <DistBadge mi={event.distMi} dm={event.dm} />
         </div>
       </div>
     </div>
@@ -429,7 +592,7 @@ function DRow({ event, onClick }) {
           {event.age && <AgeChip age={event.age} />}
         </div>
       </div>
-      <Neighborhood n={event.neighborhood} />
+      <DistBadge mi={event.distMi} dm={event.dm} />
       <Price e={event} />
     </div>
   );
@@ -443,15 +606,16 @@ function Detail({ event, vp, onClose }) {
   const mob = vp==="mobile";
   const evDate = new Date(event.d+"T12:00:00");
 
-  const mapsUrl = event.address
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address)}`
-    : event.v ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.v + ' Miami')}` : '#';
+  const mapsQ = event.address || (event.v + ' Miami');
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQ)}`;
 
   const inner = (
     <div>
       {mob && <div style={{ width:36, height:4, borderRadius:2, background:"#E2E8F0", margin:"10px auto 4px" }} />}
       {!mob && <div style={{ display:"flex", justifyContent:"flex-end", padding:"10px 14px 0" }}><button onClick={onClose} style={{ background:"#F8FAFC", border:"1px solid #F1F5F9", borderRadius:8, width:30, height:30, cursor:"pointer", fontSize:13, color:"#94A3B8", display:"flex", alignItems:"center", justifyContent:"center" }}>✕</button></div>}
-      {event.img && <div style={{ height:mob?170:200, background:`url(${event.img}) center/cover`, margin:mob?0:"0 16px", borderRadius:mob?0:12, overflow:"hidden" }} />}
+      <EvImage src={event.img} at={event.at} venue={event.v} height={mob?170:200} borderRadius={mob?0:12}>
+        {/* overlay content in detail is handled below */}
+      </EvImage>
       <div style={{ padding:"14px 20px 24px" }}>
         <div style={{ display:"flex", alignItems:"center", gap:5, marginBottom:6, flexWrap:"wrap" }}>
           <span style={{ fontSize:10, fontWeight:600, color:c, background:`${c}10`, padding:"2px 7px", borderRadius:5 }}>{IC[event.at]} {TL[event.at]||'Event'}</span>
@@ -463,14 +627,14 @@ function Detail({ event, vp, onClose }) {
         {event.practical_notes && <p style={{ fontSize:12.5, color:"#64748B", lineHeight:1.5, margin:"0 0 14px", fontStyle:"italic" }}>{event.practical_notes}</p>}
         <div style={{ background:"#F8FAFC", borderRadius:10, border:"1px solid #F1F5F9", overflow:"hidden", marginBottom:14 }}>
           {[
-            { i:"📍", l:event.v, r: event.neighborhood ? <Neighborhood n={event.neighborhood} /> : null },
+            { i:"📍", l:event.v, r: event.distMi != null ? <DistBadge mi={event.distMi} dm={event.dm} /> : (event.neighborhood || null) },
             { i:"🗓", l:fmt(evDate), r:event.tm },
             event.age ? { i:"👶", l:`Ages ${event.age}` } : null,
           ].filter(Boolean).map((r,i,a) => (
             <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderBottom:i<a.length-1?"1px solid #F1F5F9":"none" }}>
               <span style={{ fontSize:14 }}>{r.i}</span>
               <span style={{ fontSize:13, fontWeight:600, color:"#0F172A", flex:1 }}>{r.l}</span>
-              {r.r && <span style={{ fontSize:12, color:"#94A3B8" }}>{r.r}</span>}
+              {r.r && <span style={{ fontSize:12, color:"#94A3B8" }}>{typeof r.r==='string'?r.r:r.r}</span>}
             </div>
           ))}
         </div>
@@ -497,27 +661,27 @@ function Detail({ event, vp, onClose }) {
 /* ═══════════════════════════════════ MAIN ═══════════════════════════════════ */
 function App() {
   const [vp, setVp] = useState(window.innerWidth < 700 ? "mobile" : "desktop");
-  const [events, setEvents] = useState([]);
+  const [rawEvents, setRawEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sel, setSel] = useState(null);
   const [simOverride, setSimOverride] = useState(null);
+  const [userLoc, setUserLoc] = useState(() => getSavedLocation());
+  const [showLocPrompt, setShowLocPrompt] = useState(false);
+
   const oc = useCallback(e=>setSel(e),[]);
   const cl = useCallback(()=>setSel(null),[]);
 
   useEffect(() => {
     fetchEvents()
-      .then(raw => {
-        const normalized = raw.map(normalizeEvent);
-        setEvents(normalized);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Supabase fetch error:', err);
-        setError(err.message || 'Failed to load events');
-        setLoading(false);
-      });
+      .then(data => { setRawEvents(data); setLoading(false); })
+      .catch(err => { console.error('Supabase fetch error:', err); setError(err.message || 'Failed to load events'); setLoading(false); });
   }, []);
+
+  // Show location prompt after data loads if no saved location
+  useEffect(() => {
+    if (!loading && !error && !userLoc) setShowLocPrompt(true);
+  }, [loading, error, userLoc]);
 
   // Responsive viewport
   useEffect(() => {
@@ -526,25 +690,37 @@ function App() {
     return () => window.removeEventListener('resize', h);
   }, []);
 
+  // Normalize + filter with current userLoc
+  const events = useMemo(() => {
+    let evs = rawEvents.map(e => normalizeEvent(e, userLoc));
+    if (userLoc) evs = filterLibraryByRadius(evs);
+    return evs;
+  }, [rawEvents, userLoc]);
+
+  // Count nearest libraries for the toolbar
+  const libBranches = useMemo(() => {
+    if (!userLoc) return 0;
+    const libs = events.filter(e => e.tp === 'library');
+    return new Set(libs.map(e => e.v)).size;
+  }, [events, userLoc]);
+
   const today = simOverride ? new Date(simOverride + "T12:00:00") : new Date();
   const layout = buildLayout(events, today);
-  const mob = vp==="mobile";
+  const mob = vp === "mobile";
 
-  // Dynamic accent colors based on day of week
   function getAccent(dateStr) {
     const d = new Date(dateStr + "T12:00:00");
-    if (d.getDay() === 6) return "#F97316"; // Saturday
-    if (d.getDay() === 0) return "#E11D48"; // Sunday
-    return "#0D9488"; // Weekday
+    if (d.getDay()===6) return "#F97316";
+    if (d.getDay()===0) return "#E11D48";
+    return "#0D9488";
   }
   function getBg(dateStr) {
     const d = new Date(dateStr + "T12:00:00");
-    if (d.getDay() === 6) return "linear-gradient(180deg, #FFF7ED 0%, #FDFCFB 100%)";
-    if (d.getDay() === 0) return "linear-gradient(180deg, #FFF1F2 0%, #FDFCFB 100%)";
+    if (d.getDay()===6) return "linear-gradient(180deg, #FFF7ED 0%, #FDFCFB 100%)";
+    if (d.getDay()===0) return "linear-gradient(180deg, #FFF1F2 0%, #FDFCFB 100%)";
     return "transparent";
   }
 
-  // Build sim day options from available event dates
   const uniqueDates = [...new Set(events.map(e => e.d))].sort().slice(0, 8);
   const simDays = uniqueDates.map(d => {
     const dt = new Date(d + "T12:00:00");
@@ -554,7 +730,7 @@ function App() {
   if (loading) return (
     <div className="loader">
       <div className="spin" />
-      <div style={{ fontSize:13, color:"#94A3B8", fontWeight:500 }}>Loading events from Supabase...</div>
+      <div style={{ fontSize:13, color:"#94A3B8", fontWeight:500 }}>Loading events...</div>
     </div>
   );
 
@@ -566,19 +742,30 @@ function App() {
     </div>
   );
 
+  function handleLocationSelect(loc) {
+    setUserLoc(loc);
+    setShowLocPrompt(false);
+  }
+
+  /* ─── Location button in header ─── */
+  function LocButton({ style: s }) {
+    return (
+      <button onClick={()=>setShowLocPrompt(true)} style={{ display:"flex", alignItems:"center", gap:5, fontSize:s?.fontSize||11, fontWeight:600, color:"#0F172A", background:"#F8FAFC", padding:s?.padding||"5px 10px", borderRadius:8, border:"1px solid #F1F5F9", cursor:"pointer", ...s }}>
+        <svg width={s?.iconSize||12} height={s?.iconSize||12} viewBox="0 0 24 24" fill="none" stroke="#FF4477" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        {userLoc ? userLoc.label : "Set Location"}
+      </button>
+    );
+  }
+
   function renderMobile() {
     return (
       <div style={{ width:"100%", maxWidth:430, margin:"0 auto", background:"#FDFCFB", borderRadius:mob?0:20, overflow:"hidden", boxShadow:mob?"none":"0 4px 24px rgba(0,0,0,0.12)", minHeight:700 }}>
-        {/* Header */}
         <div style={{ padding:"12px 16px", background:"white", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #F1F5F9" }}>
           <div>
             <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:22, fontWeight:900, color:"#FF4477", letterSpacing:"-0.04em", textTransform:"uppercase", lineHeight:1 }}>EZPZ</div>
             <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:7, fontWeight:800, color:"#FACC15", textTransform:"uppercase", letterSpacing:"0.2em", marginTop:1 }}>MIAMI</div>
           </div>
-          <div style={{ display:"flex", alignItems:"center", gap:5, fontSize:11, fontWeight:600, color:"#0F172A", background:"#F8FAFC", padding:"5px 10px", borderRadius:8, border:"1px solid #F1F5F9" }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF4477" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Miami
-          </div>
+          <LocButton />
         </div>
 
         {events.length === 0 ? (
@@ -588,16 +775,13 @@ function App() {
             <div style={{ fontSize:12, marginTop:4 }}>Check back soon — we update twice daily!</div>
           </div>
         ) : layout.map((s,i) => {
-          if (s.type === "hero-teaser") {
-            return <HeroTeaser key={i} event={s.event} label={s.label} onClick={oc} />;
-          }
+          if (s.type === "hero-teaser") return <HeroTeaser key={i} event={s.event} label={s.label} onClick={oc} />;
           if (s.type === "day") {
             const feat = s.events.filter(e=>e.w==="f");
             const rest = s.events.filter(e=>e.w!=="f");
             const acc = getAccent(s.events[0].d);
-            const bg = getBg(s.events[0].d);
             return (
-              <div key={i} style={{ background:bg }}>
+              <div key={i} style={{ background:getBg(s.events[0].d) }}>
                 <DayHead label={relLabel(s.date,today)} count={s.events.length} accent={acc} isToday={s.isToday} tag={s.sectionTag} />
                 {feat.length >= 2 ? (
                   <div style={{ display:"flex", gap:12, overflowX:"auto", scrollbarWidth:"none", padding:"6px 16px 10px", WebkitOverflowScrolling:"touch" }}>
@@ -654,16 +838,12 @@ function App() {
   function renderDesktop() {
     return (
       <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 32px" }}>
-        {/* Header */}
         <div style={{ padding:"18px 0 16px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #F1F5F9" }}>
           <div>
             <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:28, fontWeight:900, color:"#FF4477", letterSpacing:"-0.04em", textTransform:"uppercase", lineHeight:1 }}>EZPZ</div>
             <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:8, fontWeight:800, color:"#FACC15", textTransform:"uppercase", letterSpacing:"0.2em", marginTop:2 }}>THE PLAYBOOK FOR MIAMI PARENTS</div>
           </div>
-          <div style={{ display:"flex", alignItems:"center", gap:5, fontSize:13, fontWeight:600, color:"#0F172A", background:"#F8FAFC", padding:"8px 14px", borderRadius:8, border:"1px solid #F1F5F9" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF4477" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Miami
-          </div>
+          <LocButton style={{ fontSize:13, padding:"8px 14px", iconSize:14 }} />
         </div>
 
         {events.length === 0 ? (
@@ -679,11 +859,11 @@ function App() {
               <div key={i} onClick={()=>oc(e)} style={{ margin:"24px 0 16px", borderRadius:16, overflow:"hidden", cursor:"pointer", display:"flex", background:"white", boxShadow:"0 2px 12px rgba(0,0,0,0.06)", transition:"box-shadow 0.2s" }}
                 onMouseEnter={ev=>ev.currentTarget.style.boxShadow="0 4px 24px rgba(0,0,0,0.1)"}
                 onMouseLeave={ev=>ev.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.06)"}>
-                {e.img && <div style={{ width:"55%", height:260, background:`url(${e.img}) center/cover`, position:"relative" }}>
-                  <div style={{ position:"absolute", top:14, left:14 }}>
+                <EvImage src={e.img} at={e.at} venue={e.v} height={260}>
+                  <div style={{ position:"absolute", top:14, left:14, zIndex:1 }}>
                     <span style={{ fontSize:11, fontWeight:700, color:"white", background:"rgba(255,255,255,0.2)", backdropFilter:"blur(8px)", padding:"4px 12px", borderRadius:6, textTransform:"uppercase", letterSpacing:"0.05em" }}>{s.label}</span>
                   </div>
-                </div>}
+                </EvImage>
                 <div style={{ flex:1, padding:"24px 28px", display:"flex", flexDirection:"column", justifyContent:"center" }}>
                   <h3 style={{ fontFamily:"Montserrat,sans-serif", fontSize:22, fontWeight:900, color:"#0F172A", lineHeight:1.2, margin:"0 0 8px", letterSpacing:"-0.02em" }}>{e.t}</h3>
                   {e.ed && <p style={{ fontSize:14, color:"#475569", lineHeight:1.6, margin:"0 0 14px" }}>{e.ed}</p>}
@@ -691,7 +871,7 @@ function App() {
                     <span style={{ fontWeight:500 }}>{e.v}</span>
                     <span style={{ color:"#E2E8F0" }}>·</span>
                     <span>{e.tm}</span>
-                    {e.neighborhood && <><span style={{ color:"#E2E8F0" }}>·</span><Neighborhood n={e.neighborhood} /></>}
+                    {e.distMi != null && <><span style={{ color:"#E2E8F0" }}>·</span><DistBadge mi={e.distMi} dm={e.dm} /></>}
                     <span style={{ marginLeft:"auto" }}><Price e={e} /></span>
                   </div>
                 </div>
@@ -741,7 +921,7 @@ function App() {
                   <h2 style={{ fontFamily:"Montserrat,sans-serif", fontSize:20, fontWeight:900, color:"#0F172A", margin:0 }}>{s.label}</h2>
                   <span style={{ fontSize:12, color:"#94A3B8" }}>{s.events.length} events near you</span>
                 </div>
-                <div style={{ display:"grid", gridTemplateColumns: sorted.length<=2 ? "1fr 1fr" : `repeat(${Math.min(sorted.length, 3)}, 1fr)`, gap:12 }}>
+                <div style={{ display:"grid", gridTemplateColumns: sorted.length<=2 ? "1fr 1fr" : `repeat(${Math.min(sorted.length,3)}, 1fr)`, gap:12 }}>
                   {sorted.map(dk => {
                     const d = new Date(dk+"T12:00:00");
                     const evs = byDay[dk];
@@ -800,7 +980,7 @@ function App() {
             <button key={v} className={vp===v?"a":""} onClick={()=>setVp(v)}>{v==="mobile"?"📱 Mobile":"🖥 Desktop"}</button>
           ))}
         </div>
-        <span className="l" style={{ marginLeft:8 }}>{events.length} events loaded</span>
+        <span className="l" style={{ marginLeft:8 }}>{events.length} events · {libBranches} library branches</span>
       </div>
 
       <div style={{ padding:mob?"0 0 60px":"24px 0 40px" }}>
@@ -808,6 +988,7 @@ function App() {
       </div>
 
       {sel && <Detail event={sel} vp={vp} onClose={cl} />}
+      {showLocPrompt && <LocationPrompt onSelect={handleLocationSelect} />}
     </div>
   );
 }
