@@ -208,8 +208,8 @@ function LocPrompt({onSelect}){
         </div>
         {(mode==='init'||mode==='err')&&<>
           {mode==='err'&&<div style={{fontSize:12,color:'#E11D48',background:'#FFF1F2',padding:'8px 12px',borderRadius:8,marginBottom:12,textAlign:'center'}}>{err}</div>}
-          <button onClick={geo} style={{width:'100%',padding:14,borderRadius:12,border:'none',background:'var(--flamingo)',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',marginBottom:10}}>📍 Use My Location</button>
-          <button onClick={()=>setMode('pick')} style={{width:'100%',padding:12,borderRadius:12,border:'1.5px solid var(--border)',background:'white',color:'var(--text-1)',fontSize:14,fontWeight:600,cursor:'pointer'}}>Pick My Neighborhood</button>
+          <button onClick={()=>setMode('pick')} style={{width:'100%',padding:14,borderRadius:12,border:'none',background:'var(--flamingo)',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',marginBottom:10}}>Pick My Neighborhood</button>
+          <button onClick={geo} style={{width:'100%',padding:12,borderRadius:12,border:'1.5px solid var(--border)',background:'white',color:'var(--text-2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>📍 Use My Exact Location</button>
         </>}
         {mode==='wait'&&<div style={{textAlign:'center',padding:'24px 0'}}><div className="spin" style={{margin:'0 auto 12px'}}/><p style={{fontSize:13,color:'var(--text-2)'}}>Finding you...</p></div>}
         {mode==='pick'&&<div style={{maxHeight:320,overflowY:'auto'}}>
