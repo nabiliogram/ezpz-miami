@@ -226,7 +226,7 @@ function LocPrompt({onSelect}){
 }
 
 /* ═══════════════ DATE STRIP ═══════════════ */
-function DateStrip({dates,activeDate,onSelect,eventCounts}){
+function DateStrip({dates,activeDate,onTap,eventCounts}){
   const ref=useRef(null);
   useEffect(()=>{
     if(!ref.current) return;
@@ -240,7 +240,7 @@ function DateStrip({dates,activeDate,onSelect,eventCounts}){
         const d=new Date(ds+'T12:00:00');
         const cnt=eventCounts[ds]||0;
         const isAct=ds===activeDate;
-        return <button key={ds} data-d={ds} className={`d-btn${isAct?' active':''}`} onClick={()=>onSelect(ds)}>
+        return <button key={ds} data-d={ds} className={`d-btn${isAct?' active':''}`} onClick={()=>onTap(ds)}>
           <span className="dn">{dayN[d.getDay()]}</span>
           <span className="dd">{String(d.getDate()).padStart(2,'0')}</span>
           <span className="dot"/>
@@ -375,6 +375,58 @@ function Detail({ev,onClose}){
   );
 }
 
+/* ═══════════════ DAY SECTION ═══════════════ */
+function DaySection({dateStr,evs,label,onClick}){
+  const feat=evs.filter(e=>e.feat&&!e.lib);
+  const standard=evs.filter(e=>!e.feat&&!e.lib);
+  const libEvs=evs.filter(e=>e.lib);
+  const empty=evs.length===0;
+  return(
+    <div id={`day-${dateStr}`} data-day={dateStr} style={{paddingTop:8,paddingBottom:empty?8:20}}>
+      {/* Day header */}
+      <div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',marginBottom:empty?0:12}}>
+        <h2 style={{fontFamily:"'Montserrat',sans-serif",fontSize:18,fontWeight:900,color:'var(--text-1)',letterSpacing:'-0.02em',margin:0}}>{label}</h2>
+        {!empty&&<span style={{fontSize:12,color:'var(--text-3)'}}>{evs.length} {evs.length===1?'event':'events'}</span>}
+      </div>
+
+      {empty?(
+        <div style={{padding:'16px 0',fontSize:13,color:'var(--text-3)'}}>No events this day</div>
+      ):<>
+        {feat.length>=2?(
+          <div style={{display:'flex',gap:12,overflowX:'auto',scrollbarWidth:'none',marginBottom:14,WebkitOverflowScrolling:'touch',padding:'2px 0'}}>
+            {feat.map(e=><FeatCard key={e.id} ev={e} onClick={onClick}/>)}
+          </div>
+        ):feat.length===1?(
+          <div style={{marginBottom:14}}><FeatCard ev={feat[0]} onClick={onClick} wide/></div>
+        ):null}
+
+        {standard.length>0&&(
+          <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:libEvs.length?14:0}}>
+            {standard.map(e=><EventCard key={e.id} ev={e} onClick={onClick}/>)}
+          </div>
+        )}
+
+        {libEvs.length>0&&(
+          <div style={{padding:'14px 16px',background:'#F9F7FF',borderRadius:14,border:'1px solid #E8E0F5'}}>
+            <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:12}}>
+              <span style={{fontSize:14}}>📚</span>
+              <span style={{fontFamily:"'Montserrat',sans-serif",fontSize:10,fontWeight:800,color:'var(--violet)',textTransform:'uppercase',letterSpacing:'0.06em'}}>At Your Library</span>
+              <div style={{flex:1,height:1,background:'#E8E0F5'}}/>
+              <span style={{fontSize:10,color:'#9B8EC4'}}>{libEvs.length}</span>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              {libEvs.map(e=><EventCard key={e.id} ev={e} onClick={onClick}/>)}
+            </div>
+          </div>
+        )}
+      </>}
+
+      {/* Day separator */}
+      <div style={{height:1,background:'#E8E5DE',marginTop:empty?8:16}}/>
+    </div>
+  );
+}
+
 /* ═══════════════ APP ═══════════════ */
 function App(){
   const[raw,setRaw]=useState([]);
@@ -384,6 +436,7 @@ function App(){
   const[uLoc,setULoc]=useState(()=>getSavedLoc());
   const[showLoc,setShowLoc]=useState(false);
   const[activeDate,setActiveDate]=useState(null);
+  const scrollingRef=useRef(false); // prevents observer from fighting tap-scroll
   const oc=useCallback(e=>setSel(e),[]);
 
   useEffect(()=>{fetchEvents().then(d=>{setRaw(d);setLoading(false);}).catch(e=>{setError(e.message);setLoading(false);});},[]);
@@ -391,46 +444,76 @@ function App(){
 
   const events=useMemo(()=>{let e=raw.map(x=>norm(x,uLoc));if(uLoc)e=filterLibs(e);return e;},[raw,uLoc]);
 
-  // Build 14-day date list
+  // 14-day date list
   const dates=useMemo(()=>{
     const out=[];const t=new Date();
     for(let i=0;i<14;i++){const d=new Date(t);d.setDate(t.getDate()+i);out.push(etDate(d));}
     return out;
   },[]);
 
-  // Event counts per date
-  const eventCounts=useMemo(()=>{
-    const m={};events.forEach(e=>{m[e.d]=(m[e.d]||0)+1;});return m;
-  },[events]);
+  // Events grouped by date
+  const byDate=useMemo(()=>{
+    const m={};dates.forEach(d=>m[d]=[]);
+    events.forEach(e=>{if(m[e.d])m[e.d].push(e);});
+    // Sort each day by distance
+    Object.values(m).forEach(arr=>arr.sort((a,b)=>(a.dm??999)-(b.dm??999)));
+    return m;
+  },[events,dates]);
 
-  // Set initial active date to first date with events
+  const eventCounts=useMemo(()=>{
+    const m={};dates.forEach(d=>m[d]=(byDate[d]||[]).length);return m;
+  },[byDate,dates]);
+
+  // Set initial active date
   useEffect(()=>{
-    if(!activeDate&&events.length){
-      const first=dates.find(d=>eventCounts[d]>0)||dates[0];
+    if(!activeDate&&dates.length){
+      const first=dates.find(d=>(byDate[d]||[]).length>0)||dates[0];
       setActiveDate(first);
     }
-  },[events,dates,eventCounts,activeDate]);
+  },[dates,byDate,activeDate]);
 
-  // Events for active date
-  const dayEvents=useMemo(()=>{
-    if(!activeDate) return[];
-    return events.filter(e=>e.d===activeDate).sort((a,b)=>(a.dm??999)-(b.dm??999));
-  },[events,activeDate]);
+  // IntersectionObserver: update activeDate as user scrolls
+  useEffect(()=>{
+    if(loading) return;
+    const stickyH = 128; // header + strip height
+    const els=dates.map(d=>document.getElementById(`day-${d}`)).filter(Boolean);
+    if(!els.length) return;
+    const obs=new IntersectionObserver((entries)=>{
+      if(scrollingRef.current) return; // ignore during programmatic scroll
+      // Find the topmost visible day section
+      let topDate=null, topY=Infinity;
+      entries.forEach(en=>{
+        if(en.isIntersecting && en.boundingClientRect.top < topY){
+          topY=en.boundingClientRect.top;
+          topDate=en.target.dataset.day;
+        }
+      });
+      if(topDate) setActiveDate(topDate);
+    },{rootMargin:`-${stickyH}px 0px -60% 0px`,threshold:0});
+    els.forEach(el=>obs.observe(el));
+    return()=>obs.disconnect();
+  },[loading,dates]);
 
-  const feat=dayEvents.filter(e=>e.feat&&!e.lib);
-  const standard=dayEvents.filter(e=>!e.feat&&!e.lib);
-  const libEvs=dayEvents.filter(e=>e.lib);
-
-  // Day label
-  const dayLabel=useMemo(()=>{
-    if(!activeDate) return '';
+  // Day label helper
+  function dayLabel(ds){
     const today=etDate(new Date());
-    if(activeDate===today) return 'Today';
+    if(ds===today) return 'Today';
     const tom=new Date();tom.setDate(tom.getDate()+1);
-    if(activeDate===etDate(tom)) return 'Tomorrow';
-    const d=new Date(activeDate+'T12:00:00');
-    return fmtDate(d);
-  },[activeDate]);
+    if(ds===etDate(tom)) return 'Tomorrow';
+    return fmtDate(new Date(ds+'T12:00:00'));
+  }
+
+  // Tap date → scroll to that day section
+  function handleDateTap(ds){
+    setActiveDate(ds);
+    const el=document.getElementById(`day-${ds}`);
+    if(!el) return;
+    scrollingRef.current=true;
+    const stickyH=128;
+    const y=el.getBoundingClientRect().top+window.scrollY-stickyH;
+    window.scrollTo({top:y,behavior:'smooth'});
+    setTimeout(()=>{scrollingRef.current=false;},800);
+  }
 
   if(loading) return <div className="loader"><div className="spin"/><div style={{fontSize:13,color:'var(--text-3)',fontWeight:500}}>Loading events...</div></div>;
   if(error) return <div style={{maxWidth:400,margin:'80px auto',padding:24,background:'white',borderRadius:12,textAlign:'center'}}><div style={{fontSize:24,marginBottom:8}}>😵</div><div style={{fontWeight:600,marginBottom:4}}>Failed to load events</div><div style={{color:'var(--text-3)'}}>{error}</div></div>;
@@ -450,54 +533,13 @@ function App(){
       </div></header>
 
       {/* ─── Date Strip ─── */}
-      <DateStrip dates={dates} activeDate={activeDate} onSelect={setActiveDate} eventCounts={eventCounts}/>
+      <DateStrip dates={dates} activeDate={activeDate} onTap={handleDateTap} eventCounts={eventCounts}/>
 
-      {/* ─── Content ─── */}
-      <div style={{maxWidth:720,margin:'0 auto',padding:'16px 16px 80px'}}>
-        {/* Day header */}
-        <div style={{marginBottom:12}}>
-          <h2 style={{fontFamily:"'Montserrat',sans-serif",fontSize:18,fontWeight:900,color:'var(--text-1)',letterSpacing:'-0.02em',margin:0}}>{dayLabel}</h2>
-          <span style={{fontSize:12,color:'var(--text-3)'}}>{dayEvents.length} {dayEvents.length===1?'event':'events'}</span>
-        </div>
-
-        {dayEvents.length===0?(
-          <div style={{padding:'40px 20px',textAlign:'center',color:'var(--text-3)'}}>
-            <div style={{fontSize:28,marginBottom:8}}>🌴</div>
-            <div style={{fontSize:14,fontWeight:600,color:'var(--text-2)'}}>Nothing scheduled this day</div>
-            <div style={{fontSize:12,marginTop:4}}>Try another date above</div>
-          </div>
-        ):<>
-          {/* Featured carousel / card */}
-          {feat.length>=2?(
-            <div style={{display:'flex',gap:12,overflowX:'auto',scrollbarWidth:'none',marginBottom:14,WebkitOverflowScrolling:'touch',padding:'2px 0'}}>
-              {feat.map(e=><FeatCard key={e.id} ev={e} onClick={oc}/>)}
-            </div>
-          ):feat.length===1?(
-            <div style={{marginBottom:14}}><FeatCard ev={feat[0]} onClick={oc} wide/></div>
-          ):null}
-
-          {/* Standard events */}
-          {standard.length>0&&(
-            <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:libEvs.length?14:0}}>
-              {standard.map(e=><EventCard key={e.id} ev={e} onClick={oc}/>)}
-            </div>
-          )}
-
-          {/* Library section */}
-          {libEvs.length>0&&(
-            <div style={{padding:'14px 16px',background:'#F9F7FF',borderRadius:14,border:'1px solid #E8E0F5'}}>
-              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:12}}>
-                <span style={{fontSize:14}}>📚</span>
-                <span style={{fontFamily:"'Montserrat',sans-serif",fontSize:10,fontWeight:800,color:'var(--violet)',textTransform:'uppercase',letterSpacing:'0.06em'}}>At Your Library</span>
-                <div style={{flex:1,height:1,background:'#E8E0F5'}}/>
-                <span style={{fontSize:10,color:'#9B8EC4'}}>{libEvs.length}</span>
-              </div>
-              <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {libEvs.map(e=><EventCard key={e.id} ev={e} onClick={oc}/>)}
-              </div>
-            </div>
-          )}
-        </>}
+      {/* ─── Continuous scroll content ─── */}
+      <div style={{maxWidth:720,margin:'0 auto',padding:'8px 16px 80px'}}>
+        {dates.map(ds=>(
+          <DaySection key={ds} dateStr={ds} evs={byDate[ds]||[]} label={dayLabel(ds)} onClick={oc}/>
+        ))}
 
         <div style={{padding:'28px 0',textAlign:'center'}}>
           <p style={{fontSize:12,color:'var(--text-3)',margin:'0 0 10px'}}>Know about an event we're missing?</p>
