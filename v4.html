@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZPZ Miami — v4 Live</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:#F1F0EE;min-height:100vh;-webkit-font-smoothing:antialiased}
+    ::-webkit-scrollbar{width:0;height:0}
+
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:500;opacity:0;pointer-events:none;transition:opacity 0.2s ease;display:flex;align-items:flex-end;justify-content:center}
+    .modal-overlay.desk{align-items:center}
+    .modal-overlay.open{opacity:1;pointer-events:auto}
+    .bsheet{width:100%;max-height:80vh;background:white;border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;box-shadow:0 -4px 30px rgba(0,0,0,0.15)}
+    .bsheet.open{transform:translateY(0)}
+    .dmodal{width:540px;max-height:80vh;background:white;border-radius:16px;transform:scale(0.95) translateY(10px);opacity:0;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.15)}
+    .dmodal.open{transform:scale(1) translateY(0);opacity:1}
+
+    .ctrl{position:sticky;top:0;z-index:999;background:rgba(15,23,42,0.97);backdrop-filter:blur(12px);padding:0 12px;display:flex;align-items:center;height:40px;gap:6px;overflow-x:auto}
+    .ctrl .l{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap}
+    .ct{display:flex;gap:1px;background:rgba(255,255,255,0.08);border-radius:5px;padding:2px;flex-shrink:0}
+    .ct button{padding:3px 8px;border-radius:4px;border:none;cursor:pointer;font-size:9px;font-weight:600;background:transparent;color:rgba(255,255,255,0.35);transition:all 0.15s;white-space:nowrap}
+    .ct button.a{background:rgba(255,255,255,0.15);color:white}
+    .loader{display:flex;align-items:center;justify-content:center;min-height:60vh;flex-direction:column;gap:12px}
+    .loader .spin{width:32px;height:32px;border:3px solid #F1F5F9;border-top-color:#FF4477;border-radius:50%;animation:sp 0.7s linear infinite}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    .err-box{max-width:400px;margin:80px auto;padding:24px;background:white;border-radius:12px;text-align:center;color:#64748B;font-size:14px}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+/* ═══════════════════════════════════ SUPABASE ═══════════════════════════════════ */
+const SUPABASE_URL = 'https://pomjqbjxosbfozvbvgsj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_8-9VIQPLrYfqxsoyGWjf8A_BO7UCLso';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function fetchEvents() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const { data, error } = await db
+    .from('events')
+    .select('id, title, editorial_headline, description, parent_summary, practical_notes, start_date, end_date, age_min, age_max, image_url, venue_name, neighborhood, is_free, price_min, price_max, source, activity_type, address, source_url, lat, lng')
+    .eq('is_canceled', false)
+    .eq('is_kid_friendly', true)
+    .gte('start_date', todayStr)
+    .order('start_date', { ascending: true })
+    .limit(400);
+  if (error) throw error;
+  return (data || []).filter(e => {
+    // Exclude adult-only events
+    const amin = e.age_min, amax = e.age_max;
+    if (amin != null && amin >= 13 && (amax == null || amax >= 13)) return false;
+    return true;
+  });
+}
+
+/* ═══════════════════════════════════ DATA TRANSFORM ═══════════════════════════════════ */
+function normalizeEvent(e) {
+  const sd = new Date(e.start_date);
+  // ET timezone date string
+  const etDate = sd.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  const etTime = sd.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+
+  // End time
+  let timeStr = etTime;
+  if (e.end_date) {
+    const ed = new Date(e.end_date);
+    const etEnd = ed.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+    timeStr = `${etTime} – ${etEnd}`;
+  }
+
+  // Price string
+  let prStr = 'Free';
+  let isFree = e.is_free;
+  if (!isFree) {
+    if (e.price_min && e.price_max && e.price_min !== e.price_max) {
+      prStr = `$${Math.round(e.price_min)}–$${Math.round(e.price_max)}`;
+    } else if (e.price_min) {
+      prStr = `$${Math.round(e.price_min)}`;
+    } else if (e.price_max) {
+      prStr = `$${Math.round(e.price_max)}`;
+    } else {
+      prStr = 'Free';
+      isFree = true;
+    }
+  }
+
+  // Age string
+  let ageStr = null;
+  if (e.age_min != null && e.age_max != null) {
+    ageStr = `${e.age_min}–${e.age_max}`;
+  } else if (e.age_min != null) {
+    ageStr = `${e.age_min}+`;
+  }
+
+  // Determine if "featured" — has editorial_headline AND image_url
+  const isFeatured = !!(e.editorial_headline && e.image_url);
+
+  // Is it a library source?
+  const isLib = e.source === 'miami_dade_libraries';
+
+  return {
+    id: e.id,
+    t: e.editorial_headline || e.title,
+    rawTitle: e.title,
+    v: e.venue_name || 'TBA',
+    tm: timeStr,
+    d: etDate,
+    dist: null, // TODO: compute from user location
+    dm: null,
+    pr: prStr,
+    free: isFree,
+    tp: isLib ? 'library' : 'event',
+    at: e.activity_type || 'other',
+    ed: e.parent_summary || (e.description ? e.description.slice(0, 200) : null),
+    img: e.image_url,
+    w: isFeatured ? 'f' : 's',
+    age: ageStr,
+    neighborhood: e.neighborhood,
+    source_url: e.source_url,
+    practical_notes: e.practical_notes,
+    address: e.address,
+    source: e.source,
+  };
+}
+
+/* ═══════════════════════════════════ CONSTANTS ═══════════════════════════════════ */
+const IC = { museum:"🏛️", outdoor:"🌴", festival:"🎪", craft:"🎨", storytime:"📖", workshop:"🔧", performance:"🎬", sports:"🏃", class:"🎵", camp:"⛺", games:"🎲", other:"📌" };
+const TC = { museum:"#E11D48", outdoor:"#0D9488", festival:"#D946EF", craft:"#F59E0B", storytime:"#8B5CF6", workshop:"#3B82F6", performance:"#EC4899", sports:"#10B981", class:"#F97316", camp:"#059669", games:"#6366F1", other:"#94A3B8" };
+const TL = { museum:"Museum", outdoor:"Outdoor", festival:"Festival", craft:"Art & Craft", storytime:"Storytime", workshop:"Workshop", performance:"Film & Stage", sports:"Sports", class:"Music & Class", camp:"Camp", games:"Games", other:"Other" };
+const DN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function ds(d){ return d.toISOString().slice(0,10); }
+function dsET(d){ return d.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
+function isWE(d){ return d.getDay()===0||d.getDay()===6; }
+function fmt(d){ return `${DN[d.getDay()]}, ${MN[d.getMonth()]} ${d.getDate()}`; }
+function shortD(d){ return DN[d.getDay()].slice(0,3); }
+function relLabel(d, today) {
+  const ts = dsET(today), es = dsET(d);
+  if (es===ts) return "Today";
+  const tom = new Date(today); tom.setDate(tom.getDate()+1);
+  if (es===dsET(tom)) return "Tomorrow";
+  return fmt(d);
+}
+
+/* ─── Build layout sections relative to "today" ─── */
+function buildLayout(events, today) {
+  const ts = dsET(today);
+  const future = events.filter(e=>e.d>=ts).sort((a,b)=>a.d.localeCompare(b.d));
+
+  // Find best featured event in next 14 days for hero teaser
+  const bestFeatured = future.find(e=>e.w==="f" && e.img);
+
+  // Find next Saturday
+  let nxSat = new Date(today);
+  while(nxSat.getDay()!==6) nxSat.setDate(nxSat.getDate()+1);
+  const nxSun = new Date(nxSat); nxSun.setDate(nxSun.getDate()+1);
+
+  const isWknd = isWE(today);
+  const sections = [];
+
+  // HERO TEASER: always show the best upcoming featured event at the very top
+  // On weekends where carousel is already at top, skip this (the carousel IS the hero)
+  const todayEvents = future.filter(e=>e.d===ts);
+  const todayFeatured = todayEvents.filter(e=>e.w==="f");
+  const needsHeroTeaser = !isWknd || todayFeatured.length === 0;
+
+  if (needsHeroTeaser && bestFeatured && bestFeatured.d !== ts) {
+    const hDate = new Date(bestFeatured.d+"T12:00:00");
+    sections.push({
+      type: "hero-teaser",
+      event: bestFeatured,
+      label: relLabel(hDate, today) === "Today" ? "Today" : (isWE(hDate) ? "This Weekend" : shortD(hDate)),
+    });
+  }
+
+  // Group remaining days
+  const allDays = [...new Set(future.map(e=>e.d))].sort();
+
+  // TODAY section
+  if (todayEvents.length) {
+    sections.push({ type:"day", date:new Date(ts+"T12:00:00"), events:todayEvents, isToday:true });
+  }
+
+  // Remaining days until next weekend
+  const preWeekend = allDays.filter(d => d > ts && d < dsET(nxSat));
+  if (preWeekend.length) {
+    const evs = future.filter(e => preWeekend.includes(e.d));
+    sections.push({ type:"weekgroup", label: isWknd ? "Next Week" : "This Week", days:preWeekend, events:evs });
+  }
+
+  // Weekend (if not today)
+  if (!isWknd || dsET(nxSat) !== ts) {
+    const wkndDays = [dsET(nxSat), dsET(nxSun)].filter(d => d > ts || (isWknd && d >= ts));
+    const actualWkndDays = wkndDays.filter(d => d !== ts);
+    actualWkndDays.forEach(d => {
+      const evs = future.filter(e=>e.d===d);
+      if (evs.length) sections.push({ type:"day", date:new Date(d+"T12:00:00"), events:evs, isToday:false, sectionTag:d===actualWkndDays[0]?"This Weekend":null });
+    });
+  }
+
+  // Beyond this weekend
+  const beyond = allDays.filter(d => d > dsET(nxSun));
+  if (beyond.length) {
+    const bWeekdays = beyond.filter(d => !isWE(new Date(d+"T12:00:00")));
+    const bWeekends = beyond.filter(d => isWE(new Date(d+"T12:00:00")));
+    if (bWeekdays.length) {
+      sections.push({ type:"weekgroup", label:"Next Week", days:bWeekdays, events:future.filter(e=>bWeekdays.includes(e.d)) });
+    }
+    bWeekends.forEach((d,i) => {
+      const evs = future.filter(e=>e.d===d);
+      if (evs.length) sections.push({ type:"day", date:new Date(d+"T12:00:00"), events:evs, isToday:false, sectionTag:i===0?"Next Weekend":null });
+    });
+  }
+
+  return sections;
+}
+
+
+/* ═══════════════════════════════════ SHARED UI ATOMS ═══════════════════════════════════ */
+function Drive({ m }) {
+  if (!m) return null;
+  const col = m<=10?"#059669":m<=20?"#78716C":"#94A3B8";
+  return (
+    <span style={{ display:"inline-flex", alignItems:"center", gap:3, fontSize:11, color:col, fontWeight:m<=10?600:500 }}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={col} strokeWidth="2.5" strokeLinecap="round"><rect x="1" y="6" width="22" height="12" rx="3"/><circle cx="6.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></svg>
+      {m} min
+    </span>
+  );
+}
+
+function Neighborhood({ n }) {
+  if (!n) return null;
+  return (
+    <span style={{ display:"inline-flex", alignItems:"center", gap:3, fontSize:11, color:"#64748B", fontWeight:500 }}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF4477" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      {n}
+    </span>
+  );
+}
+
+function Price({ e }) {
+  return <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:6, color:e.free?"#059669":"#64748B", background:e.free?"#ECFDF5":"#F1F5F9" }}>{e.pr}</span>;
+}
+
+function LibChip() {
+  return <span style={{ fontSize:9, fontWeight:700, color:"#7C3AED", background:"#F3F0FF", padding:"2px 6px", borderRadius:4, letterSpacing:"0.02em" }}>📚 LIBRARY</span>;
+}
+
+function AgeChip({ age }) {
+  if (!age) return null;
+  return <span style={{ fontSize:9, fontWeight:600, color:"#6D28D9", background:"#EDE9FE", padding:"2px 6px", borderRadius:4 }}>Ages {age}</span>;
+}
+
+
+/* ═══════════════════════════════════ MOBILE COMPONENTS ═══════════════════════════════════ */
+
+/* Hero Teaser — always above the fold on thin days */
+function HeroTeaser({ event, label, onClick }) {
+  const c = TC[event.at]||"#FF4477";
+  return (
+    <div onClick={()=>onClick(event)} style={{ margin:"12px 16px", borderRadius:14, overflow:"hidden", cursor:"pointer", background:"white", boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+      {event.img && (
+        <div style={{ height:150, background:`url(${event.img}) center/cover`, position:"relative" }}>
+          <div style={{ position:"absolute", inset:0, background:"linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 40%, transparent 70%)" }} />
+          <div style={{ position:"absolute", top:10, left:10 }}>
+            <span style={{ fontSize:10, fontWeight:700, color:"white", background:"rgba(255,255,255,0.2)", backdropFilter:"blur(8px)", padding:"3px 10px", borderRadius:6, textTransform:"uppercase", letterSpacing:"0.05em" }}>{label}</span>
+          </div>
+          <div style={{ position:"absolute", bottom:12, left:14, right:14 }}>
+            <h3 style={{ fontSize:18, fontWeight:800, color:"white", lineHeight:1.2, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 4px rgba(0,0,0,0.3)" }}>{event.t}</h3>
+          </div>
+        </div>
+      )}
+      <div style={{ padding:"10px 14px 12px" }}>
+        {event.ed && <p style={{ fontSize:12.5, color:"#475569", lineHeight:1.5, margin:"0 0 8px", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{event.ed}</p>}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <span style={{ fontSize:11, color:"#94A3B8" }}>{event.v}</span>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <Neighborhood n={event.neighborhood} />
+            <Price e={event} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Featured Card (for carousel) */
+function MFeatCard({ event, onClick, wide }) {
+  return (
+    <div onClick={()=>onClick(event)} style={{
+      background:"white", borderRadius:14, overflow:"hidden", cursor:"pointer",
+      boxShadow:"0 1px 6px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04)",
+      width:wide?"auto":"min(290px, 78vw)", flexShrink:0,
+    }}>
+      {event.img && (
+        <div style={{ height:wide?150:125, background:`url(${event.img}) center/cover`, position:"relative" }}>
+          <div style={{ position:"absolute", inset:0, background:"linear-gradient(0deg, rgba(0,0,0,0.55) 0%, transparent 50%)" }} />
+          <div style={{ position:"absolute", bottom:10, left:12, right:12 }}>
+            <h3 style={{ fontSize:15, fontWeight:800, color:"white", lineHeight:1.2, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 3px rgba(0,0,0,0.3)" }}>{event.t}</h3>
+          </div>
+          <div style={{ position:"absolute", top:8, right:8 }}><Price e={event} /></div>
+        </div>
+      )}
+      <div style={{ padding:"10px 12px 12px" }}>
+        {event.ed && <p style={{ fontSize:12, color:"#64748B", lineHeight:1.5, margin:"0 0 8px", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{event.ed}</p>}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <span style={{ fontSize:11, color:"#94A3B8" }}>{event.v}</span>
+          <Neighborhood n={event.neighborhood} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Event Row (v4: structured two-line layout) ─── */
+function MRow({ event, onClick }) {
+  const isLib = event.tp === "library";
+  const c = TC[event.at]||"#94A3B8";
+  return (
+    <div onClick={()=>onClick(event)} style={{ padding:"10px 16px", cursor:"pointer", transition:"background 0.1s" }}>
+      <div style={{ display:"flex", gap:11 }}>
+        {/* Left: icon */}
+        <div style={{ width:34, height:34, borderRadius:9, flexShrink:0, background:`${c}0A`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, marginTop:1 }}>
+          {IC[event.at]||"📌"}
+        </div>
+        {/* Middle: content */}
+        <div style={{ flex:1, minWidth:0 }}>
+          {/* Line 1: Title */}
+          <div style={{ fontSize:14, fontWeight:600, color:"#0F172A", lineHeight:1.3, marginBottom:3, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{event.t}</div>
+          {/* Line 2: Metadata */}
+          <div style={{ display:"flex", alignItems:"center", gap:0, fontSize:11, color:"#94A3B8", flexWrap:"wrap" }}>
+            <span style={{ fontWeight:500, color:"#64748B" }}>{event.v}</span>
+            <span style={{ margin:"0 5px", color:"#E2E8F0" }}>·</span>
+            <span>{event.tm}</span>
+            {event.neighborhood && <><span style={{ margin:"0 5px", color:"#E2E8F0" }}>·</span><Neighborhood n={event.neighborhood} /></>}
+            {isLib && <><span style={{ margin:"0 5px", color:"#E2E8F0" }}>·</span><LibChip /></>}
+            {event.age && <><span style={{ margin:"0 5px", color:"#E2E8F0" }}>·</span><AgeChip age={event.age} /></>}
+          </div>
+        </div>
+        {/* Right: price */}
+        <div style={{ flexShrink:0, paddingTop:2 }}><Price e={event} /></div>
+      </div>
+      {/* Separator */}
+      <div style={{ height:1, background:"#F1F5F9", marginTop:10, marginLeft:45 }} />
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════ DAY HEADER ═══════════════════════════════════ */
+function DayHead({ label, count, accent, isToday, tag }) {
+  return (
+    <div style={{ padding:"16px 16px 6px" }}>
+      {tag && <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:9, fontWeight:800, color:accent||"#FF4477", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:3 }}>{tag}</div>}
+      <div style={{ display:"flex", alignItems:"baseline", gap:8 }}>
+        <h2 style={{ fontFamily:"Montserrat,sans-serif", fontSize:16, fontWeight:900, color:"#0F172A", letterSpacing:"-0.02em", margin:0 }}>{label}</h2>
+        {isToday && <span style={{ fontSize:8, fontWeight:700, color:"white", background:accent||"#0D9488", padding:"2px 7px", borderRadius:3, textTransform:"uppercase" }}>Today</span>}
+      </div>
+      <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:4 }}>
+        <div style={{ height:2, width:20, borderRadius:1, background:accent||"#0D9488" }} />
+        <span style={{ fontSize:10, color:"#94A3B8" }}>{count} {count===1?"event":"events"}</span>
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════ DESKTOP COMPONENTS ═══════════════════════════════════ */
+
+function DCard({ event, onClick, large }) {
+  return (
+    <div onClick={()=>onClick(event)} style={{
+      background:"white", borderRadius:12, overflow:"hidden", cursor:"pointer",
+      boxShadow:"0 1px 4px rgba(0,0,0,0.04)",
+      transition:"box-shadow 0.2s, transform 0.15s",
+      display:"flex", flexDirection:"column",
+    }}
+    onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,0.08)";e.currentTarget.style.transform="translateY(-2px)"}}
+    onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 1px 4px rgba(0,0,0,0.04)";e.currentTarget.style.transform="none"}}
+    >
+      {event.img && (
+        <div style={{ height:large?200:140, background:`url(${event.img}) center/cover`, position:"relative" }}>
+          <div style={{ position:"absolute", inset:0, background:"linear-gradient(0deg, rgba(0,0,0,0.5) 0%, transparent 50%)" }} />
+          <div style={{ position:"absolute", bottom:10, left:12, right:12 }}>
+            <h3 style={{ fontSize:large?20:15, fontWeight:800, color:"white", lineHeight:1.2, margin:0, fontFamily:"Montserrat,sans-serif", textShadow:"0 1px 3px rgba(0,0,0,0.3)" }}>{event.t}</h3>
+          </div>
+          <div style={{ position:"absolute", top:8, right:8 }}><Price e={event} /></div>
+        </div>
+      )}
+      <div style={{ padding:"10px 14px 14px", flex:1, display:"flex", flexDirection:"column" }}>
+        {!event.img && <h3 style={{ fontSize:15, fontWeight:700, color:"#0F172A", lineHeight:1.3, margin:"0 0 4px" }}>{event.t}</h3>}
+        {event.ed && <p style={{ fontSize:12, color:"#64748B", lineHeight:1.5, margin:"0 0 8px", display:"-webkit-box", WebkitLineClamp:large?3:2, WebkitBoxOrient:"vertical", overflow:"hidden", flex:1 }}>{event.ed}</p>}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:"auto" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color:"#94A3B8" }}>
+            <span>{event.v}</span>
+            <span style={{ color:"#E2E8F0" }}>·</span>
+            <span>{event.tm}</span>
+          </div>
+          <Neighborhood n={event.neighborhood} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DRow({ event, onClick }) {
+  const isLib = event.tp==="library";
+  const c = TC[event.at]||"#94A3B8";
+  return (
+    <div onClick={()=>onClick(event)} style={{ display:"flex", alignItems:"center", gap:12, padding:"9px 16px", cursor:"pointer", borderRadius:8, transition:"background 0.1s", borderBottom:"1px solid #F8FAFC" }}
+      onMouseEnter={e=>e.currentTarget.style.background="#FAFAF9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+      <div style={{ width:32, height:32, borderRadius:8, flexShrink:0, background:`${c}0A`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14 }}>{IC[event.at]||"📌"}</div>
+      <div style={{ width:70, flexShrink:0, fontSize:12, fontWeight:600, color:"#64748B" }}>{event.tm.split("–")[0].trim()}</div>
+      <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ fontSize:13.5, fontWeight:600, color:"#0F172A", lineHeight:1.3, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{event.t}</div>
+        <div style={{ fontSize:11, color:"#94A3B8", marginTop:1, display:"flex", alignItems:"center", gap:5 }}>
+          <span>{event.v}</span>
+          {isLib && <LibChip />}
+          {event.age && <AgeChip age={event.age} />}
+        </div>
+      </div>
+      <Neighborhood n={event.neighborhood} />
+      <Price e={event} />
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════ EVENT DETAIL ═══════════════════════════════════ */
+function Detail({ event, vp, onClose }) {
+  if (!event) return null;
+  const c = TC[event.at]||"#FF4477";
+  const mob = vp==="mobile";
+  const evDate = new Date(event.d+"T12:00:00");
+
+  const mapsUrl = event.address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address)}`
+    : event.v ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.v + ' Miami')}` : '#';
+
+  const inner = (
+    <div>
+      {mob && <div style={{ width:36, height:4, borderRadius:2, background:"#E2E8F0", margin:"10px auto 4px" }} />}
+      {!mob && <div style={{ display:"flex", justifyContent:"flex-end", padding:"10px 14px 0" }}><button onClick={onClose} style={{ background:"#F8FAFC", border:"1px solid #F1F5F9", borderRadius:8, width:30, height:30, cursor:"pointer", fontSize:13, color:"#94A3B8", display:"flex", alignItems:"center", justifyContent:"center" }}>✕</button></div>}
+      {event.img && <div style={{ height:mob?170:200, background:`url(${event.img}) center/cover`, margin:mob?0:"0 16px", borderRadius:mob?0:12, overflow:"hidden" }} />}
+      <div style={{ padding:"14px 20px 24px" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:5, marginBottom:6, flexWrap:"wrap" }}>
+          <span style={{ fontSize:10, fontWeight:600, color:c, background:`${c}10`, padding:"2px 7px", borderRadius:5 }}>{IC[event.at]} {TL[event.at]||'Event'}</span>
+          {event.tp==="library" && <LibChip />}
+          {event.age && <AgeChip age={event.age} />}
+        </div>
+        <h2 style={{ fontSize:20, fontWeight:900, color:"#0F172A", lineHeight:1.2, margin:"0 0 6px", fontFamily:"Montserrat,sans-serif" }}>{event.t}</h2>
+        {event.ed && <p style={{ fontSize:13.5, color:"#475569", lineHeight:1.6, margin:"0 0 10px" }}>{event.ed}</p>}
+        {event.practical_notes && <p style={{ fontSize:12.5, color:"#64748B", lineHeight:1.5, margin:"0 0 14px", fontStyle:"italic" }}>{event.practical_notes}</p>}
+        <div style={{ background:"#F8FAFC", borderRadius:10, border:"1px solid #F1F5F9", overflow:"hidden", marginBottom:14 }}>
+          {[
+            { i:"📍", l:event.v, r: event.neighborhood ? <Neighborhood n={event.neighborhood} /> : null },
+            { i:"🗓", l:fmt(evDate), r:event.tm },
+            event.age ? { i:"👶", l:`Ages ${event.age}` } : null,
+          ].filter(Boolean).map((r,i,a) => (
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 14px", borderBottom:i<a.length-1?"1px solid #F1F5F9":"none" }}>
+              <span style={{ fontSize:14 }}>{r.i}</span>
+              <span style={{ fontSize:13, fontWeight:600, color:"#0F172A", flex:1 }}>{r.l}</span>
+              {r.r && <span style={{ fontSize:12, color:"#94A3B8" }}>{r.r}</span>}
+            </div>
+          ))}
+        </div>
+        {event.source_url && <a href={event.source_url} target="_blank" rel="noopener" style={{ display:"block", textAlign:"center", fontSize:14, fontWeight:700, color:"white", background:"#FF4477", textDecoration:"none", padding:"12px", borderRadius:10, marginBottom:8 }}>View & Get Tickets →</a>}
+        <div style={{ display:"flex", gap:8 }}>
+          <button onClick={()=>window.open(mapsUrl,'_blank')} style={{ flex:1, fontSize:11, fontWeight:600, color:"#64748B", background:"white", border:"1.5px solid #E2E8F0", borderRadius:8, padding:"9px 6px", cursor:"pointer" }}>🗺 Directions</button>
+          <button onClick={()=>{
+            const text = `Check out ${event.t} at ${event.v}!${event.source_url ? ' ' + event.source_url : ''}`;
+            if (navigator.share) navigator.share({ title: event.t, text, url: event.source_url });
+            else window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+          }} style={{ flex:1, fontSize:11, fontWeight:600, color:"#64748B", background:"white", border:"1.5px solid #E2E8F0", borderRadius:8, padding:"9px 6px", cursor:"pointer" }}>↗ Share</button>
+        </div>
+      </div>
+    </div>
+  );
+  return (
+    <div className={`modal-overlay open ${!mob?"desk":""}`} onClick={onClose}>
+      <div className={mob?"bsheet open":"dmodal open"} onClick={e=>e.stopPropagation()}>{inner}</div>
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════ MAIN ═══════════════════════════════════ */
+function App() {
+  const [vp, setVp] = useState(window.innerWidth < 700 ? "mobile" : "desktop");
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [sel, setSel] = useState(null);
+  const [simOverride, setSimOverride] = useState(null);
+  const oc = useCallback(e=>setSel(e),[]);
+  const cl = useCallback(()=>setSel(null),[]);
+
+  useEffect(() => {
+    fetchEvents()
+      .then(raw => {
+        const normalized = raw.map(normalizeEvent);
+        setEvents(normalized);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Supabase fetch error:', err);
+        setError(err.message || 'Failed to load events');
+        setLoading(false);
+      });
+  }, []);
+
+  // Responsive viewport
+  useEffect(() => {
+    const h = () => setVp(window.innerWidth < 700 ? "mobile" : "desktop");
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, []);
+
+  const today = simOverride ? new Date(simOverride + "T12:00:00") : new Date();
+  const layout = buildLayout(events, today);
+  const mob = vp==="mobile";
+
+  // Dynamic accent colors based on day of week
+  function getAccent(dateStr) {
+    const d = new Date(dateStr + "T12:00:00");
+    if (d.getDay() === 6) return "#F97316"; // Saturday
+    if (d.getDay() === 0) return "#E11D48"; // Sunday
+    return "#0D9488"; // Weekday
+  }
+  function getBg(dateStr) {
+    const d = new Date(dateStr + "T12:00:00");
+    if (d.getDay() === 6) return "linear-gradient(180deg, #FFF7ED 0%, #FDFCFB 100%)";
+    if (d.getDay() === 0) return "linear-gradient(180deg, #FFF1F2 0%, #FDFCFB 100%)";
+    return "transparent";
+  }
+
+  // Build sim day options from available event dates
+  const uniqueDates = [...new Set(events.map(e => e.d))].sort().slice(0, 8);
+  const simDays = uniqueDates.map(d => {
+    const dt = new Date(d + "T12:00:00");
+    return { k: d, l: `${shortD(dt)} ${dt.getDate()}` };
+  });
+
+  if (loading) return (
+    <div className="loader">
+      <div className="spin" />
+      <div style={{ fontSize:13, color:"#94A3B8", fontWeight:500 }}>Loading events from Supabase...</div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="err-box">
+      <div style={{ fontSize:24, marginBottom:8 }}>😵</div>
+      <div style={{ fontWeight:600, color:"#0F172A", marginBottom:4 }}>Failed to load events</div>
+      <div>{error}</div>
+    </div>
+  );
+
+  function renderMobile() {
+    return (
+      <div style={{ width:"100%", maxWidth:430, margin:"0 auto", background:"#FDFCFB", borderRadius:mob?0:20, overflow:"hidden", boxShadow:mob?"none":"0 4px 24px rgba(0,0,0,0.12)", minHeight:700 }}>
+        {/* Header */}
+        <div style={{ padding:"12px 16px", background:"white", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #F1F5F9" }}>
+          <div>
+            <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:22, fontWeight:900, color:"#FF4477", letterSpacing:"-0.04em", textTransform:"uppercase", lineHeight:1 }}>EZPZ</div>
+            <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:7, fontWeight:800, color:"#FACC15", textTransform:"uppercase", letterSpacing:"0.2em", marginTop:1 }}>MIAMI</div>
+          </div>
+          <div style={{ display:"flex", alignItems:"center", gap:5, fontSize:11, fontWeight:600, color:"#0F172A", background:"#F8FAFC", padding:"5px 10px", borderRadius:8, border:"1px solid #F1F5F9" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF4477" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Miami
+          </div>
+        </div>
+
+        {events.length === 0 ? (
+          <div style={{ padding:"60px 20px", textAlign:"center", color:"#94A3B8" }}>
+            <div style={{ fontSize:32, marginBottom:8 }}>🌴</div>
+            <div style={{ fontSize:14, fontWeight:600, color:"#64748B" }}>No upcoming events found</div>
+            <div style={{ fontSize:12, marginTop:4 }}>Check back soon — we update twice daily!</div>
+          </div>
+        ) : layout.map((s,i) => {
+          if (s.type === "hero-teaser") {
+            return <HeroTeaser key={i} event={s.event} label={s.label} onClick={oc} />;
+          }
+          if (s.type === "day") {
+            const feat = s.events.filter(e=>e.w==="f");
+            const rest = s.events.filter(e=>e.w!=="f");
+            const acc = getAccent(s.events[0].d);
+            const bg = getBg(s.events[0].d);
+            return (
+              <div key={i} style={{ background:bg }}>
+                <DayHead label={relLabel(s.date,today)} count={s.events.length} accent={acc} isToday={s.isToday} tag={s.sectionTag} />
+                {feat.length >= 2 ? (
+                  <div style={{ display:"flex", gap:12, overflowX:"auto", scrollbarWidth:"none", padding:"6px 16px 10px", WebkitOverflowScrolling:"touch" }}>
+                    {feat.map(e=><MFeatCard key={e.id} event={e} onClick={oc} />)}
+                  </div>
+                ) : feat.length === 1 && !(layout[0]?.type==="hero-teaser" && layout[0].event.id===feat[0].id) ? (
+                  <div style={{ padding:"6px 16px 10px" }}><MFeatCard event={feat[0]} onClick={oc} wide /></div>
+                ) : null}
+                {rest.map(e=><MRow key={e.id} event={e} onClick={oc} />)}
+              </div>
+            );
+          }
+          if (s.type === "weekgroup") {
+            const byDay = {};
+            s.events.forEach(e=>{ (byDay[e.d]=byDay[e.d]||[]).push(e); });
+            const sorted = Object.keys(byDay).sort();
+            return (
+              <div key={i} style={{ background:"linear-gradient(180deg, #F0FDFA 0%, #FDFCFB 100%)" }}>
+                <div style={{ padding:"16px 16px 4px" }}>
+                  <h2 style={{ fontFamily:"Montserrat,sans-serif", fontSize:16, fontWeight:900, color:"#0F172A", margin:0 }}>{s.label}</h2>
+                  <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:4 }}>
+                    <div style={{ height:2, width:20, borderRadius:1, background:"#0D9488" }} />
+                    <span style={{ fontSize:10, color:"#94A3B8" }}>{s.events.length} events near you</span>
+                  </div>
+                </div>
+                {sorted.map(dk => {
+                  const d = new Date(dk+"T12:00:00");
+                  const evs = byDay[dk];
+                  return (
+                    <div key={dk}>
+                      <div style={{ padding:"8px 16px 2px", display:"flex", alignItems:"center", gap:6 }}>
+                        <span style={{ fontFamily:"Montserrat,sans-serif", fontSize:10, fontWeight:800, color:"#64748B", textTransform:"uppercase" }}>{shortD(d)}</span>
+                        <span style={{ fontSize:10, color:"#CBD5E1" }}>{MN[d.getMonth()]} {d.getDate()}</span>
+                        <div style={{ flex:1, height:1, background:"#F1F5F9" }} />
+                      </div>
+                      {evs.map(e=><MRow key={e.id} event={e} onClick={oc} />)}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }
+          return null;
+        })}
+
+        <div style={{ padding:"20px 16px 28px", textAlign:"center", background:"linear-gradient(180deg, #FDFCFB 0%, #FFF1F2 100%)" }}>
+          <p style={{ fontSize:12, color:"#64748B", margin:"0 0 8px" }}>Know about an event we're missing?</p>
+          <button style={{ background:"white", color:"#FF4477", border:"1.5px solid #FF4477", borderRadius:10, padding:"10px 22px", fontSize:12, fontWeight:700, cursor:"pointer" }}>Submit an Event</button>
+        </div>
+      </div>
+    );
+  }
+
+  function renderDesktop() {
+    return (
+      <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 32px" }}>
+        {/* Header */}
+        <div style={{ padding:"18px 0 16px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #F1F5F9" }}>
+          <div>
+            <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:28, fontWeight:900, color:"#FF4477", letterSpacing:"-0.04em", textTransform:"uppercase", lineHeight:1 }}>EZPZ</div>
+            <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:8, fontWeight:800, color:"#FACC15", textTransform:"uppercase", letterSpacing:"0.2em", marginTop:2 }}>THE PLAYBOOK FOR MIAMI PARENTS</div>
+          </div>
+          <div style={{ display:"flex", alignItems:"center", gap:5, fontSize:13, fontWeight:600, color:"#0F172A", background:"#F8FAFC", padding:"8px 14px", borderRadius:8, border:"1px solid #F1F5F9" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF4477" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Miami
+          </div>
+        </div>
+
+        {events.length === 0 ? (
+          <div style={{ padding:"80px 20px", textAlign:"center", color:"#94A3B8" }}>
+            <div style={{ fontSize:40, marginBottom:12 }}>🌴</div>
+            <div style={{ fontSize:16, fontWeight:600, color:"#64748B" }}>No upcoming events found</div>
+            <div style={{ fontSize:13, marginTop:6 }}>Check back soon — we update twice daily!</div>
+          </div>
+        ) : layout.map((s,i) => {
+          if (s.type === "hero-teaser") {
+            const e = s.event;
+            return (
+              <div key={i} onClick={()=>oc(e)} style={{ margin:"24px 0 16px", borderRadius:16, overflow:"hidden", cursor:"pointer", display:"flex", background:"white", boxShadow:"0 2px 12px rgba(0,0,0,0.06)", transition:"box-shadow 0.2s" }}
+                onMouseEnter={ev=>ev.currentTarget.style.boxShadow="0 4px 24px rgba(0,0,0,0.1)"}
+                onMouseLeave={ev=>ev.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.06)"}>
+                {e.img && <div style={{ width:"55%", height:260, background:`url(${e.img}) center/cover`, position:"relative" }}>
+                  <div style={{ position:"absolute", top:14, left:14 }}>
+                    <span style={{ fontSize:11, fontWeight:700, color:"white", background:"rgba(255,255,255,0.2)", backdropFilter:"blur(8px)", padding:"4px 12px", borderRadius:6, textTransform:"uppercase", letterSpacing:"0.05em" }}>{s.label}</span>
+                  </div>
+                </div>}
+                <div style={{ flex:1, padding:"24px 28px", display:"flex", flexDirection:"column", justifyContent:"center" }}>
+                  <h3 style={{ fontFamily:"Montserrat,sans-serif", fontSize:22, fontWeight:900, color:"#0F172A", lineHeight:1.2, margin:"0 0 8px", letterSpacing:"-0.02em" }}>{e.t}</h3>
+                  {e.ed && <p style={{ fontSize:14, color:"#475569", lineHeight:1.6, margin:"0 0 14px" }}>{e.ed}</p>}
+                  <div style={{ display:"flex", alignItems:"center", gap:12, fontSize:12, color:"#94A3B8" }}>
+                    <span style={{ fontWeight:500 }}>{e.v}</span>
+                    <span style={{ color:"#E2E8F0" }}>·</span>
+                    <span>{e.tm}</span>
+                    {e.neighborhood && <><span style={{ color:"#E2E8F0" }}>·</span><Neighborhood n={e.neighborhood} /></>}
+                    <span style={{ marginLeft:"auto" }}><Price e={e} /></span>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          if (s.type === "day") {
+            const feat = s.events.filter(e=>e.w==="f");
+            const rest = s.events.filter(e=>e.w!=="f");
+            const acc = getAccent(s.events[0].d);
+            const heroId = layout[0]?.type==="hero-teaser" ? layout[0].event.id : null;
+            const showFeat = feat.filter(e=>e.id!==heroId);
+
+            return (
+              <div key={i} style={{ margin:"20px 0" }}>
+                <div style={{ display:"flex", alignItems:"baseline", gap:10, marginBottom:14 }}>
+                  {s.sectionTag && <span style={{ fontFamily:"Montserrat,sans-serif", fontSize:10, fontWeight:800, color:acc, textTransform:"uppercase", letterSpacing:"0.1em" }}>{s.sectionTag}</span>}
+                  {s.sectionTag && <span style={{ color:"#E2E8F0" }}>·</span>}
+                  <h2 style={{ fontFamily:"Montserrat,sans-serif", fontSize:20, fontWeight:900, color:"#0F172A", margin:0 }}>{relLabel(s.date,today)}</h2>
+                  {s.isToday && <span style={{ fontSize:10, fontWeight:700, color:"white", background:acc, padding:"2px 8px", borderRadius:4, textTransform:"uppercase" }}>Today</span>}
+                  <div style={{ flex:1 }} />
+                  <span style={{ fontSize:12, color:"#94A3B8" }}>{s.events.length} events</span>
+                </div>
+
+                {(showFeat.length > 0 || rest.length > 0) && (
+                  <div style={{ display:"grid", gridTemplateColumns: showFeat.length>=2 ? `repeat(${Math.min(showFeat.length,3)}, 1fr)` : showFeat.length===1 ? "1.2fr 1fr" : "1fr", gap:16 }}>
+                    {showFeat.map(e=><DCard key={e.id} event={e} onClick={oc} />)}
+                    {rest.length > 0 && (
+                      <div style={{ background:"white", borderRadius:12, padding:"8px 0", boxShadow:"0 1px 4px rgba(0,0,0,0.03)", gridColumn: showFeat.length>=3 ? "1 / -1" : "span 1", overflow:"hidden" }}>
+                        {rest.map(e=><DRow key={e.id} event={e} onClick={oc} />)}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          if (s.type === "weekgroup") {
+            const byDay = {};
+            s.events.forEach(e=>{ (byDay[e.d]=byDay[e.d]||[]).push(e); });
+            const sorted = Object.keys(byDay).sort();
+            return (
+              <div key={i} style={{ margin:"24px 0", padding:"20px 24px", background:"#F8FFFE", borderRadius:16, border:"1px solid #E0F2F1" }}>
+                <div style={{ display:"flex", alignItems:"baseline", gap:10, marginBottom:14 }}>
+                  <h2 style={{ fontFamily:"Montserrat,sans-serif", fontSize:20, fontWeight:900, color:"#0F172A", margin:0 }}>{s.label}</h2>
+                  <span style={{ fontSize:12, color:"#94A3B8" }}>{s.events.length} events near you</span>
+                </div>
+                <div style={{ display:"grid", gridTemplateColumns: sorted.length<=2 ? "1fr 1fr" : `repeat(${Math.min(sorted.length, 3)}, 1fr)`, gap:12 }}>
+                  {sorted.map(dk => {
+                    const d = new Date(dk+"T12:00:00");
+                    const evs = byDay[dk];
+                    return (
+                      <div key={dk} style={{ background:"white", borderRadius:10, padding:"12px 14px", border:"1px solid #F1F5F9" }}>
+                        <div style={{ fontFamily:"Montserrat,sans-serif", fontSize:11, fontWeight:800, color:"#0F172A", textTransform:"uppercase", marginBottom:8 }}>
+                          {shortD(d)} <span style={{ fontWeight:500, color:"#94A3B8", textTransform:"none" }}>{MN[d.getMonth()]} {d.getDate()}</span>
+                        </div>
+                        {evs.map(e => {
+                          const isLib = e.tp==="library";
+                          return (
+                            <div key={e.id} onClick={()=>oc(e)} style={{ display:"flex", alignItems:"center", gap:8, padding:"7px 0", cursor:"pointer", borderBottom:"1px solid #F8FAFC" }}>
+                              <span style={{ fontSize:13 }}>{IC[e.at]}</span>
+                              <div style={{ flex:1, minWidth:0 }}>
+                                <div style={{ fontSize:12.5, fontWeight:600, color:"#0F172A", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{e.t}</div>
+                                <div style={{ fontSize:10, color:"#94A3B8", display:"flex", alignItems:"center", gap:4, marginTop:1 }}>
+                                  <span>{e.tm}</span>
+                                  {isLib && <LibChip />}
+                                </div>
+                              </div>
+                              <Price e={e} />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })}
+
+        <div style={{ padding:"28px 0 40px", textAlign:"center" }}>
+          <p style={{ fontSize:13, color:"#94A3B8", margin:"0 0 10px" }}>Know about an event we're missing?</p>
+          <button style={{ background:"white", color:"#FF4477", border:"1.5px solid #FF4477", borderRadius:10, padding:"10px 24px", fontSize:13, fontWeight:700, cursor:"pointer" }}>Submit an Event</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ minHeight:"100vh" }}>
+      <div className="ctrl">
+        <span className="l">Sim Day:</span>
+        <div className="ct">
+          <button className={!simOverride?"a":""} onClick={()=>setSimOverride(null)}>Live</button>
+          {simDays.map(d=>(
+            <button key={d.k} className={simOverride===d.k?"a":""} onClick={()=>setSimOverride(d.k)}>{d.l}</button>
+          ))}
+        </div>
+        <span className="l" style={{ marginLeft:8 }}>View:</span>
+        <div className="ct">
+          {["mobile","desktop"].map(v=>(
+            <button key={v} className={vp===v?"a":""} onClick={()=>setVp(v)}>{v==="mobile"?"📱 Mobile":"🖥 Desktop"}</button>
+          ))}
+        </div>
+        <span className="l" style={{ marginLeft:8 }}>{events.length} events loaded</span>
+      </div>
+
+      <div style={{ padding:mob?"0 0 60px":"24px 0 40px" }}>
+        {mob ? renderMobile() : renderDesktop()}
+      </div>
+
+      {sel && <Detail event={sel} vp={vp} onClose={cl} />}
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+</script>
+</body>
+</html>
