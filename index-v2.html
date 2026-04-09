@@ -129,9 +129,11 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--page-out
 .lib-rtime { font-size: 11px; color: var(--text-3); flex-shrink: 0; }
 .lib-rdist { font-size: 10px; font-weight: 600; border-radius: 20px; padding: 2px 7px; background: var(--accent-tint); color: var(--accent-deep); flex-shrink: 0; }
 
-/* ── EVENT DETAIL OVERLAY ── */
-.event-detail { position: fixed; inset: 0; z-index: 400; background: var(--page-bg); overflow-y: auto; display: flex; flex-direction: column; }
-.event-detail.hidden { display: none; }
+/* ── EVENT DETAIL SIDEBAR ── */
+.ev-backdrop { position: fixed; inset: 0; z-index: 399; background: rgba(0,0,0,0.32); opacity: 0; pointer-events: none; transition: opacity 0.22s; }
+.ev-backdrop.open { opacity: 1; pointer-events: auto; }
+.event-detail { position: fixed; top: 0; right: 0; bottom: 0; width: 460px; max-width: 100vw; z-index: 400; background: var(--page-bg); overflow-y: auto; display: flex; flex-direction: column; box-shadow: -6px 0 36px rgba(0,0,0,0.18); transform: translateX(100%); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); }
+.event-detail.open { transform: translateX(0); }
 .ev-back { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: #111; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.55); cursor: pointer; flex-shrink: 0; user-select: none; }
 .ev-back:hover { color: white; }
 .ev-back svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; }
@@ -318,8 +320,9 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--page-out
   </div>
 </div>
 
-<!-- EVENT DETAIL OVERLAY -->
-<div class="event-detail hidden" id="eventDetail">
+<!-- EVENT DETAIL SIDEBAR -->
+<div class="ev-backdrop" id="evBackdrop" onclick="closeEventDetail()"></div>
+<div class="event-detail" id="eventDetail">
   <div class="ev-back" onclick="closeEventDetail()">
     <svg viewBox="0 0 18 18"><polyline points="11,4 6,9 11,14"/></svg>
     Back to What's On
@@ -563,7 +566,7 @@ function switchTab(tab, el) {
 async function loadEvents() {
   try {
     const { data, error } = await db.from('events')
-      .select('id,title,editorial_headline,parent_summary,practical_notes,source_url,image_url,start_date,venue_name,neighborhood,is_free,price_min,price_max,activity_type,age_min,age_max,source')
+      .select('id,title,editorial_headline,parent_summary,practical_notes,source_url,image_url,start_date,end_date,venue_name,neighborhood,is_free,price_min,price_max,activity_type,age_min,age_max,source')
       .eq('is_canceled', false)
       .eq('is_kid_friendly', true)
       .gte('start_date', new Date().toISOString().slice(0,10))
@@ -639,27 +642,28 @@ function renderEvents() {
 }
 
 function eventCard(e) {
-  const title   = e.editorial_headline || e.title;
-  const cat     = e.activity_type || 'other';
-  const price   = e.is_free ? 'Free' : (e.price_min ? '$'+e.price_min : null);
-  const ages    = ageLabel(e.age_min, e.age_max);
-  const distStr = eventDistLabel(e);
-  const venue   = e.venue_name || '';
-  const hood    = e.neighborhood || '';
-  const where   = venue + (hood && hood !== venue ? ' · ' + hood : '');
+  const title    = e.editorial_headline || e.title;
+  const cat      = e.activity_type || 'other';
+  const priceStr = e.is_free ? 'Free' : (e.price_min != null ? (e.price_max && e.price_max !== e.price_min ? `$${e.price_min}–$${e.price_max}` : `$${e.price_min}`) : null);
+  const ages     = ageLabel(e.age_min, e.age_max);
+  const distStr  = eventDistLabel(e);
+  const venue    = e.venue_name || '';
+  const hood     = e.neighborhood || '';
+  const where    = venue + (hood && hood !== venue ? ' · ' + hood : '');
+  const timeStr  = fmtTimeRange(e.start_date, e.end_date);
 
   return `<div class="ec cat-${cat}" onclick="openEvent('${e.id}')">
     <div class="ec-type">${cat.replace(/_/g,' ')}</div>
     <div class="ec-title">${esc(title)}</div>
     <div class="ec-desc">${esc(e.parent_summary||'')}</div>
     <div class="ec-meta">
-      ${where ? `<div class="ec-meta-r"><span class="ec-ml">Where</span><span class="ec-mv">${esc(where)}</span></div>` : ''}
-      <div class="ec-meta-r"><span class="ec-ml">When</span><span class="ec-mv">${fmtTime(e.start_date)}</span></div>
+      ${where    ? `<div class="ec-meta-r"><span class="ec-ml">Where</span><span class="ec-mv">${esc(where)}</span></div>` : ''}
+      ${timeStr  ? `<div class="ec-meta-r"><span class="ec-ml">When</span><span class="ec-mv">${timeStr}</span></div>` : ''}
+      ${priceStr ? `<div class="ec-meta-r"><span class="ec-ml">Price</span><span class="ec-mv">${priceStr}</span></div>` : ''}
+      ${ages     ? `<div class="ec-meta-r"><span class="ec-ml">Ages</span><span class="ec-mv">${ages}</span></div>` : ''}
     </div>
     <div class="ec-pills">
-      ${price  ? `<span class="pill fr">${price}</span>` : ''}
-      ${ages   ? `<span class="pill age">${ages}</span>` : ''}
-      ${distStr? `<span class="pill dist">${distStr}</span>` : ''}
+      ${distStr ? `<span class="pill dist">${distStr}</span>` : ''}
     </div>
   </div>`;
 }
@@ -712,14 +716,15 @@ function openEvent(id) {
   document.getElementById('ed-pills').innerHTML = pills;
 
   // Meta grid
-  const evDate = new Date(e.start_date);
-  const dateStr = evDate.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  const timeStr = fmtTime(e.start_date);
-  const where   = [e.venue_name, e.neighborhood].filter(Boolean).join(' · ');
-  const price   = e.is_free ? 'Free' : (e.price_min && e.price_max ? `$${e.price_min}–$${e.price_max}` : e.price_min ? `Starting at $${e.price_min}` : 'See website');
-  const ageStr  = ageLabel(e.age_min, e.age_max) || 'All ages';
+  const evDate   = new Date(e.start_date);
+  const dateStr  = evDate.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const timeStr  = fmtTimeRange(e.start_date, e.end_date);
+  const where    = [e.venue_name, e.neighborhood].filter(Boolean).join(' · ');
+  const price    = e.is_free ? 'Free' : (e.price_min != null ? (e.price_max && e.price_max !== e.price_min ? `$${e.price_min}–$${e.price_max}` : `$${e.price_min}`) : 'See website');
+  const ageStr   = ageLabel(e.age_min, e.age_max) || 'All ages';
+  const whenFull = timeStr ? `${dateStr} · ${timeStr}` : dateStr;
 
-  let meta = `<div class="ev-mc full"><div class="ev-mc-lbl">When</div><div class="ev-mc-val">${dateStr} · ${timeStr}</div></div>`;
+  let meta = `<div class="ev-mc full"><div class="ev-mc-lbl">When</div><div class="ev-mc-val">${whenFull}</div></div>`;
   if (where) {
     const mapsLink = `https://maps.google.com/?q=${encodeURIComponent(where)}`;
     meta += `<div class="ev-mc full"><div class="ev-mc-lbl">Where</div><div class="ev-mc-val"><a href="${mapsLink}" target="_blank" rel="noopener">${esc(where)}</a></div></div>`;
@@ -741,13 +746,15 @@ function openEvent(id) {
   if (e.source_url) { cta.href = e.source_url; cta.classList.remove('hidden'); }
   else { cta.classList.add('hidden'); }
 
-  document.getElementById('eventDetail').classList.remove('hidden');
+  document.getElementById('eventDetail').classList.add('open');
+  document.getElementById('evBackdrop').classList.add('open');
   document.getElementById('eventDetail').scrollTop = 0;
   document.body.style.overflow = 'hidden';
 }
 
 function closeEventDetail() {
-  document.getElementById('eventDetail').classList.add('hidden');
+  document.getElementById('eventDetail').classList.remove('open');
+  document.getElementById('evBackdrop').classList.remove('open');
   document.body.style.overflow = '';
 }
 
@@ -921,6 +928,13 @@ function closePlaceDetail() {
 /* ─── Utilities ─── */
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtTime(iso) { if(!iso) return ''; const d=new Date(iso); return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}).replace(':00 ',' '); }
+function fmtTimeRange(start, end) {
+  if (!start) return '';
+  const s = fmtTime(start);
+  if (!end) return s;
+  const e = fmtTime(end);
+  return s === e ? s : s + ' – ' + e;
+}
 function ageLabel(min,max) { if(min==null&&max==null) return ''; if(min===0&&(max==null||max>=12)) return 'All ages'; if(min!=null&&max!=null) return `Ages ${min}–${max}`; return min!=null?`Ages ${min}+`:''; }
 function haversine(lat1,lng1,lat2,lng2) {
   const R=3958.8, dLat=(lat2-lat1)*Math.PI/180, dLng=(lng2-lng1)*Math.PI/180;
