@@ -82,17 +82,18 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--page-out
 .event-grid .lib-card { grid-column: 1 / -1; }
 
 /* ── EVENT CARD ── */
-.ec { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05); cursor: pointer; transition: box-shadow 0.12s, transform 0.12s; border-left: 3.5px solid var(--cat-other); padding: 14px 16px 12px; }
+.ec { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05); cursor: pointer; transition: box-shadow 0.12s, transform 0.12s; padding: 14px 16px 12px; }
 .ec:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.10); transform: translateY(-1px); }
-.ec.cat-outdoor    { border-left-color: var(--cat-outdoor); }
-.ec.cat-workshop   { border-left-color: var(--cat-workshop); }
-.ec.cat-storytime  { border-left-color: var(--cat-storytime); }
-.ec.cat-festival   { border-left-color: var(--cat-festival); }
-.ec.cat-performance{ border-left-color: var(--cat-performance); }
-.ec.cat-sports     { border-left-color: var(--cat-sports); }
-.ec.cat-craft      { border-left-color: var(--cat-craft); }
-.ec.cat-museum     { border-left-color: var(--cat-museum); }
-.ec-type  { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-3); margin-bottom: 3px; }
+/* Eyebrow badge — colored pill showing activity type */
+.ec-type { display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: white; border-radius: 4px; padding: 2px 6px; margin-bottom: 7px; background: var(--cat-other); }
+.ec.cat-outdoor    .ec-type { background: var(--cat-outdoor); }
+.ec.cat-workshop   .ec-type { background: var(--cat-workshop); }
+.ec.cat-storytime  .ec-type { background: var(--cat-storytime); }
+.ec.cat-festival   .ec-type { background: var(--cat-festival); }
+.ec.cat-performance .ec-type { background: var(--cat-performance); }
+.ec.cat-sports     .ec-type { background: var(--cat-sports); }
+.ec.cat-craft      .ec-type { background: var(--cat-craft); }
+.ec.cat-museum     .ec-type { background: var(--cat-museum); }
 .ec-title { font-size: 14px; font-weight: 700; color: var(--text-1); letter-spacing: -0.2px; line-height: 1.28; margin-bottom: 5px; }
 .ec-desc  { font-size: 12px; color: var(--text-2); line-height: 1.5; margin-bottom: 9px; font-style: italic; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 /* Compact meta rows */
@@ -123,11 +124,12 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--page-out
 .lib-row { display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-bottom: 1px solid var(--border-light); cursor: pointer; transition: background 0.1s; }
 .lib-row:last-child { border-bottom: none; }
 .lib-row:hover { background: var(--accent-light); }
-.lib-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; flex-shrink: 0; }
-.lib-rname { flex: 1; font-size: 13px; font-weight: 600; color: var(--text-1); min-width: 0; }
-.lib-rdetail { font-size: 11px; color: var(--text-3); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lib-rtime { font-size: 11px; color: var(--text-3); flex-shrink: 0; }
-.lib-rdist { font-size: 10px; font-weight: 600; border-radius: 20px; padding: 2px 7px; background: var(--accent-tint); color: var(--accent-deep); flex-shrink: 0; }
+.lib-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.lib-rinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.lib-rname { font-size: 13px; font-weight: 600; color: var(--text-1); }
+.lib-rdetail { font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-rbranch-count { color: var(--accent-deep); font-weight: 600; }
+.lib-rdist { font-size: 10px; font-weight: 600; border-radius: 20px; padding: 2px 7px; background: var(--accent-tint); color: var(--accent-deep); flex-shrink: 0; align-self: flex-start; }
 
 /* ── EVENT DETAIL SIDEBAR ── */
 .ev-backdrop { position: fixed; inset: 0; z-index: 399; background: rgba(0,0,0,0.32); opacity: 0; pointer-events: none; transition: opacity 0.22s; }
@@ -196,9 +198,11 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--page-out
 #placesMap { width: 100%; height: 100%; }
 @media (max-width: 720px) { .exp-map-col { display: none; } }
 
-/* ── PLACE DETAIL OVERLAY ── */
-.place-detail { position: fixed; inset: 0; z-index: 400; background: var(--page-bg); overflow-y: auto; display: flex; flex-direction: column; }
-.place-detail.hidden { display: none; }
+/* ── PLACE DETAIL SIDEBAR ── */
+.pl-backdrop { position: fixed; inset: 0; z-index: 399; background: rgba(0,0,0,0.32); opacity: 0; pointer-events: none; transition: opacity 0.22s; }
+.pl-backdrop.open { opacity: 1; pointer-events: auto; }
+.place-detail { position: fixed; top: 0; right: 0; bottom: 0; width: 460px; max-width: 100vw; z-index: 400; background: var(--page-bg); overflow-y: auto; display: flex; flex-direction: column; box-shadow: -6px 0 36px rgba(0,0,0,0.18); transform: translateX(100%); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); }
+.place-detail.open { transform: translateX(0); }
 .pl-back { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: #111; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.55); cursor: pointer; flex-shrink: 0; }
 .pl-back:hover { color: white; }
 .pl-back svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; }
@@ -345,14 +349,15 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--page-out
   </div>
   <div class="ev-actions">
     <a class="ev-cta hidden" id="ed-cta" href="#" target="_blank" rel="noopener">
-      View &amp; Get Tickets
+      <span class="ev-cta-label">View Event Details</span>
       <svg viewBox="0 0 14 14"><path d="M3 2h9v9M12 2L2 12"/></svg>
     </a>
   </div>
 </div>
 
-<!-- PLACE DETAIL OVERLAY -->
-<div class="place-detail hidden" id="placeDetail">
+<!-- PLACE DETAIL SIDEBAR -->
+<div class="pl-backdrop" id="plBackdrop" onclick="closePlaceDetail()"></div>
+<div class="place-detail" id="placeDetail">
   <div class="pl-back" onclick="closePlaceDetail()">
     <svg viewBox="0 0 18 18"><polyline points="11,4 6,9 11,14"/></svg>
     Back to Explore
@@ -504,6 +509,23 @@ const CAT_LABEL = {
 };
 const CAT_ORDER = ['outdoor_play','eat_and_treat','rainy_day','nature_and_adventure','arts_and_culture'];
 
+// Source → CTA button label
+const SOURCE_CTA = {
+  eventbrite:              'Get Tickets on Eventbrite',
+  eventbrite_venues:       'Get Tickets on Eventbrite',
+  meetup:                  'View on Meetup',
+  miami_dade_libraries:    'View at Library',
+  miami_childrens_museum:  'View at Children\'s Museum',
+  arsht_center:            'Get Tickets at Arsht Center',
+  frost_science:           'View at Frost Science',
+  zoo_miami:               'View at Zoo Miami',
+  the_underline:           'View at The Underline',
+  miami_dade_parks:        'View at Miami-Dade Parks',
+  pinecrest_gardens:       'View at Pinecrest Gardens',
+  facebook_apify:          'View on Facebook',
+};
+function ctaLabel(source) { return SOURCE_CTA[source] || 'View Event Details'; }
+
 let userZone    = localStorage.getItem('ezpz_zone') || null;
 let pendingZone = null;
 let plcFilter   = 'all';
@@ -573,7 +595,8 @@ async function loadEvents() {
       .order('start_date', { ascending: true })
       .limit(500);
     if (error) throw error;
-    allEvents = data || [];
+    // Strip events whose only link is an Instagram post — no booking value
+    allEvents = (data || []).filter(e => !(e.source_url || '').match(/instagram\.com/i));
     renderEvents();
   } catch(e) {
     document.getElementById('eventFeed').innerHTML =
@@ -619,22 +642,29 @@ function renderEvents() {
     const d         = new Date(day + 'T12:00:00');
     const label     = day===todayStr ? 'Today' : day===tomorrowStr ? 'Tomorrow' : d.toLocaleDateString('en-US',{weekday:'long'});
     const dateStr   = d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    const otherEvts = dayEvts.filter(e => !e.source?.includes('libraries'));
-    let   libEvts   = dayEvts.filter(e => e.source?.includes('libraries'));
+    const isLib       = e => e.source?.includes('libraries');
+    // Unique library programs (workshop, performance, festival, craft) → standard card
+    const isLibStandalone = e => isLib(e) && LIB_STANDALONE_TYPES.has(e.activity_type);
 
-    // Zone-filter libraries: only branches in user's zone
-    if (userZone && libEvts.length) {
-      const zoneLibs = libEvts.filter(e => getEventZone(e) === userZone);
-      libEvts = zoneLibs;
+    const otherEvts   = dayEvts.filter(e => !isLib(e));
+    const libStandEvts = dayEvts.filter(e => isLibStandalone(e));
+    let   libGroupEvts = dayEvts.filter(e => isLib(e) && !isLibStandalone(e));
+
+    // Zone-filter library group: only branches in user's zone
+    if (userZone && libGroupEvts.length) {
+      libGroupEvts = libGroupEvts.filter(e => getEventZone(e) === userZone);
     }
+
+    // All standard cards: non-library + unique library programs
+    const standardEvts = [...otherEvts, ...libStandEvts];
 
     html += `<div class="day-section"><div class="day-header">
       <span class="day-name">${label}</span>
       <span class="day-date">${dateStr}</span>
     </div><div class="event-grid">`;
 
-    otherEvts.forEach(e => { html += eventCard(e); });
-    if (libEvts.length) html += libCard(libEvts, day);
+    standardEvts.forEach(e => { html += eventCard(e); });
+    if (libGroupEvts.length) html += libCard(libGroupEvts, day);
     html += `</div></div>`;
   });
 
@@ -668,21 +698,56 @@ function eventCard(e) {
   </div>`;
 }
 
+// Library events with these activity types are standalone programs → standard event card
+const LIB_STANDALONE_TYPES = new Set(['workshop','performance','festival','craft','museum']);
+
 function libCard(events, day) {
   const id = 'lib-' + day;
-  const rows = events.map(e => {
-    const distStr = eventDistLabel(e);
-    return `<div class="lib-row" onclick="openEvent('${e.id}')">
-      <span class="lib-dot"></span>
-      <span class="lib-rname">${esc(e.editorial_headline||e.title)}<span class="lib-rdetail">${esc(e.venue_name||'')}</span></span>
-      <span class="lib-rtime">${fmtTime(e.start_date)}</span>
-      ${distStr ? `<span class="lib-rdist">${distStr}</span>` : ''}
-    </div>`;
+
+  // Group by normalized title to collapse multi-branch repeats (Homework Help, Storytime, etc.)
+  const groups = new Map();
+  events.forEach(e => {
+    const key = (e.title || '').toLowerCase().trim();
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(e);
+  });
+
+  const rows = [...groups.values()].map(group => {
+    const first = group[0];
+    const timeStr = fmtTimeRange(first.start_date, first.end_date);
+    const headline = first.editorial_headline || first.title;
+
+    if (group.length === 1) {
+      // Single branch — clickable row
+      const distStr = eventDistLabel(first);
+      const branch  = first.venue_name || '';
+      return `<div class="lib-row" onclick="openEvent('${first.id}')">
+        <span class="lib-dot"></span>
+        <div class="lib-rinfo">
+          <span class="lib-rname">${esc(headline)}</span>
+          <span class="lib-rdetail">${esc(branch)}${timeStr ? ' · ' + timeStr : ''}</span>
+        </div>
+        ${distStr ? `<span class="lib-rdist">${distStr}</span>` : ''}
+      </div>`;
+    } else {
+      // Multiple branches — collapsed into one row, click opens first
+      const branchNames = group.map(e => (e.venue_name||'').replace(/ branch$/i,'').replace(/ library$/i,'').trim()).join(' · ');
+      return `<div class="lib-row" onclick="openEvent('${first.id}')">
+        <span class="lib-dot"></span>
+        <div class="lib-rinfo">
+          <span class="lib-rname">${esc(headline)}</span>
+          <span class="lib-rdetail">${esc(branchNames)}</span>
+          <span class="lib-rdetail lib-rbranch-count">${group.length} branches${timeStr ? ' · ' + timeStr : ''}</span>
+        </div>
+      </div>`;
+    }
   }).join('');
+
+  const totalGroups = groups.size;
   return `<div class="lib-card">
     <div class="lib-hdr" onclick="toggleLib('${id}')">
       <div class="lib-icon-wrap"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
-      <div class="lib-info"><div class="lib-title">Miami-Dade Libraries</div><div class="lib-sub">${events.length} program${events.length>1?'s':''}</div></div>
+      <div class="lib-info"><div class="lib-title">Miami-Dade Libraries</div><div class="lib-sub">${totalGroups} program${totalGroups>1?'s':''}</div></div>
       <span class="lib-chev open" id="chev-${id}">▾</span>
     </div>
     <div class="lib-rows open" id="${id}">${rows}</div>
@@ -743,8 +808,11 @@ function openEvent(id) {
 
   // CTA
   const cta = document.getElementById('ed-cta');
-  if (e.source_url) { cta.href = e.source_url; cta.classList.remove('hidden'); }
-  else { cta.classList.add('hidden'); }
+  if (e.source_url) {
+    cta.href = e.source_url;
+    cta.querySelector('.ev-cta-label').textContent = ctaLabel(e.source);
+    cta.classList.remove('hidden');
+  } else { cta.classList.add('hidden'); }
 
   document.getElementById('eventDetail').classList.add('open');
   document.getElementById('evBackdrop').classList.add('open');
@@ -915,13 +983,15 @@ function openPlace(id) {
   if (p.website_url) { webBtn.href = p.website_url; webBtn.classList.remove('hidden'); }
   else { webBtn.classList.add('hidden'); }
 
-  document.getElementById('placeDetail').classList.remove('hidden');
+  document.getElementById('placeDetail').classList.add('open');
+  document.getElementById('plBackdrop').classList.add('open');
   document.getElementById('placeDetail').scrollTop = 0;
   document.body.style.overflow = 'hidden';
 }
 
 function closePlaceDetail() {
-  document.getElementById('placeDetail').classList.add('hidden');
+  document.getElementById('placeDetail').classList.remove('open');
+  document.getElementById('plBackdrop').classList.remove('open');
   document.body.style.overflow = '';
 }
 
