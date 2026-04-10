@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZPZ Miami — Mobile Location UX Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Montserrat:wght@800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --flamingo:   #FF4477;
+      --coral:      #FF8C70;
+      --violet:     #8B5CF6;
+      --teal:       #0D9488;
+      --yellow:     #FACC15;
+      --bg:         #FDFCFB;
+      --bg-white:   #FFFFFF;
+      --text-1:     #0F172A;
+      --text-2:     #475569;
+      --text-3:     #94A3B8;
+      --border:     #F1F5F9;
+      --border-med: #E2E8F0;
+      --free:       #059669;
+      --header-h:   68px;
+      --tab-h:      68px;
+      --loc-h:      52px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--text-1);
+      min-height: 100vh; max-width: 430px; margin: 0 auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── MOCKUP CONTROLS ─── */
+    .mockup-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+      background: #0F172A; padding: 10px 16px;
+      display: flex; flex-wrap: wrap; align-items: center;
+      justify-content: center; gap: 8px;
+    }
+    .mockup-bar-label {
+      font-size: 10px; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.1em; width: 100%; text-align: center;
+    }
+    .state-btn {
+      padding: 6px 14px; border-radius: 8px; border: 1.5px solid #334155;
+      background: #1E293B; font-size: 12px; font-weight: 700; cursor: pointer;
+      font-family: inherit; color: #94A3B8; transition: all 0.15s;
+    }
+    .state-btn.active { background: var(--teal); border-color: var(--teal); color: white; }
+    .mockup-spacer { height: 80px; }
+
+    /* ════════════════════════════
+       HEADER — 68px, matches live
+    ════════════════════════════ */
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      height: var(--header-h);
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .header-inner {
+      height: 100%; padding: 0 20px;
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .logo { display: flex; flex-direction: column; text-decoration: none; }
+    .logo-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 24px; font-weight: 900;
+      letter-spacing: -0.04em; text-transform: uppercase;
+      color: var(--flamingo); line-height: 1;
+    }
+    .logo-tag {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7.5px; font-weight: 800; color: var(--yellow);
+      text-transform: uppercase; letter-spacing: 0.2em;
+      line-height: 1; margin-top: 3px;
+    }
+
+    /* ── Header right-side: all location states live here ── */
+    .header-loc {
+      display: flex; align-items: center; flex-shrink: 0;
+    }
+
+    /* ─────────────────────────────────────
+       DEFAULT STATE — Side-by-side
+       Tip text to the left of the button,
+       same row. Perfectly aligned with logo.
+    ───────────────────────────────────── */
+    .hloc-default {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .hloc-default-tip {
+      font-size: 10px; font-weight: 500;
+      color: var(--teal); opacity: 0.8;
+      white-space: nowrap; letter-spacing: 0.01em;
+      text-align: right; line-height: 1.3;
+    }
+    .hloc-default-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 13px;
+      background: var(--teal); border: none; border-radius: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px; font-weight: 900;
+      text-transform: uppercase; letter-spacing: 0.03em;
+      color: white; cursor: pointer; white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(13,148,136,0.25);
+    }
+
+    /* ─────────────────────────────────────
+       STATE 2: inline zip input (shared)
+    ───────────────────────────────────── */
+    .hloc-input {
+      display: none; align-items: center; gap: 6px;
+    }
+    .hloc-input.active { display: flex; }
+    .hloc-zip-field {
+      width: 74px; padding: 7px 8px;
+      border: 2px solid var(--teal); border-radius: 9px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px; font-weight: 900;
+      color: var(--text-1); text-align: center;
+      letter-spacing: 0.06em; outline: none; background: white;
+      transition: border-color 0.15s;
+    }
+    .hloc-zip-field:focus { border-color: var(--flamingo); }
+    .hloc-zip-field::placeholder {
+      color: var(--text-3); font-size: 12px;
+      font-weight: 600; letter-spacing: 0;
+    }
+    .hloc-go {
+      padding: 7px 12px; border: none; border-radius: 9px;
+      background: var(--teal); color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px; font-weight: 900;
+      text-transform: uppercase; cursor: pointer; white-space: nowrap;
+    }
+    .hloc-gps {
+      display: flex; align-items: center;
+      padding: 7px 9px;
+      background: rgba(13,148,136,0.08);
+      border: 1.5px solid rgba(13,148,136,0.25);
+      border-radius: 9px; cursor: pointer; color: var(--teal);
+    }
+    .hloc-cancel {
+      font-size: 11px; font-weight: 600; color: var(--text-3);
+      cursor: pointer; background: none; border: none;
+      font-family: inherit; padding: 4px 2px; white-space: nowrap;
+    }
+
+    /* STATE 3: compact zip badge (shared) */
+    .hloc-set {
+      display: none; align-items: center; gap: 5px;
+      padding: 7px 11px;
+      background: rgba(13,148,136,0.08);
+      border: 1.5px solid rgba(13,148,136,0.25);
+      border-radius: 10px; cursor: pointer;
+    }
+    .hloc-set.active { display: flex; }
+    .hloc-badge-zip {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px; font-weight: 900; color: var(--teal);
+    }
+    .hloc-badge-sep { font-size: 10px; color: var(--text-3); margin: 0 2px; }
+    .hloc-badge-hood { font-size: 12px; font-weight: 600; color: var(--text-2); }
+
+    /* ════════════════════════════
+       TAB ACCENT LINE + TAB BAR
+       Hanging cards, matches live
+    ════════════════════════════ */
+    .tab-accent-line {
+      height: 3px; background: var(--flamingo);
+      position: sticky; top: var(--header-h); z-index: 95;
+      transition: background 0.2s;
+    }
+    .tab-bar-wrap {
+      position: sticky;
+      top: calc(var(--header-h) + 3px);
+      z-index: 94;
+      background: var(--bg-white);
+      padding: 0 12px 10px;
+    }
+    .tab-bar { display: flex; gap: 8px; }
+    .tab-btn {
+      flex: 1; border: 1.5px solid #E8E6E3; border-top: none;
+      background: #FAFAF9; border-radius: 0 0 14px 14px;
+      padding: 10px 6px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-family: inherit; transition: all 0.2s ease;
+    }
+    .tab-icon { font-size: 16px; line-height: 1; }
+    .tab-label {
+      font-size: 10px; font-weight: 800; color: var(--text-2);
+      text-align: center; line-height: 1.25;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .tab-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 22px; height: 18px; padding: 0 7px; border-radius: 10px;
+      background: #E5E4E1; font-size: 10px; font-weight: 800;
+      color: var(--text-2); line-height: 1;
+    }
+    .tab-btn[data-tab="events"].active {
+      background: rgba(255,68,119,0.06); border-color: var(--flamingo);
+      box-shadow: 0 3px 8px rgba(255,68,119,0.1);
+    }
+    .tab-btn[data-tab="events"].active .tab-label  { color: var(--flamingo); }
+    .tab-btn[data-tab="events"].active .tab-badge  { background: var(--flamingo); color: white; }
+    .tab-btn[data-tab="library"].active {
+      background: rgba(139,92,246,0.06); border-color: var(--violet);
+    }
+    .tab-btn[data-tab="library"].active .tab-label { color: var(--violet); }
+    .tab-btn[data-tab="library"].active .tab-badge { background: var(--violet); color: white; }
+    .tab-btn[data-tab="places"].active {
+      background: rgba(13,148,136,0.06); border-color: var(--teal);
+    }
+    .tab-btn[data-tab="places"].active .tab-label  { color: var(--teal); }
+    .tab-btn[data-tab="places"].active .tab-badge  { background: var(--teal); color: white; }
+
+
+    /* ════════════════════════════
+       DATE STRIP
+    ════════════════════════════ */
+    .date-strip {
+      position: sticky;
+      top: calc(var(--header-h) + 3px + var(--tab-h));
+      z-index: 92;
+      background: linear-gradient(180deg, #FFF8E1 0%, #FFFBEB 100%);
+      border-bottom: 2px solid #FCD34D;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .date-strip::-webkit-scrollbar { display: none; }
+    .date-strip-inner { display: flex; padding: 0 16px; }
+    .date-btn {
+      flex-shrink: 0; width: 52px; padding: 8px 0 6px;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      border: none; background: transparent; cursor: pointer;
+      border-radius: 8px; margin: 3px 1px;
+    }
+    .date-btn .day-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px; font-weight: 900; text-transform: uppercase; color: var(--text-3);
+    }
+    .date-btn .day-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 19px; font-weight: 900; color: var(--text-3);
+    }
+    .date-btn.active { background: rgba(255,255,255,0.85); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .date-btn.active .day-name { color: var(--text-1); }
+    .date-btn.active .day-num  { color: var(--flamingo); }
+    .date-btn .day-dot { width: 14px; height: 3px; border-radius: 2px; background: var(--flamingo); opacity: 0; }
+    .date-btn.active .day-dot { opacity: 1; }
+
+    /* ════════════════════════════
+       EVENT CARDS — single column
+    ════════════════════════════ */
+    .page { padding: 0 16px; }
+    .section-header { padding: 20px 4px 0; }
+    .section-date {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 30px; font-weight: 900;
+      text-transform: uppercase; letter-spacing: -0.04em; line-height: 1;
+    }
+    .section-bar { width: 40px; height: 5px; background: var(--flamingo); border-radius: 4px; margin-top: 6px; }
+    .events-list { padding: 12px 0; display: flex; flex-direction: column; gap: 16px; }
+
+    .event-card {
+      background: var(--bg-white); border-radius: 16px;
+      overflow: hidden; border: 1.5px solid var(--border-med);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .card-billboard {
+      width: 100%; position: relative; overflow: hidden;
+      background: var(--text-1); padding: 18px 20px;
+    }
+    .card-billboard::before {
+      content: ''; position: absolute; inset: 0; opacity: 0.08;
+      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect x="0" y="0" width="14" height="14" fill="white" fill-opacity="0.15"/><rect x="14" y="14" width="14" height="14" fill="white" fill-opacity="0.15"/></svg>');
+      background-size: 28px 28px;
+    }
+    .billboard-content { position: relative; z-index: 2; }
+    .billboard-top-row { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+    .category-pill {
+      display: inline-block; font-family: 'Montserrat', sans-serif;
+      font-size: 7.5px; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 3px 8px; border-radius: 3px;
+      background: var(--bg-white); color: var(--text-1);
+    }
+    .card-distance {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 3px 8px; border-radius: 3px;
+      background: var(--teal); color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7.5px; font-weight: 900; text-transform: uppercase;
+    }
+    .card-distance svg { width: 8px; height: 8px; }
+    .card-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 22px; font-weight: 900; text-transform: uppercase;
+      letter-spacing: -0.03em; line-height: 1.1;
+      background-clip: text; -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-image: linear-gradient(to right, var(--coral), var(--flamingo));
+    }
+    .billboard-ghost {
+      position: absolute; bottom: -8px; right: -8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 60px; font-weight: 900; text-transform: uppercase;
+      color: rgba(255,255,255,0.03); white-space: nowrap;
+      pointer-events: none; user-select: none; line-height: 1;
+    }
+    .card-body { padding: 16px 20px 20px; }
+    .card-summary {
+      font-size: 14px; font-weight: 500; font-style: italic;
+      line-height: 1.6; color: var(--text-2); margin-bottom: 16px;
+      display: -webkit-box; -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .meta-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 10px 12px; border-top: 1px solid var(--border); padding-top: 14px;
+    }
+    .meta-item { display: flex; align-items: flex-start; gap: 7px; }
+    .meta-icon { flex-shrink: 0; margin-top: 2px; color: var(--text-3); }
+    .meta-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); }
+    .meta-value { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.02em; color: var(--text-1); margin-top: 1px; }
+    .meta-value.is-free { color: var(--free); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <span class="logo-name">EZPZ Miami</span>
+      <span class="logo-tag">The Parent Cheat Sheet</span>
+    </a>
+    <div class="header-loc">
+
+      <!-- DEFAULT: tip left, button right -->
+      <div class="hloc-default" id="hloc-default">
+        <span class="hloc-default-tip">nearest<br>events first</span>
+        <button class="hloc-default-btn" onclick="showState('input')">📍 Set Area</button>
+      </div>
+
+      <!-- STATE 2: inline zip input (shared across all options) -->
+      <div class="hloc-input" id="hloc-input">
+        <input type="text" class="hloc-zip-field" placeholder="ZIP" maxlength="5" inputmode="numeric" id="zip-field" />
+        <button class="hloc-go" onclick="showState('set')">Go</button>
+        <button class="hloc-gps" onclick="showState('set')" title="Use GPS">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
+        </button>
+        <button class="hloc-cancel" onclick="showState('default')">Cancel</button>
+      </div>
+
+      <!-- STATE 3: zip badge (shared) -->
+      <div class="hloc-set" id="hloc-set" onclick="showState('input')">
+        <span>📍</span>
+        <span class="hloc-badge-zip">33133</span>
+        <span class="hloc-badge-sep">·</span>
+        <span class="hloc-badge-hood">C. Grove</span>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════ TAB ACCENT + TAB BAR ═══════════ -->
+<div class="tab-accent-line"></div>
+<div class="tab-bar-wrap">
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="events">
+      <span class="tab-icon">🎪</span>
+      <span class="tab-label">Local<br>Events</span>
+      <span class="tab-badge">24</span>
+    </button>
+    <button class="tab-btn" data-tab="library">
+      <span class="tab-icon">📚</span>
+      <span class="tab-label">Library<br>Programs</span>
+      <span class="tab-badge">38</span>
+    </button>
+    <button class="tab-btn" data-tab="places">
+      <span class="tab-icon">🗺️</span>
+      <span class="tab-label">Anytime<br>Spots</span>
+      <span class="tab-badge">15</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════ DATE STRIP ═══════════ -->
+<nav class="date-strip">
+  <div class="date-strip-inner">
+    <button class="date-btn"><span class="day-name">Wed</span><span class="day-num">2</span><span class="day-dot"></span></button>
+    <button class="date-btn active"><span class="day-name">Thu</span><span class="day-num">3</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Fri</span><span class="day-num">4</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Sat</span><span class="day-num">5</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Sun</span><span class="day-num">6</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Mon</span><span class="day-num">7</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Tue</span><span class="day-num">8</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Wed</span><span class="day-num">9</span><span class="day-dot"></span></button>
+  </div>
+</nav>
+
+<!-- ═══════════ EVENTS ═══════════ -->
+<main class="page">
+  <div class="section-header">
+    <div class="section-date">Today</div>
+    <div class="section-bar"></div>
+  </div>
+  <div class="events-list">
+
+    <div class="event-card">
+      <div class="card-billboard">
+        <div class="billboard-content">
+          <div class="billboard-top-row">
+            <span class="category-pill">OUTDOOR</span>
+            <span class="card-distance dist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>0.8 MI</span>
+          </div>
+          <div class="card-title">Family Day at The Underline</div>
+        </div>
+        <div class="billboard-ghost">PLAY</div>
+      </div>
+      <div class="card-body">
+        <div class="card-summary">Outdoor crafts, live music, and play zones along the Underline trail — perfect for toddlers through grade-schoolers.</div>
+        <div class="meta-grid">
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div><div class="meta-label">Time</div><div class="meta-value">10:00 AM</div></div></div>
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div><div class="meta-label">Where</div><div class="meta-value">Brickell</div></div></div>
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><div><div class="meta-label">Cost</div><div class="meta-value is-free">Free</div></div></div>
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><div><div class="meta-label">Ages</div><div class="meta-value">All Ages</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="card-billboard">
+        <div class="billboard-content">
+          <div class="billboard-top-row">
+            <span class="category-pill">FESTIVAL</span>
+            <span class="card-distance dist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>2.4 MI</span>
+          </div>
+          <div class="card-title">Easter Egg Hunt at Vizcaya</div>
+        </div>
+        <div class="billboard-ghost">HOP</div>
+      </div>
+      <div class="card-body">
+        <div class="card-summary">Annual egg hunt in the gardens. Bring your own basket — age-group waves so little ones aren't competing with big kids.</div>
+        <div class="meta-grid">
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div><div class="meta-label">Time</div><div class="meta-value">9:30 AM</div></div></div>
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div><div class="meta-label">Where</div><div class="meta-value">C. Grove</div></div></div>
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><div><div class="meta-label">Cost</div><div class="meta-value is-free">Free</div></div></div>
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><div><div class="meta-label">Ages</div><div class="meta-value">3 – 10</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="card-billboard">
+        <div class="billboard-content">
+          <div class="billboard-top-row">
+            <span class="category-pill">MUSEUM</span>
+            <span class="card-distance dist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>5.1 MI</span>
+          </div>
+          <div class="card-title">Sensory Saturday</div>
+        </div>
+        <div class="billboard-ghost">FEEL</div>
+      </div>
+      <div class="card-body">
+        <div class="card-summary">Dimmed lights and quiet zones for sensory-sensitive kids. All exhibits open. First-come first-served.</div>
+        <div class="meta-grid">
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div><div class="meta-label">Time</div><div class="meta-value">10:00 AM</div></div></div>
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div><div class="meta-label">Where</div><div class="meta-value">Watson Isl.</div></div></div>
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><div><div class="meta-label">Cost</div><div class="meta-value">$22</div></div></div>
+          <div class="meta-item"><svg class="meta-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><div><div class="meta-label">Ages</div><div class="meta-value">0 – 12</div></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="mockup-spacer"></div>
+
+<div class="mockup-bar">
+  <span class="mockup-bar-label">Mobile · Location state:</span>
+  <button class="state-btn active" onclick="showState('default')" id="btn-default">First Visit</button>
+  <button class="state-btn" onclick="showState('input')" id="btn-input">Entering Zip</button>
+  <button class="state-btn" onclick="showState('set')" id="btn-set">Zip Active</button>
+</div>
+
+<script>
+function showState(state) {
+  const dists = document.querySelectorAll('.dist');
+  document.getElementById('hloc-default').style.display = 'none';
+  document.getElementById('hloc-input').style.display   = 'none';
+  document.getElementById('hloc-input').classList.remove('active');
+  document.getElementById('hloc-set').style.display     = 'none';
+  document.getElementById('hloc-set').classList.remove('active');
+  ['btn-default','btn-input','btn-set'].forEach(id => document.getElementById(id).classList.remove('active'));
+
+  if (state === 'default') {
+    document.getElementById('hloc-default').style.display = 'flex';
+    document.getElementById('btn-default').classList.add('active');
+    dists.forEach(d => d.style.display = 'none');
+
+  } else if (state === 'input') {
+    document.getElementById('hloc-input').style.display = 'flex';
+    document.getElementById('hloc-input').classList.add('active');
+    document.getElementById('btn-input').classList.add('active');
+    dists.forEach(d => d.style.display = 'none');
+    setTimeout(() => document.getElementById('zip-field').focus(), 100);
+
+  } else if (state === 'set') {
+    document.getElementById('hloc-set').style.display = 'flex';
+    document.getElementById('hloc-set').classList.add('active');
+    document.getElementById('btn-set').classList.add('active');
+    dists.forEach(d => d.style.display = 'inline-flex');
+  }
+}
+
+showState('default');
+</script>
+</body>
+</html>

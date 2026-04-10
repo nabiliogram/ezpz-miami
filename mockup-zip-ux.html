@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZPZ Miami — Location UX Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Montserrat:wght@800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --flamingo:     #FF4477;
+      --coral:        #FF8C70;
+      --violet:       #8B5CF6;
+      --teal:         #0D9488;
+      --yellow:       #FACC15;
+      --bg:           #FDFCFB;
+      --bg-white:     #FFFFFF;
+      --bg-date:      #FFFBEB;
+      --text-1:       #0F172A;
+      --text-2:       #475569;
+      --text-3:       #94A3B8;
+      --border:       #F1F5F9;
+      --border-med:   #E2E8F0;
+      --free:         #059669;
+      --free-bg:      #ECFDF5;
+      --header-h:     68px;
+      --date-h:       72px;
+      --tab-h:        68px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── MOCKUP CONTROLS ─── */
+    .mockup-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      background: #0F172A;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .mockup-bar-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-right: 4px;
+    }
+    .state-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1.5px solid #334155;
+      background: #1E293B;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      color: #94A3B8;
+      transition: all 0.15s;
+    }
+    .state-btn:hover { border-color: #475569; color: white; }
+    .state-btn.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: white;
+    }
+    /* bottom spacer so content isn't hidden */
+    .mockup-spacer { height: 60px; }
+
+    /* ─── HEADER ─── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .header-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--header-h);
+    }
+    .logo {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+    }
+    .logo-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      color: var(--flamingo);
+      line-height: 1;
+    }
+    .logo-tag {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--yellow);
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      line-height: 1;
+      margin-top: 3px;
+    }
+
+    /* ─── LOCATION CTA (right side of header) ─── */
+    .location-cta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* State: Prompt (no zip set) — prominent CTA */
+    .location-cta-prompt {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      background: linear-gradient(135deg, var(--teal), #14B8A6);
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+      animation: gentle-pulse 3s ease-in-out infinite;
+    }
+    .location-cta-prompt:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(13, 148, 136, 0.4);
+    }
+    @keyframes gentle-pulse {
+      0%, 100% { box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3); }
+      50% { box-shadow: 0 2px 16px rgba(13, 148, 136, 0.5); }
+    }
+    .location-cta-icon {
+      font-size: 15px;
+      line-height: 1;
+    }
+    .location-cta-text {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: white;
+      line-height: 1;
+    }
+
+    /* State: Input (entering zip) */
+    .location-cta-input {
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .location-cta-input.active { display: flex; }
+    .zip-input {
+      width: 72px;
+      padding: 7px 8px;
+      border: 2px solid var(--teal);
+      border-radius: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text-1);
+      text-align: center;
+      letter-spacing: 0.06em;
+      outline: none;
+      background: var(--bg-white);
+      transition: border-color 0.15s;
+    }
+    .zip-input:focus { border-color: var(--flamingo); }
+    .zip-input::placeholder {
+      color: var(--text-3);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+    .zip-go {
+      padding: 7px 14px;
+      border-radius: 10px;
+      border: none;
+      background: var(--teal);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .zip-go:hover { opacity: 0.85; }
+    .zip-or {
+      font-size: 11px;
+      color: var(--text-3);
+      font-weight: 500;
+    }
+    .zip-gps {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 7px 10px;
+      background: rgba(13, 148, 136, 0.08);
+      border: 1.5px solid rgba(13, 148, 136, 0.2);
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--teal);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .zip-gps:hover { background: rgba(13, 148, 136, 0.15); }
+
+    /* State: Set (location active) */
+    .location-cta-set {
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .location-cta-set.active { display: flex; }
+    .location-badge {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 6px 12px;
+      background: rgba(13, 148, 136, 0.06);
+      border: 1.5px solid rgba(13, 148, 136, 0.15);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .location-badge:hover { background: rgba(13, 148, 136, 0.12); }
+    .location-badge-icon {
+      font-size: 13px;
+      margin-right: 5px;
+    }
+    .location-badge-zip {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--teal);
+      letter-spacing: -0.02em;
+    }
+    .location-badge-sep {
+      font-size: 12px;
+      color: var(--text-3);
+      margin: 0 4px;
+    }
+    .location-badge-hood {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+    .location-badge-change {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-3);
+      cursor: pointer;
+      margin-left: 2px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+    .location-badge-change:hover { color: var(--teal); }
+
+    /* ─── TAB BAR ─── */
+    .tab-accent-line {
+      height: 3px;
+      background: var(--flamingo);
+      transition: background 0.2s ease;
+    }
+    .tab-bar-wrap {
+      position: sticky;
+      top: var(--header-h);
+      z-index: 95;
+      background: var(--bg-white);
+      padding: 0 12px 10px;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .tab-btn {
+      flex: 1;
+      border: 1.5px solid #E8E6E3;
+      border-top: none;
+      background: #FAFAF9;
+      border-radius: 0 0 14px 14px;
+      padding: 10px 6px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-icon { font-size: 16px; line-height: 1; }
+    .tab-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-2);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      line-height: 1.25;
+    }
+    .tab-badge {
+      min-width: 22px;
+      height: 18px;
+      padding: 0 7px;
+      border-radius: 10px;
+      background: #E5E4E1;
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--text-2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tab-btn.active {
+      background: rgba(255, 68, 119, 0.06);
+      border-color: var(--flamingo);
+      box-shadow: 0 3px 8px rgba(255, 68, 119, 0.1);
+    }
+    .tab-btn.active .tab-label { color: var(--flamingo); }
+    .tab-btn.active .tab-badge { background: var(--flamingo); color: white; }
+
+    /* ─── DATE STRIP ─── */
+    .date-strip {
+      position: sticky;
+      top: calc(var(--header-h) + var(--tab-h));
+      z-index: 90;
+      background: linear-gradient(180deg, #FFF8E1 0%, #FFFBEB 100%);
+      border-bottom: 2px solid #FCD34D;
+      border-top: 1px solid #FDE68A;
+      overflow-x: auto;
+      scrollbar-width: none;
+      box-shadow: 0 2px 8px rgba(250, 204, 21, 0.15);
+    }
+    .date-strip::-webkit-scrollbar { display: none; }
+    .date-strip-inner {
+      display: flex;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 4px;
+    }
+    .date-btn {
+      flex-shrink: 0;
+      width: 56px;
+      padding: 10px 0 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 8px;
+      margin: 4px 1px;
+    }
+    .date-btn .day-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+    .date-btn .day-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--text-3);
+    }
+    .date-btn.active {
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .date-btn.active .day-name { color: var(--text-1); }
+    .date-btn.active .day-num { color: var(--flamingo); }
+    .date-btn .day-dot {
+      width: 18px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--flamingo);
+      opacity: 0;
+      margin-top: 1px;
+    }
+    .date-btn.active .day-dot { opacity: 1; }
+
+    /* ─── EVENT CARDS ─── */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+    .section-header { padding: 28px 12px 0; }
+    .section-date {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .section-bar {
+      width: 56px;
+      height: 6px;
+      background: var(--flamingo);
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    .events-list {
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .event-card {
+      background: var(--bg-white);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1.5px solid var(--border-med);
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    @media (hover: hover) {
+      .event-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); border-color: #CBD5E1; }
+    }
+
+    /* Billboard header */
+    .card-billboard {
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background: var(--text-1);
+      padding: 20px 24px;
+    }
+    .card-billboard::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.08;
+      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect width="28" height="28" fill="none"/><rect x="0" y="0" width="14" height="14" fill="white" fill-opacity="0.15"/><rect x="14" y="14" width="14" height="14" fill="white" fill-opacity="0.15"/></svg>');
+      background-size: 28px 28px;
+    }
+    .billboard-content {
+      position: relative;
+      z-index: 2;
+    }
+    .billboard-top-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .category-pill {
+      display: inline-block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: var(--bg-white);
+      color: var(--text-1);
+    }
+    /* Distance pill on cards */
+    .card-distance {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: var(--teal);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .card-distance svg {
+      width: 9px;
+      height: 9px;
+    }
+    .card-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-image: linear-gradient(to right, var(--coral), var(--flamingo));
+      word-break: break-word;
+    }
+    .billboard-ghost {
+      position: absolute;
+      bottom: -8px;
+      right: -8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 72px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.03);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      line-height: 1;
+    }
+
+    /* Card body */
+    .card-body { padding: 20px 24px 24px; }
+    .card-summary {
+      font-size: 14px;
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1.65;
+      color: var(--text-2);
+      margin-bottom: 24px;
+    }
+
+    /* Metadata grid */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 28px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+    .meta-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .meta-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--text-3);
+    }
+    .meta-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-3);
+    }
+    .meta-value {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      color: var(--text-1);
+      margin-top: 1px;
+    }
+    .meta-value.is-free { color: var(--free); }
+
+    /* ─── DESKTOP (960px+) ─── */
+    @media (min-width: 960px) {
+      .header-inner,
+      .tab-bar,
+      .date-strip-inner,
+      .page {
+        max-width: 960px;
+      }
+
+      .header {
+        height: auto;
+        border-bottom: 3px solid var(--flamingo);
+      }
+      .header-inner {
+        height: 72px;
+        padding: 0 32px;
+      }
+      .logo-name { font-size: 36px; }
+      .logo-tag  { font-size: 10px; margin-top: 4px; }
+
+      /* Location CTA — more horizontal room on desktop */
+      .location-cta-prompt {
+        padding: 9px 18px;
+        gap: 8px;
+        border-radius: 14px;
+      }
+      .location-cta-text { font-size: 12px; }
+      .zip-input { width: 80px; font-size: 17px; }
+
+      /* Move tab-bar into header */
+      .tab-bar-wrap {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 100;
+        background: transparent;
+        padding: 0;
+        pointer-events: none;
+      }
+      .tab-accent-line { display: none; }
+      .tab-bar {
+        max-width: 960px;
+        margin: 0 auto;
+        justify-content: center;
+        padding: 0 32px;
+        height: 72px;
+        align-items: center;
+        gap: 6px;
+        pointer-events: auto;
+      }
+      .tab-btn {
+        flex: 0 0 auto;
+        flex-direction: row;
+        border: 1.5px solid var(--border-med);
+        border-radius: 10px;
+        padding: 7px 16px;
+        gap: 7px;
+        background: var(--bg-white);
+      }
+      .tab-icon { font-size: 15px; }
+      .tab-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+      .tab-label br { display: none; }
+      .tab-badge {
+        font-size: 11px;
+        height: 20px;
+        min-width: 24px;
+        padding: 0 8px;
+        border-radius: 10px;
+      }
+      .tab-btn[data-tab="events"].active  { border-color: var(--flamingo); }
+
+      /* Date strip */
+      .date-strip {
+        top: 72px;
+        max-width: 960px;
+        margin: 0 auto;
+        border-radius: 0 0 12px 12px;
+        border-left: 2px solid #FCD34D;
+        border-right: 2px solid #FCD34D;
+      }
+      .date-strip-inner { max-width: 960px; padding: 0 24px; }
+      .date-btn { width: 64px; }
+      .date-btn .day-name { font-size: 10px; }
+      .date-btn .day-num  { font-size: 22px; }
+
+      /* 2-column cards */
+      .events-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .card-billboard { padding: 22px 28px; }
+      .card-title { font-size: 24px; }
+      .section-date { font-size: 42px; }
+      .meta-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px 16px;
+      }
+      .page { padding: 0 24px; }
+      .section-header { padding: 24px 8px 0; }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ═════════════════════ HEADER ═════════════════════ -->
+<header class="header" id="main-header">
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <span class="logo-name">EZPZ Miami</span>
+      <span class="logo-tag">The Play &mdash; Book</span>
+    </a>
+
+    <div class="location-cta" id="location-cta">
+
+      <!-- STATE 1: Prominent CTA button -->
+      <button class="location-cta-prompt" id="state-prompt" onclick="showState('input')">
+        <span class="location-cta-icon">📍</span>
+        <span class="location-cta-text">Set Your&nbsp;Area</span>
+      </button>
+
+      <!-- STATE 2: Zip input -->
+      <div class="location-cta-input" id="state-input">
+        <input type="text" class="zip-input" placeholder="ZIP" maxlength="5" inputmode="numeric" id="zip-field" />
+        <button class="zip-go" onclick="showState('set')">Go</button>
+        <span class="zip-or">or</span>
+        <button class="zip-gps" onclick="showState('set')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
+          GPS
+        </button>
+      </div>
+
+      <!-- STATE 3: Location set badge -->
+      <div class="location-cta-set" id="state-set">
+        <div class="location-badge" onclick="showState('input')">
+          <span class="location-badge-icon">📍</span>
+          <span class="location-badge-zip">33133</span>
+          <span class="location-badge-sep">·</span>
+          <span class="location-badge-hood">Coconut Grove</span>
+        </div>
+        <span class="location-badge-change" onclick="showState('input')">EDIT</span>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<!-- ═════════════════════ TAB BAR ═════════════════════ -->
+<div class="tab-bar-wrap">
+  <div class="tab-accent-line"></div>
+  <nav class="tab-bar">
+    <button class="tab-btn active" data-tab="events">
+      <span class="tab-icon">🎪</span>
+      <span class="tab-label">Local <br>Events</span>
+      <span class="tab-badge">24</span>
+    </button>
+    <button class="tab-btn" data-tab="library">
+      <span class="tab-icon">📚</span>
+      <span class="tab-label">Library <br>Programs</span>
+      <span class="tab-badge">38</span>
+    </button>
+    <button class="tab-btn" data-tab="places">
+      <span class="tab-icon">📍</span>
+      <span class="tab-label">Anytime <br>Spots</span>
+      <span class="tab-badge">15</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ═════════════════════ DATE STRIP ═════════════════════ -->
+<nav class="date-strip">
+  <div class="date-strip-inner">
+    <button class="date-btn"><span class="day-name">Wed</span><span class="day-num">2</span><span class="day-dot"></span></button>
+    <button class="date-btn active"><span class="day-name">Thu</span><span class="day-num">3</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Fri</span><span class="day-num">4</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Sat</span><span class="day-num">5</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Sun</span><span class="day-num">6</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Mon</span><span class="day-num">7</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Tue</span><span class="day-num">8</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Wed</span><span class="day-num">9</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Thu</span><span class="day-num">10</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Fri</span><span class="day-num">11</span><span class="day-dot"></span></button>
+    <button class="date-btn"><span class="day-name">Sat</span><span class="day-num">12</span><span class="day-dot"></span></button>
+  </div>
+</nav>
+
+<!-- ═════════════════════ EVENTS ═════════════════════ -->
+<main class="page">
+  <div class="section-header">
+    <div>
+      <div class="section-date">Today</div>
+      <div class="section-bar"></div>
+    </div>
+  </div>
+
+  <div class="events-list" id="events-list">
+
+    <!-- Card 1 -->
+    <div class="event-card">
+      <div class="card-billboard">
+        <div class="billboard-content">
+          <div class="billboard-top-row">
+            <span class="category-pill">OUTDOOR</span>
+            <span class="card-distance" id="dist-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              0.8 MI
+            </span>
+          </div>
+          <div class="card-title">Family Day at The Underline</div>
+        </div>
+        <div class="billboard-ghost">PLAY</div>
+      </div>
+      <div class="card-body">
+        <div class="card-summary">Outdoor crafts, live music, and play zones along the Underline trail in Brickell — perfect for toddlers through grade-schoolers.</div>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div><div class="meta-label">Time</div><div class="meta-value">10:00 AM</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div><div class="meta-label">Where</div><div class="meta-value">Brickell</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div><div class="meta-label">Cost</div><div class="meta-value is-free">Free</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <div><div class="meta-label">Ages</div><div class="meta-value">All Ages</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="event-card">
+      <div class="card-billboard">
+        <div class="billboard-content">
+          <div class="billboard-top-row">
+            <span class="category-pill">FESTIVAL</span>
+            <span class="card-distance" id="dist-2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              2.4 MI
+            </span>
+          </div>
+          <div class="card-title">Easter Egg Hunt at Vizcaya</div>
+        </div>
+        <div class="billboard-ghost">HOP</div>
+      </div>
+      <div class="card-body">
+        <div class="card-summary">Annual egg hunt in the gardens. Bring your own basket — three age-group waves so little ones aren't competing with big kids.</div>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div><div class="meta-label">Time</div><div class="meta-value">9:30 AM</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div><div class="meta-label">Where</div><div class="meta-value">Coconut Grove</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div><div class="meta-label">Cost</div><div class="meta-value is-free">Free</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <div><div class="meta-label">Ages</div><div class="meta-value">3 – 10</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="event-card">
+      <div class="card-billboard">
+        <div class="billboard-content">
+          <div class="billboard-top-row">
+            <span class="category-pill">MUSEUM</span>
+            <span class="card-distance" id="dist-3">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              5.1 MI
+            </span>
+          </div>
+          <div class="card-title">Sensory Saturday at Children's Museum</div>
+        </div>
+        <div class="billboard-ghost">FEEL</div>
+      </div>
+      <div class="card-body">
+        <div class="card-summary">Reduced crowds, dimmed lights, and quiet zones for sensory-sensitive kids. All exhibits open. First-come first-served.</div>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div><div class="meta-label">Time</div><div class="meta-value">10:00 AM</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div><div class="meta-label">Where</div><div class="meta-value">Watson Island</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div><div class="meta-label">Cost</div><div class="meta-value">$22</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <div><div class="meta-label">Ages</div><div class="meta-value">0 – 12</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="event-card">
+      <div class="card-billboard">
+        <div class="billboard-content">
+          <div class="billboard-top-row">
+            <span class="category-pill">OUTDOOR</span>
+            <span class="card-distance" id="dist-4">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              12.3 MI
+            </span>
+          </div>
+          <div class="card-title">Egg Safari at Zoo Miami</div>
+        </div>
+        <div class="billboard-ghost">WILD</div>
+      </div>
+      <div class="card-body">
+        <div class="card-summary">Follow the trail through the zoo to find hidden eggs — each one has a fun animal fact inside. Three age-group trails available.</div>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div><div class="meta-label">Time</div><div class="meta-value">11:00 AM</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div><div class="meta-label">Where</div><div class="meta-value">South Miami-Dade</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div><div class="meta-label">Cost</div><div class="meta-value">$28</div></div>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <div><div class="meta-label">Ages</div><div class="meta-value">3 – 10</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="mockup-spacer"></div>
+
+<!-- ═════════════════════ MOCKUP CONTROLS ═════════════════════ -->
+<div class="mockup-bar">
+  <span class="mockup-bar-label">Location state:</span>
+  <button class="state-btn active" onclick="showState('prompt')" id="btn-prompt">First Visit</button>
+  <button class="state-btn" onclick="showState('input')" id="btn-input">Entering Zip</button>
+  <button class="state-btn" onclick="showState('set')" id="btn-set">Zip Active</button>
+</div>
+
+<script>
+function showState(state) {
+  // Hide all states
+  document.getElementById('state-prompt').style.display = 'none';
+  document.getElementById('state-input').style.display = 'none';
+  document.getElementById('state-input').classList.remove('active');
+  document.getElementById('state-set').style.display = 'none';
+  document.getElementById('state-set').classList.remove('active');
+
+  // Toggle buttons
+  document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+
+  // Show/hide distance pills
+  const dists = document.querySelectorAll('.card-distance');
+
+  if (state === 'prompt') {
+    document.getElementById('state-prompt').style.display = 'flex';
+    document.getElementById('btn-prompt').classList.add('active');
+    dists.forEach(d => d.style.display = 'none');
+  } else if (state === 'input') {
+    document.getElementById('state-input').style.display = 'flex';
+    document.getElementById('state-input').classList.add('active');
+    document.getElementById('btn-input').classList.add('active');
+    dists.forEach(d => d.style.display = 'none');
+    setTimeout(() => document.getElementById('zip-field').focus(), 100);
+  } else if (state === 'set') {
+    document.getElementById('state-set').style.display = 'flex';
+    document.getElementById('state-set').classList.add('active');
+    document.getElementById('btn-set').classList.add('active');
+    dists.forEach(d => d.style.display = 'inline-flex');
+  }
+}
+
+// Start with "first visit" state
+showState('prompt');
+</script>
+</body>
+</html>
