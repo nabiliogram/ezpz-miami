@@ -84,6 +84,19 @@
       width: 100%;
       padding: 40px 24px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+    }
+    @media (max-width: 600px) {
+      .zone-modal { padding: 24px 18px; border-radius: 16px; }
+      .zm-logo { height: 30px; margin-bottom: 8px; }
+      .zm-title { font-size: 22px; margin-bottom: 4px; }
+      .zm-subtitle { font-size: 13px; margin-bottom: 14px; }
+      .zm-zones { gap: 8px; margin-bottom: 16px; }
+      .zm-zone { padding: 10px 12px; border-radius: 10px; }
+      .zm-name { font-size: 13px; margin-bottom: 2px; }
+      .zm-hoods { font-size: 10px; }
+      .zm-cta { padding: 12px; font-size: 13px; margin-bottom: 8px; }
     }
     .zm-logo {
       height: 40px;
@@ -238,12 +251,9 @@
       border-bottom-color: var(--accent);
     }
     .nav-right {
-      display: none;
+      display: flex;
       align-items: center;
       gap: 12px;
-    }
-    @media (min-width: 1000px) {
-      .nav-right { display: flex; }
     }
     .zone-pill {
       display: flex;
@@ -280,6 +290,15 @@
       flex: 1;
       text-align: center;
       border-bottom: 2px solid transparent;
+      background: var(--accent-light);
+      border-radius: 8px 8px 0 0;
+      margin: 0 4px;
+      color: var(--text-2);
+    }
+    .nav-row2 .nav-tab.active {
+      background: var(--accent-tint);
+      color: var(--accent);
+      border-bottom-color: var(--accent);
     }
     @media (min-width: 1000px) {
       .nav-row2 { display: none; }
@@ -872,9 +891,14 @@
     .empty-state h3 { font-size: 17px; font-weight: 700; color: var(--text-1); margin-bottom: 8px; }
     .empty-state p { font-size: 14px; color: var(--text-2); line-height: 1.6; }
 
-    @media (max-width: 600px) {
-      .top-nav { top: 0; }
+    @media (max-width: 999px) {
+      /* nav-row2 visible → nav is ~92px tall */
       .date-strip { top: 92px; }
+      #mainLayout { padding-top: 92px; }
+    }
+    @media (min-width: 1000px) {
+      /* nav-row2 hidden → nav is 52px tall */
+      #mainLayout { padding-top: 52px; }
     }
 
     /* ─── DETAIL SIDEBAR (desktop) / BOTTOM SHEET (mobile) ─── */
@@ -1556,8 +1580,9 @@
     _activeTab = tab;
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-' + (tab === 'events' ? 'events' : 'explore')).classList.add('active');
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.nav-tab').forEach(t => {
+      t.classList.toggle('active', t.getAttribute('data-tab') === tab);
+    });
     if (tab === 'explore') {
       document.getElementById('dateStrip').classList.add('hidden');
       renderExplore();
@@ -1708,6 +1733,29 @@
     }
     html += '<div class="footer"><div class="footer-text">Your EZPZ Miami Play-Book</div></div>';
     feed.innerHTML = html;
+    _initScrollSync();
+  }
+
+  /* Scroll-sync: update active date pill as user scrolls past day sections */
+  let _scrollObserver = null;
+  function _initScrollSync() {
+    if (_scrollObserver) _scrollObserver.disconnect();
+    const sections = document.querySelectorAll('.day-section[id^="section-"]');
+    if (!sections.length) return;
+    const scrollRoot = document.getElementById('panel-events');
+    _scrollObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const key = entry.target.id.replace('section-', '');
+          document.querySelectorAll('.ds-pill').forEach(p => p.classList.remove('active'));
+          document.querySelector(`.ds-pill[data-date="${key}"]`)?.classList.add('active');
+          // Scroll date pill into view
+          const activePill = document.querySelector(`.ds-pill[data-date="${key}"]`);
+          if (activePill) activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }
+    }, { root: scrollRoot, rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+    sections.forEach(s => _scrollObserver.observe(s));
   }
 
   const HERO_PATTERNS = {
