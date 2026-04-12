@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EZPZ Miami — Design Variation A</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='64' height='64' rx='14' fill='%23FF4477'/%3E%3Cpath d='M57 0V700H626V522H289V440H585V270H289V178H639V0Z' transform='translate(15.3,43.0) scale(0.026000,-0.026000)' fill='%23FFFFFF'/%3E%3Cpath d='M32 0V145L352 517H42V700H659V555L339 183H675V0Z' transform='translate(31.8,43.0) scale(0.026000,-0.026000)' fill='%23FFFFFF'/%3E%3C/svg%3E"/>
+<style>
+:root {
+  --accent:       #BFA048;
+  --accent-tint:  #F5EED4;
+  --accent-light: #FAF6E8;
+  --accent-deep:  #8A7030;
+  --page-bg:      #F4F1EA;
+  --card-bg:      #FFFFFF;
+  --nav-bg:       #FFFFFF;
+  --text-1:       #1A1A1A;
+  --text-2:       #555555;
+  --text-3:       #999999;
+  --border:       #E8E4DC;
+  --border-light: #F0EDE6;
+  --green:        #1B4D3E;
+  --green-deep:   #0F3028;
+  --green-light:  #1B6B40;
+  --green-tint:   #E8F5EE;
+  --max-w:        1000px;
+  /* Category colours */
+  --cat-outdoor:     #4A8040;
+  --cat-performance: #B08830;
+  --cat-festival:    #B83A5A;
+  --cat-museum:      #4A7A8A;
+  --cat-craft:       #B06830;
+  --cat-storytime:   #6A5A9A;
+  --cat-sports:      #2A6A90;
+  --cat-workshop:    #A05820;
+  --cat-other:       #787878;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--page-bg);color:var(--text-1);}
+
+/* ── SHELL ── */
+.site{display:flex;flex-direction:column;height:100vh;max-width:var(--max-w);margin:0 auto;background:var(--page-bg);box-shadow:0 0 0 1px var(--border);}
+
+/* ══════════════════════════════
+   NAV
+══════════════════════════════ */
+.top-nav{background:var(--nav-bg);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:200;}
+.nav-row1{display:flex;align-items:center;height:52px;padding:0 20px;gap:0;}
+.nav-logo{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:800;letter-spacing:-0.4px;text-decoration:none;color:var(--text-1);flex-shrink:0;width:110px;}
+.nav-logo svg{width:100%;height:auto;}
+/* Desktop tabs inline */
+.nav-tabs-desktop{display:flex;align-items:stretch;height:100%;margin-left:24px;flex:1;}
+.nav-tab{padding:0 16px;display:flex;align-items:center;font-size:14px;font-weight:500;color:var(--text-3);border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .12s;white-space:nowrap;user-select:none;background:none;font-family:inherit;}
+.nav-tab:hover{color:var(--text-1);}
+.nav-tab.active{font-weight:700;color:var(--text-1);border-bottom-color:var(--accent);}
+.nav-right{margin-left:auto;}
+.zone-pill{display:flex;align-items:center;gap:6px;background:var(--accent-tint);border-radius:20px;padding:6px 12px;font-size:10.5px;font-weight:600;cursor:pointer;color:var(--accent-deep);white-space:nowrap;border:none;font-family:inherit;}
+.zone-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+/* Mobile: tabs on own row */
+.nav-row2{display:none;}
+@media(max-width:600px){
+  .nav-tabs-desktop{display:none;}
+  .nav-row2{display:flex;border-top:1px solid var(--border-light);height:40px;}
+  .nav-row2 .nav-tab{flex:1;justify-content:center;font-size:13px;padding:0;}
+}
+
+/* ══════════════════════════════
+   DATE STRIP — sticky, scroll-aware
+══════════════════════════════ */
+.date-strip{background:var(--nav-bg);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;flex-shrink:0;position:sticky;top:52px;z-index:190;}
+.date-strip::-webkit-scrollbar{display:none;}
+.date-strip-inner{display:flex;gap:4px;padding:8px 16px;width:max-content;min-width:100%;}
+.ds-pill{display:flex;flex-direction:column;align-items:center;padding:5px 14px;border-radius:20px;cursor:pointer;border:1px solid var(--border);background:white;transition:all .12s;user-select:none;white-space:nowrap;gap:1px;flex-shrink:0;font-family:inherit;}
+.ds-pill:hover{border-color:var(--accent);background:var(--accent-light);}
+.ds-pill.active{background:var(--accent);border-color:var(--accent);}
+.ds-day{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;}
+.ds-date{font-size:13px;font-weight:700;color:var(--text-1);}
+.ds-pill.active .ds-day,.ds-pill.active .ds-date{color:white;}
+.ds-pill.is-today{border-color:var(--accent-deep);}
+.ds-pill.is-today .ds-day{color:var(--accent-deep);}
+.ds-pill.is-today .ds-date{color:var(--accent-deep);}
+.ds-pill.active.is-today .ds-day,.ds-pill.active.is-today .ds-date{color:white;}
+@media(max-width:600px){.date-strip{top:92px;}}
+
+/* ══════════════════════════════
+   TAB PANELS
+══════════════════════════════ */
+.tab-panel{display:none;flex:1;overflow-y:auto;}
+.tab-panel.active{display:block;}
+
+/* ══════════════════════════════
+   EVENTS FEED
+══════════════════════════════ */
+.event-feed{padding:20px 20px 80px;}
+.day-section{margin-bottom:40px;scroll-margin-top:130px;}
+.day-header{display:flex;align-items:baseline;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--border);}
+.day-name{font-size:21px;font-weight:800;letter-spacing:-0.4px;}
+.day-date{font-size:13px;color:var(--text-3);font-weight:500;}
+.day-count{margin-left:auto;font-size:11px;color:var(--text-3);font-weight:600;background:var(--border-light);border-radius:20px;padding:2px 8px;}
+
+/* ── HERO CARD ── */
+.hero-card{background:var(--card-bg);border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);cursor:pointer;margin-bottom:10px;transition:box-shadow .12s,transform .12s;}
+.hero-card:hover{box-shadow:0 8px 20px rgba(0,0,0,0.10), 0 3px 6px rgba(0,0,0,0.05);transform:translateY(-2px);}
+.hero-visual{width:100%;height:180px;flex-shrink:0;position:relative;overflow:hidden;}
+/* Real image */
+.hero-visual img{width:100%;height:100%;object-fit:cover;}
+/* SVG pattern backgrounds per category — no solid blocks */
+.hero-visual.outdoor{background:#2A5C1E;}
+.hero-visual.performance{background:#3A2E08;}
+.hero-visual.festival{background:#5A1230;}
+.hero-visual.museum{background:#1C3A44;}
+.hero-visual.craft{background:#4A2808;}
+.hero-visual.storytime{background:#2A1E50;}
+.hero-visual.sports{background:#0E2E44;}
+.hero-visual.workshop{background:#3A1E08;}
+.hero-visual.other{background:#1E1E1E;}
+.hero-pattern{position:absolute;inset:0;opacity:.35;}
+.hero-cat-badge{
+  position:absolute;bottom:12px;left:14px;
+  font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;
+  color:white;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);
+  border-radius:6px;padding:3px 8px;
+}
+.hero-body{padding:16px 18px 18px;}
+.hero-title{font-size:20px;font-weight:800;letter-spacing:-0.4px;line-height:1.22;color:var(--text-1);margin-bottom:9px;}
+.hero-desc{font-size:13px;color:var(--text-2);line-height:1.6;font-style:italic;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.hero-meta{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:11px;}
+.hm-item{display:flex;flex-direction:column;gap:2px;}
+.hm-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);}
+.hm-val{font-size:12px;font-weight:600;color:var(--text-1);}
+.hero-pills{display:flex;gap:5px;flex-wrap:wrap;}
+.hero-pill{font-size:10.5px;font-weight:600;border-radius:20px;padding:4px 10px;}
+.hero-pill.fr{background:var(--green-tint);color:var(--green-light);}
+.hero-pill.pr{background:var(--border-light);color:var(--text-2);}
+.hero-pill.dist{background:var(--accent-tint);color:var(--accent-deep);}
+
+/* ── STANDARD GRID ── */
+.event-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:580px){.event-grid{grid-template-columns:1fr;}}
+@media(min-width:860px){.event-grid{grid-template-columns:1fr 1fr 1fr;}}
+.event-grid .lib-card{grid-column:1/-1;}
+
+.ec{background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);cursor:pointer;transition:box-shadow .12s,transform .12s;padding:14px 16px 14px;display:flex;flex-direction:column;gap:6px;}
+.ec:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);transform:translateY(-1px);}
+.ec-type{display:inline-block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:white;border-radius:5px;padding:2px 6px;background:var(--cat-other);align-self:flex-start;}
+.ec.cat-outdoor    .ec-type{background:var(--cat-outdoor);}
+.ec.cat-performance .ec-type{background:var(--cat-performance);}
+.ec.cat-festival   .ec-type{background:var(--cat-festival);}
+.ec.cat-museum     .ec-type{background:var(--cat-museum);}
+.ec.cat-craft      .ec-type{background:var(--cat-craft);}
+.ec.cat-storytime  .ec-type{background:var(--cat-storytime);}
+.ec.cat-sports     .ec-type{background:var(--cat-sports);}
+.ec.cat-workshop   .ec-type{background:var(--cat-workshop);}
+.ec-title{font-size:14px;font-weight:700;line-height:1.3;letter-spacing:-0.2px;color:var(--text-1);}
+.ec-meta{display:flex;flex-direction:column;gap:3px;}
+.ec-mr{display:flex;align-items:baseline;gap:5px;}
+.ec-ml{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);flex-shrink:0;min-width:32px;}
+.ec-mv{font-size:12px;font-weight:600;color:var(--text-1);line-height:1.3;}
+.ec-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;}
+.pill{font-size:10.5px;font-weight:600;border-radius:20px;padding:4px 10px;}
+.pill.fr{background:var(--green-tint);color:var(--green-light);}
+.pill.dist{background:var(--accent-tint);color:var(--accent-deep);}
+
+/* ── LIBRARY CARD ── */
+.lib-card{background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);}
+.lib-hdr{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;
+  /* Distinct header with subtle green tint */
+  background:#EEF5EF;border-bottom:1px solid #D8EBD9;
+}
+.lib-icon-wrap{width:30px;height:30px;background:rgba(27,77,62,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.lib-icon-wrap svg{width:16px;height:16px;stroke:var(--green);stroke-width:1.8;fill:none;}
+.lib-info{flex:1;min-width:0;}
+.lib-title{font-size:13px;font-weight:700;color:var(--green-deep);}
+.lib-sub{font-size:11px;color:#4A7A52;}
+.lib-chev{font-size:13px;color:var(--green);transition:transform .18s;}
+.lib-chev.open{transform:rotate(180deg);}
+.lib-rows{display:none;}
+.lib-rows.open{display:block;}
+/* Desktop: 2-column rows */
+@media(min-width:680px){
+  .lib-rows.open{display:grid;grid-template-columns:1fr 1fr;}
+}
+.lib-row{
+  display:flex;align-items:flex-start;gap:9px;padding:10px 16px;cursor:pointer;
+  border-bottom:1px solid var(--border-light);transition:background .1s;
+}
+@media(min-width:680px){
+  .lib-row:nth-child(odd){border-right:1px solid var(--border-light);}
+}
+.lib-row:hover{background:#F8FBF8;}
+.lib-dot{width:5px;height:5px;background:var(--green);border-radius:50%;flex-shrink:0;margin-top:5px;}
+.lib-rinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+.lib-rname{font-size:12px;font-weight:700;color:var(--text-1);}
+.lib-rdetail{font-size:11px;color:var(--text-3);}
+.lib-rbranch{font-size:10px;font-weight:700;color:var(--accent-deep);}
+.lib-rdist{font-size:10px;font-weight:700;border-radius:20px;padding:2px 7px;background:var(--accent-tint);color:var(--accent-deep);flex-shrink:0;align-self:flex-start;margin-top:2px;}
+
+/* ══════════════════════════════
+   EXPLORE
+══════════════════════════════ */
+.explore-feed{padding:0 0 80px;}
+
+/* Explore header */
+.explore-header{padding:20px 20px 16px;}
+.explore-title{font-size:22px;font-weight:800;letter-spacing:-0.4px;margin-bottom:2px;}
+.explore-sub{font-size:13px;color:var(--text-3);}
+
+/* Category filter */
+.cat-filter{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 20px 16px;}
+.cat-filter::-webkit-scrollbar{display:none;}
+.cf-chip{font-size:12px;font-weight:600;border-radius:20px;padding:6px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .1s;border:none;font-family:inherit;}
+.cf-chip.on{background:var(--text-1);color:white;}
+.cf-chip.off{background:white;color:var(--text-2);box-shadow:0 1px 4px rgba(0,0,0,.07);}
+.cf-chip.off:hover{background:var(--border-light);}
+
+/* ── Category sections with alternating surface ── */
+.cat-section{padding:18px 20px 8px;}
+.cat-section:nth-child(even){background:rgba(255,255,255,0.55);}
+.cat-section-hdr{
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border-light);
+}
+/* Left accent bar */
+.cat-section-hdr::before{
+  content:'';display:block;width:4px;height:20px;border-radius:2px;
+  background:var(--accent);flex-shrink:0;
+}
+.cat-section-name{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--text-2);}
+.cat-section-count{margin-left:auto;font-size:11px;color:var(--text-3);}
+
+/* Place cards — 2-col grid */
+.places-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;}
+@media(max-width:540px){.places-grid{grid-template-columns:1fr;}}
+
+.plc{
+  background:var(--card-bg);border-radius:12px;overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);cursor:pointer;
+  border:1px solid var(--border-light);
+  transition:box-shadow .12s,transform .12s;
+}
+.plc:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);transform:translateY(-1px);}
+
+/* Thin color bar at top of place card — category accent */
+.plc-bar{height:3px;background:var(--accent);}
+.plc-bar.outdoor{background:var(--cat-outdoor);}
+.plc-bar.arts{background:var(--cat-festival);}
+.plc-bar.rainy{background:var(--cat-museum);}
+.plc-bar.nature{background:var(--cat-outdoor);}
+.plc-bar.eat{background:#E07830;}
+
+.plc-body{padding:14px 16px 14px;}
+.plc-name{font-size:14px;font-weight:800;color:var(--text-1);line-height:1.2;margin-bottom:6px;}
+.plc-hood{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);margin-bottom:6px;}
+.plc-ed{font-size:12px;color:var(--text-2);line-height:1.6;font-style:italic;margin-bottom:9px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.plc-foot{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.pp{font-size:10.5px;font-weight:600;border-radius:20px;padding:4px 10px;}
+.pp.op{background:var(--green-tint);color:var(--green-light);}
+.pp.pr{background:var(--border-light);color:#666;}
+.pp.dist{background:var(--accent-tint);color:var(--accent-deep);}
+
+/* ── Mockup annotation ── */
+.ann{background:#FFFBE6;border:1.5px dashed #C8A020;border-radius:8px;padding:7px 12px;font-size:11px;color:#7A5800;font-weight:600;margin:0 20px 10px;line-height:1.5;}
+
+</style>
+</head>
+<body>
+<div style="background:#FFF4E6;padding:10px 16px;text-align:center;font-family:'DM Sans',sans-serif;font-size:12px;color:#996600;font-weight:600;border-bottom:1px solid #FFE0A0;">
+  Design Variation A — Typography & Spacing Polish · Same golden palette, refined rhythm
+</div>
+
+<div class="site">
+
+<!-- ═══ NAV ═══ -->
+<nav class="top-nav">
+  <div class="nav-row1">
+    <a class="nav-logo" href="#">
+      <svg viewBox="0 0 264 52" xmlns="http://www.w3.org/2000/svg">
+        <path d="M57 0V700H626V522H289V440H585V270H289V178H639V0Z" transform="translate(4.0,42.0) scale(0.048000,-0.048000)" fill="#FF4477"/>
+        <path d="M32 0V145L352 517H42V700H659V555L339 183H675V0Z" transform="translate(34.3,42.0) scale(0.048000,-0.048000)" fill="#FF4477"/>
+        <path d="M57 0V700H394Q492 700 563.5 668.0Q635 636 674.0 576.5Q713 517 713 436Q713 355 674.0 296.0Q635 237 563.5 204.5Q492 172 394 172H293V0ZM293 354H379Q428 354 451.5 376.0Q475 398 475 436Q475 474 451.5 496.0Q428 518 379 518H293Z" transform="translate(65.3,42.0) scale(0.048000,-0.048000)" fill="#FF4477"/>
+        <path d="M32 0V145L352 517H42V700H659V555L339 183H675V0Z" transform="translate(98.9,42.0) scale(0.048000,-0.048000)" fill="#FF4477"/>
+        <path d="M57 0V700H251L479 327L701 700H895L897 0H682L680 319L528 63H424L272 308V0Z" transform="translate(129.9,44.0) scale(0.040000,-0.040000)" fill="#0D9488"/>
+        <path d="M57 0V700H293V0Z" transform="translate(166.1,44.0) scale(0.040000,-0.040000)" fill="#0D9488"/>
+        <path d="M-19 0 287 700H519L825 0H581L534 122H268L221 0ZM333 292H469L401 468Z" transform="translate(178.1,44.0) scale(0.040000,-0.040000)" fill="#0D9488"/>
+        <path d="M57 0V700H251L479 327L701 700H895L897 0H682L680 319L528 63H424L272 308V0Z" transform="translate(208.3,44.0) scale(0.040000,-0.040000)" fill="#0D9488"/>
+        <path d="M57 0V700H293V0Z" transform="translate(244.5,44.0) scale(0.040000,-0.040000)" fill="#0D9488"/>
+      </svg>
+    </a>
+    <div class="nav-tabs-desktop">
+      <button class="nav-tab active" onclick="switchTab('events',this)">What's On</button>
+      <button class="nav-tab" onclick="switchTab('explore',this)">Explore</button>
+    </div>
+    <div class="nav-right">
+      <button class="zone-pill"><span class="zone-dot"></span>Upper Biscayne</button>
+    </div>
+  </div>
+  <div class="nav-row2">
+    <button class="nav-tab active" onclick="switchTab('events',this)">What's On</button>
+    <button class="nav-tab" onclick="switchTab('explore',this)">Explore</button>
+  </div>
+</nav>
+
+<!-- ═══ DATE STRIP ═══ -->
+<div class="date-strip" id="dateStrip">
+  <div class="date-strip-inner" id="dsInner"></div>
+</div>
+
+<!-- ═══ EVENTS ═══ -->
+<div class="tab-panel active" id="panel-events">
+<div class="event-feed" id="eventFeed">
+
+  <!-- DAY 0: Today (lots of events — the problem day) -->
+  <div class="day-section" id="dsec-0">
+    <div class="day-header">
+      <span class="day-name">Today</span>
+      <span class="day-date">Sat Apr 11</span>
+      <span class="day-count">9 events</span>
+    </div>
+
+    <!-- HERO: has image_url, wins automatically -->
+    <div class="hero-card">
+      <div class="hero-visual festival">
+        <!-- SVG pattern: scattered confetti geometry -->
+        <svg class="hero-pattern" viewBox="0 0 400 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="40" cy="30" r="18" fill="white" opacity=".08"/>
+          <circle cx="340" cy="140" r="28" fill="white" opacity=".06"/>
+          <rect x="120" y="10" width="24" height="24" rx="4" fill="white" opacity=".06" transform="rotate(25,132,22)"/>
+          <rect x="280" y="60" width="16" height="16" rx="3" fill="white" opacity=".09" transform="rotate(-15,288,68)"/>
+          <polygon points="200,20 214,44 186,44" fill="white" opacity=".07"/>
+          <polygon points="60,110 72,132 48,132" fill="white" opacity=".06"/>
+          <polygon points="360,30 372,52 348,52" fill="white" opacity=".07"/>
+          <circle cx="170" cy="140" r="10" fill="white" opacity=".08"/>
+          <rect x="60" y="55" width="10" height="10" rx="2" fill="white" opacity=".12" transform="rotate(20,65,60)"/>
+          <rect x="300" y="120" width="14" height="14" rx="3" fill="white" opacity=".07" transform="rotate(-30,307,127)"/>
+          <line x1="80" y1="160" x2="110" y2="120" stroke="white" stroke-width="1.5" opacity=".08"/>
+          <line x1="320" y1="80" x2="350" y2="50" stroke="white" stroke-width="1.5" opacity=".08"/>
+        </svg>
+        <span class="hero-cat-badge">Festival</span>
+      </div>
+      <div class="hero-body">
+        <div class="hero-title">Free Kite Festival at Crandon Park — Kites Provided, No Experience Needed</div>
+        <div class="hero-desc">Everything's supplied — kids grab a kite, get two minutes of instruction, and are off. Instructors roam the field helping under-5s. Food trucks on the east lawn, no shade so bring hats.</div>
+        <div class="hero-meta">
+          <div class="hm-item"><span class="hm-lbl">Where</span><span class="hm-val">Crandon Park · Key Biscayne</span></div>
+          <div class="hm-item"><span class="hm-lbl">When</span><span class="hm-val">10:00 AM – 2:00 PM</span></div>
+          <div class="hm-item"><span class="hm-lbl">Price</span><span class="hm-val">Free</span></div>
+        </div>
+        <div class="hero-pills">
+          <span class="hero-pill fr">Free</span>
+          <span class="hero-pill pr">Ages 3–12</span>
+          <span class="hero-pill dist">4.2 mi</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann">↑ Hero card. Visual = SVG geometric pattern on category colour — no scraped images needed, always renders cleanly. Pattern is category-specific (this one: festival/confetti geometry). Badge overlaid bottom-left on the visual.</div>
+
+    <!-- Standard 2/3-col grid -->
+    <div class="event-grid">
+
+      <div class="ec cat-performance">
+        <span class="ec-type">Performance</span>
+        <div class="ec-title">Broadway Under the Stars — The Lion King Soundtrack</div>
+        <div class="ec-meta">
+          <div class="ec-mr"><span class="ec-ml">Where</span><span class="ec-mv">Bayfront Park</span></div>
+          <div class="ec-mr"><span class="ec-ml">When</span><span class="ec-mv">7:30 – 9:00 PM</span></div>
+          <div class="ec-mr"><span class="ec-ml">Price</span><span class="ec-mv">$18–$45</span></div>
+          <div class="ec-mr"><span class="ec-ml">Ages</span><span class="ec-mv">8+</span></div>
+        </div>
+        <div class="ec-pills"><span class="pill dist">1.2 mi</span></div>
+      </div>
+
+      <div class="ec cat-craft">
+        <span class="ec-type">Craft</span>
+        <div class="ec-title">Boat-Building Workshop at Frost Science</div>
+        <div class="ec-meta">
+          <div class="ec-mr"><span class="ec-ml">Where</span><span class="ec-mv">Frost Science · Downtown</span></div>
+          <div class="ec-mr"><span class="ec-ml">When</span><span class="ec-mv">11:00 AM – 1:00 PM</span></div>
+          <div class="ec-mr"><span class="ec-ml">Price</span><span class="ec-mv">Free w/ admission</span></div>
+          <div class="ec-mr"><span class="ec-ml">Ages</span><span class="ec-mv">5–10</span></div>
+        </div>
+        <div class="ec-pills"><span class="pill dist">2.1 mi</span></div>
+      </div>
+
+      <div class="ec cat-outdoor">
+        <span class="ec-type">Outdoor</span>
+        <div class="ec-title">Magic City Flea Market at Ironside — Kids' Section Open</div>
+        <div class="ec-meta">
+          <div class="ec-mr"><span class="ec-ml">Where</span><span class="ec-mv">Miami Ironside · Upper East Side</span></div>
+          <div class="ec-mr"><span class="ec-ml">When</span><span class="ec-mv">9:00 AM – 3:00 PM</span></div>
+          <div class="ec-mr"><span class="ec-ml">Price</span><span class="ec-mv">Free</span></div>
+        </div>
+        <div class="ec-pills"><span class="pill fr">Free</span><span class="pill dist">Your zone</span></div>
+      </div>
+
+      <div class="ec cat-museum">
+        <span class="ec-type">Museum</span>
+        <div class="ec-title">Butterfly Pavilion Weekends at Miami Children's Museum</div>
+        <div class="ec-meta">
+          <div class="ec-mr"><span class="ec-ml">Where</span><span class="ec-mv">Children's Museum · Watson Island</span></div>
+          <div class="ec-mr"><span class="ec-ml">When</span><span class="ec-mv">10:00 AM – 4:00 PM</span></div>
+          <div class="ec-mr"><span class="ec-ml">Price</span><span class="ec-mv">$12–$18</span></div>
+        </div>
+        <div class="ec-pills"><span class="pill dist">2.8 mi</span></div>
+      </div>
+
+      <div class="ec cat-outdoor">
+        <span class="ec-type">Outdoor</span>
+        <div class="ec-title">Free Guided Nature Walk at Oleta River — Kid-Paced</div>
+        <div class="ec-meta">
+          <div class="ec-mr"><span class="ec-ml">Where</span><span class="ec-mv">Oleta River State Park</span></div>
+          <div class="ec-mr"><span class="ec-ml">When</span><span class="ec-mv">9:00 – 11:00 AM</span></div>
+          <div class="ec-mr"><span class="ec-ml">Price</span><span class="ec-mv">$6 / vehicle</span></div>
+        </div>
+        <div class="ec-pills"><span class="pill dist">3.4 mi</span></div>
+      </div>
+
+      <div class="ec cat-storytime">
+        <span class="ec-type">Storytime</span>
+        <div class="ec-title">Songs, Stories, and Finger Plays for the Youngest Listeners</div>
+        <div class="ec-meta">
+          <div class="ec-mr"><span class="ec-ml">Where</span><span class="ec-mv">North Central Branch</span></div>
+          <div class="ec-mr"><span class="ec-ml">When</span><span class="ec-mv">11:00 – 11:45 AM</span></div>
+          <div class="ec-mr"><span class="ec-ml">Price</span><span class="ec-mv">Free</span></div>
+          <div class="ec-mr"><span class="ec-ml">Ages</span><span class="ec-mv">0–3</span></div>
+        </div>
+        <div class="ec-pills"><span class="pill fr">Free</span><span class="pill dist">Your zone</span></div>
+      </div>
+
+      <div class="ann" style="grid-column:1/-1;margin:0;">↑ 3-col on desktop ≥860px, 2-col on mid, 1-col mobile. No description text in standard cards — title + labeled rows + distance pill only.</div>
+
+      <!-- Library card — full width, 2-col rows on desktop -->
+      <div class="lib-card">
+        <div class="lib-hdr" onclick="toggleLib('lib0')">
+          <div class="lib-icon-wrap"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+          <div class="lib-info"><div class="lib-title">Miami-Dade Libraries</div><div class="lib-sub">3 programs today in your zone</div></div>
+          <span class="lib-chev open" id="chev-lib0">▾</span>
+        </div>
+        <div class="lib-rows open" id="lib0">
+          <div class="lib-row">
+            <span class="lib-dot"></span>
+            <div class="lib-rinfo">
+              <span class="lib-rname">Free Music and Movement</span>
+              <span class="lib-rdetail">Doral Branch · 10:00 – 11:00 AM</span>
+            </div>
+            <span class="lib-rdist">Your zone</span>
+          </div>
+          <div class="lib-row">
+            <span class="lib-dot"></span>
+            <div class="lib-rinfo">
+              <span class="lib-rname">Storytime for Toddlers</span>
+              <span class="lib-rdetail">North Central Branch · 11:00 – 11:45 AM</span>
+            </div>
+            <span class="lib-rdist">Your zone</span>
+          </div>
+          <div class="lib-row">
+            <span class="lib-dot"></span>
+            <div class="lib-rinfo">
+              <span class="lib-rname">Homework Help</span>
+              <span class="lib-rdetail">Edison Center · Arcola Lakes · Little River</span>
+              <span class="lib-rbranch">3 branches · 3:00 – 5:00 PM</span>
+            </div>
+          </div>
+          <div class="lib-row" style="grid-column:1/-1;">
+            <div style="font-size:11px;color:#777;padding:0;font-style:italic;">↑ On desktop ≥680px these rows tile into 2 columns, eliminating the full-width whitespace. Green-tinted header gives the section distinct visual weight.</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /event-grid -->
+  </div><!-- /day-section 0 -->
+
+  <!-- DAY 1: Tomorrow — fewer events -->
+  <div class="day-section" id="dsec-1">
+    <div class="day-header">
+      <span class="day-name">Tomorrow</span>
+      <span class="day-date">Sun Apr 12</span>
+      <span class="day-count">2 events</span>
+    </div>
+
+    <!-- Hero: only 2 events, first one still gets hero — but it adapts to the content, no awkward empty space -->
+    <div class="hero-card">
+      <div class="hero-visual outdoor">
+        <svg class="hero-pattern" viewBox="0 0 400 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outdoor: foliage waves -->
+          <ellipse cx="60" cy="190" rx="90" ry="60" fill="white" opacity=".06"/>
+          <ellipse cx="200" cy="200" rx="110" ry="70" fill="white" opacity=".05"/>
+          <ellipse cx="360" cy="185" rx="80" ry="55" fill="white" opacity=".07"/>
+          <ellipse cx="130" cy="210" rx="60" ry="45" fill="white" opacity=".05"/>
+          <ellipse cx="290" cy="195" rx="70" ry="50" fill="white" opacity=".06"/>
+          <!-- Leaf shapes -->
+          <ellipse cx="80" cy="80" rx="20" ry="9" fill="white" opacity=".08" transform="rotate(-30,80,80)"/>
+          <ellipse cx="300" cy="50" rx="16" ry="7" fill="white" opacity=".07" transform="rotate(20,300,50)"/>
+          <ellipse cx="200" cy="100" rx="22" ry="9" fill="white" opacity=".06" transform="rotate(10,200,100)"/>
+          <ellipse cx="150" cy="40" rx="14" ry="6" fill="white" opacity=".09" transform="rotate(-15,150,40)"/>
+        </svg>
+        <span class="hero-cat-badge">Outdoor</span>
+      </div>
+      <div class="hero-body">
+        <div class="hero-title">Zoo Miami's Bug Safari — Gross, Educational, Absolutely Worth It</div>
+        <div class="hero-desc">Three insect habitats, live specimen handling with staff guidance, and your kid will come home with more trivia about dung beetles than you were expecting.</div>
+        <div class="hero-meta">
+          <div class="hm-item"><span class="hm-lbl">Where</span><span class="hm-val">Zoo Miami · South Dade</span></div>
+          <div class="hm-item"><span class="hm-lbl">When</span><span class="hm-val">10:00 AM – 4:00 PM</span></div>
+          <div class="hm-item"><span class="hm-lbl">Price</span><span class="hm-val">$18 / Kids $14</span></div>
+        </div>
+        <div class="hero-pills">
+          <span class="hero-pill pr">Ages 3–12</span>
+          <span class="hero-pill dist">8.2 mi</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ann">↑ Only 2 events today — the hero still works. One hero card, one standard card beneath it. No awkward grid with one card. 2-event days look clean.</div>
+
+    <div class="event-grid">
+      <div class="ec cat-outdoor">
+        <span class="ec-type">Outdoor</span>
+        <div class="ec-title">Sunday Farmers' Market at Pinecrest Gardens — Kids' Activity Corner</div>
+        <div class="ec-meta">
+          <div class="ec-mr"><span class="ec-ml">Where</span><span class="ec-mv">Pinecrest Gardens</span></div>
+          <div class="ec-mr"><span class="ec-ml">When</span><span class="ec-mv">9:00 AM – 1:00 PM</span></div>
+          <div class="ec-mr"><span class="ec-ml">Price</span><span class="ec-mv">Free</span></div>
+        </div>
+        <div class="ec-pills"><span class="pill fr">Free</span><span class="pill dist">5.1 mi</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 2 — minimal, shows scroll continuity -->
+  <div class="day-section" id="dsec-2">
+    <div class="day-header">
+      <span class="day-name">Monday</span>
+      <span class="day-date">Apr 13</span>
+      <span class="day-count">3 events</span>
+    </div>
+    <div class="hero-card">
+      <div class="hero-visual museum">
+        <svg class="hero-pattern" viewBox="0 0 400 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <!-- Museum: geometric grid frames -->
+          <rect x="20" y="20" width="80" height="60" rx="2" fill="none" stroke="white" stroke-width="1" opacity=".12"/>
+          <rect x="30" y="30" width="60" height="40" rx="1" fill="none" stroke="white" stroke-width=".6" opacity=".09"/>
+          <rect x="180" y="40" width="100" height="80" rx="2" fill="none" stroke="white" stroke-width="1" opacity=".10"/>
+          <rect x="190" y="50" width="80" height="60" rx="1" fill="none" stroke="white" stroke-width=".6" opacity=".07"/>
+          <rect x="310" y="10" width="70" height="55" rx="2" fill="none" stroke="white" stroke-width="1" opacity=".11"/>
+          <line x1="0" y1="90" x2="400" y2="90" stroke="white" stroke-width=".8" opacity=".07"/>
+          <line x1="160" y1="0" x2="160" y2="180" stroke="white" stroke-width=".8" opacity=".07"/>
+          <line x1="300" y1="0" x2="300" y2="180" stroke="white" stroke-width=".8" opacity=".06"/>
+        </svg>
+        <span class="hero-cat-badge">Museum</span>
+      </div>
+      <div class="hero-body">
+        <div class="hero-title">Frost Science Planetarium — Preschool Space Show (30 Min, No Sitting Still Required)</div>
+        <div class="hero-desc">The 30-minute show is calibrated for ages 3–6 — short enough, dark enough to feel special, and the dome projection is genuinely awe-inducing even for skeptical five-year-olds.</div>
+        <div class="hero-meta">
+          <div class="hm-item"><span class="hm-lbl">Where</span><span class="hm-val">Frost Science · Downtown</span></div>
+          <div class="hm-item"><span class="hm-lbl">When</span><span class="hm-val">11:00 AM – 11:30 AM</span></div>
+        </div>
+        <div class="hero-pills">
+          <span class="hero-pill pr">$10 + admission</span>
+          <span class="hero-pill pr">Ages 3–6</span>
+          <span class="hero-pill dist">2.1 mi</span>
+        </div>
+      </div>
+    </div>
+    <div class="event-grid">
+      <div class="ec cat-storytime">
+        <span class="ec-type">Storytime</span>
+        <div class="ec-title">Bilingual Storytime (English/Spanish) at Little River Branch</div>
+        <div class="ec-meta">
+          <div class="ec-mr"><span class="ec-ml">Where</span><span class="ec-mv">Little River Branch</span></div>
+          <div class="ec-mr"><span class="ec-ml">When</span><span class="ec-mv">10:00 – 10:45 AM</span></div>
+          <div class="ec-mr"><span class="ec-ml">Price</span><span class="ec-mv">Free</span></div>
+          <div class="ec-mr"><span class="ec-ml">Ages</span><span class="ec-mv">2–5</span></div>
+        </div>
+        <div class="ec-pills"><span class="pill fr">Free</span><span class="pill dist">Your zone</span></div>
+      </div>
+      <div class="ec cat-workshop">
+        <span class="ec-type">Workshop</span>
+        <div class="ec-title">Robotics Intro for Kids at The Underline — No Experience Needed</div>
+        <div class="ec-meta">
+          <div class="ec-mr"><span class="ec-ml">Where</span><span class="ec-mv">The Underline · Brickell</span></div>
+          <div class="ec-mr"><span class="ec-ml">When</span><span class="ec-mv">4:00 – 5:30 PM</span></div>
+          <div class="ec-mr"><span class="ec-ml">Price</span><span class="ec-mv">Free</span></div>
+          <div class="ec-mr"><span class="ec-ml">Ages</span><span class="ec-mv">7–12</span></div>
+        </div>
+        <div class="ec-pills"><span class="pill fr">Free</span><span class="pill dist">1.8 mi</span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /event-feed -->
+</div><!-- /panel-events -->
+
+<!-- ═══ EXPLORE ═══ -->
+<div class="tab-panel" id="panel-explore">
+<div class="explore-feed">
+
+  <div class="explore-header">
+    <div class="explore-title">Explore Upper Biscayne</div>
+    <div class="explore-sub">Curated family spots — closest first within each category</div>
+  </div>
+
+  <div class="cat-filter">
+    <button class="cf-chip on">All</button>
+    <button class="cf-chip off">Outdoor Play</button>
+    <button class="cf-chip off">Arts & Culture</button>
+    <button class="cf-chip off">Rainy Day</button>
+    <button class="cf-chip off">Nature</button>
+    <button class="cf-chip off">Eat & Treat</button>
+  </div>
+
+  <div class="ann">↑ Explore header: no map button. Each place card has its own Google Maps link in the detail sidebar. Map doesn't need to live on this page.</div>
+
+  <!-- Outdoor Play -->
+  <div class="cat-section">
+    <div class="cat-section-hdr">
+      <span class="cat-section-name">Outdoor Play</span>
+      <span class="cat-section-count">4 spots</span>
+    </div>
+    <div class="places-grid">
+      <div class="plc">
+        <div class="plc-bar outdoor"></div>
+        <div class="plc-body">
+          <div class="plc-name">Morningside Park</div>
+          <div class="plc-hood">Upper East Side · 0.4 mi</div>
+          <div class="plc-ed">Splash pad, proper playground, and actual shade — the holy trinity. Tennis courts have a backboard for solo practice. Parking is rarely a problem on weekday mornings.</div>
+          <div class="plc-foot"><span class="pp op">Free</span><span class="pp">All ages</span></div>
+        </div>
+      </div>
+      <div class="plc">
+        <div class="plc-bar outdoor"></div>
+        <div class="plc-body">
+          <div class="plc-name">Oleta River State Park</div>
+          <div class="plc-hood">North Miami Beach · 3.4 mi</div>
+          <div class="plc-ed">Florida's largest urban park. Kayak rentals, mountain bike trails, and a beach that doesn't require driving to the coast. The mangrove tunnels by kayak are worth it.</div>
+          <div class="plc-foot"><span class="pp pr">$6 / vehicle</span><span class="pp">3+</span></div>
+        </div>
+      </div>
+      <div class="plc">
+        <div class="plc-bar outdoor"></div>
+        <div class="plc-body">
+          <div class="plc-name">Greynolds Park</div>
+          <div class="plc-hood">North Miami Beach · 4.1 mi</div>
+          <div class="plc-ed">Less known than Oleta but worth it. A small lake, paddleboat rentals, and one of the few Miami parks with actual rolling terrain. Picnic shelters book out on weekends.</div>
+          <div class="plc-foot"><span class="pp op">Free</span><span class="pp">All ages</span></div>
+        </div>
+      </div>
+      <div class="plc">
+        <div class="plc-bar outdoor"></div>
+        <div class="plc-body">
+          <div class="plc-name">Arch Creek Park</div>
+          <div class="plc-hood">North Miami · 2.8 mi</div>
+          <div class="plc-ed">A natural limestone arch in the middle of Miami. The small nature center has live snakes and turtles. Good for a short focused outing rather than an all-day visit.</div>
+          <div class="plc-foot"><span class="pp op">Free</span><span class="pp">4+</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ann">↑ EXPLORE STRUCTURE: Neighbourhood shown prominently below name (replaces map for orientation). Thin category-coloured top bar on each card. Alternating section backgrounds break up the flat feel. Left accent bar on section headers provides visual rhythm without being heavy.</div>
+
+  <!-- Arts & Culture — on even-child = white-tinted background -->
+  <div class="cat-section">
+    <div class="cat-section-hdr">
+      <span class="cat-section-name">Arts & Culture</span>
+      <span class="cat-section-count">3 spots</span>
+    </div>
+    <div class="places-grid">
+      <div class="plc">
+        <div class="plc-bar arts"></div>
+        <div class="plc-body">
+          <div class="plc-name">Pérez Art Museum Miami</div>
+          <div class="plc-hood">Downtown Miami · 2.2 mi</div>
+          <div class="plc-ed">PAMM's Sunday Funday workshops actually engage kids — not just tolerate them. The building and the waterfront setting are worth the trip even outside program hours.</div>
+          <div class="plc-foot"><span class="pp pr">$16 · Kids free</span><span class="pp">4+</span></div>
+        </div>
+      </div>
+      <div class="plc">
+        <div class="plc-bar arts"></div>
+        <div class="plc-body">
+          <div class="plc-name">Wynwood Walls</div>
+          <div class="plc-hood">Wynwood · 1.8 mi</div>
+          <div class="plc-ed">Before 11am on weekends the crowds are manageable. Kids fixate on the scale of the murals. Outside walk is free; the inner gallery has admission but is optional.</div>
+          <div class="plc-foot"><span class="pp op">Free (outside)</span><span class="pp">All ages</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rainy Day -->
+  <div class="cat-section">
+    <div class="cat-section-hdr">
+      <span class="cat-section-name">Rainy Day</span>
+      <span class="cat-section-count">5 spots</span>
+    </div>
+    <div class="places-grid">
+      <div class="plc">
+        <div class="plc-bar rainy"></div>
+        <div class="plc-body">
+          <div class="plc-name">Frost Museum of Science</div>
+          <div class="plc-hood">Downtown Miami · 2.1 mi</div>
+          <div class="plc-ed">The planetarium alone is worth it. Budget 3 hours — it's always more crowded than expected on rainy Saturdays. Arrive by 10am or after 2pm to avoid the worst of it.</div>
+          <div class="plc-foot"><span class="pp pr">$30 · Kids $24</span><span class="pp">2+</span></div>
+        </div>
+      </div>
+      <div class="plc">
+        <div class="plc-bar rainy"></div>
+        <div class="plc-body">
+          <div class="plc-name">Miami Children's Museum</div>
+          <div class="plc-hood">Watson Island · 2.8 mi</div>
+          <div class="plc-ed">Fully indoor. Toddler section is well-designed; older kids' floors hold attention longer than you'd expect. Peak crowd 11am–2pm — arrive early or after 2 for a calmer visit.</div>
+          <div class="plc-foot"><span class="pp pr">$20 · Under 1 free</span><span class="pp">0–12</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /explore-feed -->
+</div><!-- /panel-explore -->
+
+</div><!-- /site -->
+
+<script>
+/* ── Tab switching ── */
+function switchTab(tab, clicked) {
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.toggle('active', t.textContent.trim() === clicked.textContent.trim());
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.getElementById('dateStrip').style.display = tab === 'events' ? '' : 'none';
+}
+
+/* ── Library toggle ── */
+function toggleLib(id) {
+  const rows = document.getElementById(id);
+  const chev = document.getElementById('chev-' + id);
+  rows.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+/* ── Date strip — build + scroll-aware active state ── */
+const sections = [];
+const today = new Date();
+const dsInner = document.getElementById('dsInner');
+
+for (let i = 0; i < 14; i++) {
+  const d = new Date(today);
+  d.setDate(today.getDate() + i);
+  const isToday = i === 0;
+  const dayName = isToday ? 'Today' : d.toLocaleDateString('en-US',{weekday:'short'});
+  const dateStr = d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+
+  const pill = document.createElement('button');
+  pill.className = 'ds-pill' + (isToday ? ' is-today active' : '');
+  pill.innerHTML = `<span class="ds-day">${dayName}</span><span class="ds-date">${dateStr}</span>`;
+  pill.dataset.idx = i;
+
+  pill.addEventListener('click', () => {
+    setActive(i);
+    const sec = document.getElementById('dsec-' + i);
+    if (sec) sec.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+
+  dsInner.appendChild(pill);
+  sections.push(pill);
+}
+
+function setActive(idx) {
+  sections.forEach((p,i) => p.classList.toggle('active', i === idx));
+  // Scroll the active pill into view within the strip
+  const pill = sections[idx];
+  if (pill) pill.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+/* IntersectionObserver: update strip as user scrolls through days */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = parseInt(entry.target.id.replace('dsec-',''));
+      if (!isNaN(idx)) setActive(idx);
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.day-section').forEach(sec => observer.observe(sec));
+</script>
+</body>
+</html>

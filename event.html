@@ -6,7 +6,8 @@
   <title>EZPZ Miami — Event Details</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Montserrat:wght@800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='64' height='64' rx='14' fill='%23FF4477'/%3E%3Cpath d='M57 0V700H626V522H289V440H585V270H289V178H639V0Z' transform='translate(15.3,43.0) scale(0.026000,-0.026000)' fill='%23FFFFFF'/%3E%3Cpath d='M32 0V145L352 517H42V700H659V555L339 183H675V0Z' transform='translate(31.8,43.0) scale(0.026000,-0.026000)' fill='%23FFFFFF'/%3E%3C/svg%3E"/>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-W4T15HS0Z0"></script>
   <script>
@@ -20,19 +21,26 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --flamingo:     #FF4477;
-      --coral:        #FF8C70;
-      --violet:       #8B5CF6;
-      --yellow:       #FACC15;
-      --bg:           #FDFCFB;
-      --bg-white:     #FFFFFF;
-      --text-1:       #0F172A;
-      --text-2:       #475569;
-      --text-3:       #94A3B8;
-      --border:       #F1F5F9;
-      --border-med:   #E2E8F0;
-      --free:         #059669;
-      --free-bg:      #ECFDF5;
+      --accent:       #FF4477;
+      --accent-tint:  #FFF0F4;
+      --accent-light: #FFE0EA;
+      --accent-deep:  #CC2255;
+      --teal:         #0D9488;
+      --teal-tint:    #E6F7F5;
+      --teal-deep:    #0A7A70;
+      --gold:         #FACC15;
+      --gold-tint:    #FFF9DB;
+      --page-bg:      #FAF9F7;
+      --card-bg:      #FFFFFF;
+      --text-1:       #1A1A1A;
+      --text-2:       #555555;
+      --text-3:       #999999;
+      --border:       #EAEAEA;
+      --border-light: #F2F2F2;
+      --green:        #0D9488;
+      --green-deep:   #0A7A70;
+      --green-light:  #10B9A8;
+      --green-tint:   #E6F7F5;
       --header-h:     54px;
       --cta-h:        76px;
     }
@@ -40,15 +48,13 @@
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      background: var(--page-bg);
       color: var(--text-1);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
-
-    .display { font-family: 'Montserrat', sans-serif; }
 
     /* ─────────────────────────────────────────────
        TOP NAV
@@ -79,26 +85,24 @@
       transition: color 0.12s ease;
       -webkit-tap-highlight-color: transparent;
     }
-    .back-btn:hover { color: var(--flamingo); }
+    .back-btn:hover { color: var(--accent); }
     .back-btn svg { flex-shrink: 0; }
     .nav-logo {
-      font-family: 'Montserrat', sans-serif;
       font-size: 15px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: -0.04em;
-      color: var(--flamingo);
+      font-weight: 800;
       text-decoration: none;
+      color: var(--accent);
     }
+    .nav-logo svg { width: 100px; height: auto; }
 
     /* ─────────────────────────────────────────────
-       BILLBOARD HERO (compact, no image)
+       BILLBOARD HERO
     ───────────────────────────────────────────── */
     .hero-billboard {
       width: 100%;
       position: relative;
       overflow: hidden;
-      background: var(--text-1);
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
       padding: 28px 24px 24px;
       display: flex;
       flex-direction: column;
@@ -108,7 +112,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      opacity: 0.08;
+      opacity: 0.1;
       background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect width="28" height="28" fill="none"/><rect x="0" y="0" width="14" height="14" fill="white" fill-opacity="0.15"/><rect x="14" y="14" width="14" height="14" fill="white" fill-opacity="0.15"/></svg>');
       background-size: 28px 28px;
     }
@@ -117,52 +121,45 @@
       z-index: 2;
     }
     .hero-date {
-      font-family: 'Montserrat', sans-serif;
       font-size: 9px;
-      font-weight: 900;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.2em;
-      color: rgba(255,255,255,0.45);
+      color: rgba(255,255,255,0.7);
       margin-bottom: 10px;
     }
     .hero-category {
       display: inline-block;
-      font-family: 'Montserrat', sans-serif;
       font-size: 7px;
-      font-weight: 900;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       padding: 3px 8px;
       border-radius: 3px;
-      background: var(--bg-white);
-      color: var(--text-1);
+      background: white;
+      color: var(--accent);
       margin-bottom: 12px;
     }
     .hero-title {
-      font-family: 'Montserrat', sans-serif;
       font-size: 32px;
-      font-weight: 900;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: -0.04em;
       line-height: 1;
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-image: linear-gradient(to right, var(--coral), var(--flamingo));
+      color: white;
     }
     .hero-organizer {
       font-size: 13px;
       font-weight: 500;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.7);
       margin-top: 8px;
     }
     .hero-ghost {
       position: absolute;
       bottom: -12px;
       right: -12px;
-      font-family: 'Montserrat', sans-serif;
       font-size: 80px;
-      font-weight: 900;
+      font-weight: 800;
       text-transform: uppercase;
       color: rgba(255,255,255,0.03);
       white-space: nowrap;
@@ -179,20 +176,20 @@
     .hero-meta-item {
       font-size: 12px;
       font-weight: 600;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255,255,255,0.75);
       display: flex;
       align-items: center;
       gap: 4px;
     }
-    .hero-meta-item svg { opacity: 0.5; }
+    .hero-meta-item svg { opacity: 0.8; }
     .hero-pill {
       font-size: 11px;
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 5px;
     }
-    .hero-pill.free { background: var(--free-bg); color: var(--free); }
-    .hero-pill.paid { background: rgba(255,140,112,0.15); color: var(--coral); }
+    .hero-pill.free { background: var(--teal-tint); color: var(--teal-deep); }
+    .hero-pill.paid { background: rgba(255,140,112,0.15); color: #FF8C70; }
 
     /* ─────────────────────────────────────────────
        PAGE
@@ -212,9 +209,8 @@
     }
     .section:last-child { border-bottom: none; }
     .section-label {
-      font-family: 'Montserrat', sans-serif;
       font-size: 9px;
-      font-weight: 900;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.15em;
       color: var(--text-3);
@@ -228,72 +224,58 @@
       line-height: 1.75;
       color: var(--text-1);
       padding-left: 16px;
-      border-left: 3px solid var(--flamingo);
+      border-left: 3px solid var(--accent);
+      background: var(--accent-tint);
+      padding: 12px 16px;
+      border-radius: 6px;
     }
     .practical-notes {
       font-size: 13.5px;
       line-height: 1.65;
       color: var(--text-2);
       margin-top: 14px;
-      padding: 12px 14px;
-      background: var(--bg-white);
-      border: 1px solid var(--border);
-      border-radius: 10px;
     }
 
-    /* Info rows */
-    .info-rows {
+    /* Info grid */
+    .ed-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .ed-grid-item {
       display: flex;
       flex-direction: column;
+      gap: 2px;
     }
-    .info-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .info-row:last-child { border-bottom: none; }
-    .info-icon { font-size: 18px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
-    .info-body { flex: 1; min-width: 0; }
-    .info-label {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8px;
-      font-weight: 900;
+    .ed-grid-label {
+      font-size: 9px;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.4px;
       color: var(--text-3);
-      margin-bottom: 3px;
     }
-    .info-value {
-      font-size: 15px;
+    .ed-grid-value {
+      font-size: 12px;
       font-weight: 700;
       color: var(--text-1);
-      line-height: 1.35;
     }
-    .info-value.accent { color: var(--flamingo); }
-    .info-value.green  { color: var(--free); }
-    .info-sub {
-      font-size: 12.5px;
-      font-weight: 500;
-      color: var(--text-3);
-      margin-top: 2px;
+
+    /* Good to know notes */
+    .ed-notes {
+      font-size: 12px;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-bottom: 16px;
     }
-    .map-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      margin-top: 8px;
-      font-size: 13px;
+    .ed-note-item {
+      margin-bottom: 8px;
+    }
+    .ed-note-item::before {
+      content: '• ';
+      color: var(--accent);
       font-weight: 700;
-      color: var(--flamingo);
-      text-decoration: none;
-      padding: 6px 14px;
-      border: 1.5px solid var(--flamingo);
-      border-radius: 8px;
-      transition: background 0.12s, color 0.12s;
     }
-    .map-link:hover { background: var(--flamingo); color: white; }
 
     /* Description */
     .description-text {
@@ -309,58 +291,14 @@
       flex-wrap: wrap;
       gap: 8px;
     }
-    .tag {
-      font-size: 12px;
+    .ed-tag {
+      font-size: 10px;
       font-weight: 600;
-      background: var(--bg-white);
+      background: var(--border-light);
       color: var(--text-2);
-      padding: 5px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--border-med);
+      border-radius: 20px;
+      padding: 4px 10px;
     }
-
-    /* Sessions table */
-    .sessions-list {
-      border: 1px solid var(--border-med);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .sessions-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 14px;
-      background: var(--bg-white);
-      border-bottom: 1px solid var(--border);
-    }
-    .sh-label {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-3);
-    }
-    .session-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 11px 14px;
-      border-bottom: 1px solid var(--border);
-      font-size: 13.5px;
-    }
-    .session-row:last-child { border-bottom: none; }
-    .session-age { font-weight: 600; color: var(--text-1); min-width: 82px; flex-shrink: 0; }
-    .session-venue { flex: 1; color: var(--text-2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .session-time { color: var(--text-2); white-space: nowrap; flex-shrink: 0; }
-    .session-link { color: var(--flamingo); font-weight: 700; text-decoration: none; white-space: nowrap; flex-shrink: 0; font-size: 13px; margin-left: auto; }
-    .session-link:hover { text-decoration: underline; }
-    .session-program { font-weight: 600; color: var(--text-1); flex: 0 1 130px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .sessions-header .session-program { flex: 0 1 130px; }
-    .sessions-header .session-age  { min-width: 82px; flex-shrink: 0; }
-    .sessions-header .session-venue { flex: 1; }
-    .sessions-header .session-time { flex-shrink: 0; }
-    .sessions-header .session-link { margin-left: auto; }
 
     /* ─────────────────────────────────────────────
        CTA BAR
@@ -402,26 +340,30 @@
       -webkit-tap-highlight-color: transparent;
     }
     .btn-primary:hover { opacity: 0.85; }
-    .btn-icon {
+    .ed-icon-btn {
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 6px;
       width: 48px;
       height: 48px;
-      background: var(--bg-white);
-      border: 1.5px solid var(--border-med);
+      background: white;
+      border: 1.5px solid var(--border);
       border-radius: 12px;
-      font-size: 18px;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
       flex-shrink: 0;
       color: var(--text-2);
       text-decoration: none;
       transition: border-color 0.12s, background 0.12s, color 0.12s;
       -webkit-tap-highlight-color: transparent;
+      font-family: inherit;
     }
-    .btn-icon:hover { border-color: var(--text-1); color: var(--text-1); }
-    .btn-icon.wa { color: #25D366; border-color: #25D366; }
-    .btn-icon.wa:hover { background: #25D366; color: white; }
+    .ed-icon-btn:hover { border-color: var(--text-1); color: var(--text-1); background: var(--border-light); }
+    .ed-icon-btn.wa { color: #25D366; border-color: #25D366; }
+    .ed-icon-btn.wa:hover { background: #25D366; color: white; }
+    .ed-icon-label { display: none; }
 
     /* ─────────────────────────────────────────────
        LOADING / ERROR
@@ -429,8 +371,8 @@
     .spinner-wrap { display: flex; justify-content: center; padding: 80px 0; }
     .spinner {
       width: 30px; height: 30px;
-      border: 3px solid var(--border-med);
-      border-top-color: var(--flamingo);
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
@@ -440,7 +382,7 @@
     .error-icon { font-size: 36px; margin-bottom: 16px; }
     .error-state h3 { font-size: 17px; font-weight: 700; color: var(--text-1); margin-bottom: 8px; }
     .error-state p { font-size: 14px; color: var(--text-2); margin-bottom: 24px; }
-    .error-link { font-size: 14px; font-weight: 700; color: var(--flamingo); text-decoration: none; }
+    .error-link { font-size: 14px; font-weight: 700; color: var(--accent); text-decoration: none; }
 
     /* ─────────────────────────────────────────────
        RESPONSIVE
@@ -457,10 +399,6 @@
       .hero-billboard { padding: 32px 28px 28px; }
       .hero-title { font-size: 36px; }
     }
-    @media (max-width: 380px) {
-      .session-age { min-width: 70px; }
-      .sessions-header .session-age { min-width: 70px; }
-    }
   </style>
 </head>
 <body>
@@ -473,7 +411,19 @@
     </svg>
     All Events
   </a>
-  <a class="nav-logo" href="index.html">EZPZ</a>
+  <a class="nav-logo" href="index.html">
+    <svg viewBox="0 0 287 52" xmlns="http://www.w3.org/2000/svg">
+      <path d="M57 0V700H626V522H289V440H585V270H289V178H639V0Z" transform="translate(4.0,42.0) scale(0.048000,-0.048000)" fill="#FF4477"/>
+      <path d="M32 0V145L352 517H42V700H659V555L339 183H675V0Z" transform="translate(33.8,42.0) scale(0.048000,-0.048000)" fill="#FF4477"/>
+      <path d="M57 0V700H394Q492 700 563.5 668.0Q635 636 674.0 576.5Q713 517 713 436Q713 355 674.0 296.0Q635 237 563.5 204.5Q492 172 394 172H293V0ZM293 354H379Q428 354 451.5 376.0Q475 398 475 436Q475 474 451.5 496.0Q428 518 379 518H293Z" transform="translate(64.3,42.0) scale(0.048000,-0.048000)" fill="#FF4477"/>
+      <path d="M32 0V145L352 517H42V700H659V555L339 183H675V0Z" transform="translate(97.4,42.0) scale(0.048000,-0.048000)" fill="#FF4477"/>
+      <path d="M57 0V700H251L479 327L701 700H895L897 0H682L680 319L528 63H424L272 308V0Z" transform="translate(127.9,42.0) scale(0.048000,-0.048000)" fill="#0D9488"/>
+      <path d="M57 0V700H293V0Z" transform="translate(171.2,42.0) scale(0.048000,-0.048000)" fill="#0D9488"/>
+      <path d="M-19 0 287 700H519L825 0H581L534 122H268L221 0ZM333 292H469L401 468Z" transform="translate(185.5,42.0) scale(0.048000,-0.048000)" fill="#0D9488"/>
+      <path d="M57 0V700H251L479 327L701 700H895L897 0H682L680 319L528 63H424L272 308V0Z" transform="translate(221.7,42.0) scale(0.048000,-0.048000)" fill="#0D9488"/>
+      <path d="M57 0V700H293V0Z" transform="translate(265.0,42.0) scale(0.048000,-0.048000)" fill="#0D9488"/>
+    </svg>
+  </a>
 </nav>
 
 <!-- Main content -->
@@ -486,24 +436,27 @@
   <a class="btn-primary" id="cta-link" href="#" target="_blank" rel="noopener">
     View &amp; Get Tickets
   </a>
-  <a class="btn-icon" id="maps-btn" href="#" target="_blank" rel="noopener" title="Open in Maps" style="display:none">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <a class="ed-icon-btn" id="maps-btn" href="#" target="_blank" rel="noopener" title="Open in Maps" style="display:none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
       <circle cx="12" cy="10" r="3"/>
     </svg>
+    <span class="ed-icon-label">Directions</span>
   </a>
-  <button class="btn-icon wa" title="Share on WhatsApp" onclick="shareWhatsApp()">
+  <button class="ed-icon-btn wa" title="Share on WhatsApp" onclick="shareWhatsApp()">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <path d="M20.5 3.5A11.95 11.95 0 0012 0C5.37 0 0 5.37 0 12c0 2.12.55 4.19 1.61 6.01L0 24l6.15-1.61A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.22-3.5-8.5zM12 22c-1.85 0-3.66-.5-5.23-1.44l-.38-.22-3.92 1.03 1.05-3.83-.24-.4A10 10 0 012 12C2 6.48 6.48 2 12 2c2.67 0 5.19 1.04 7.07 2.93A9.95 9.95 0 0122 12c0 5.52-4.48 10-10 10zm5.5-7.5c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.22 5.12 4.52.72.31 1.28.49 1.72.63.72.23 1.38.2 1.9.12.58-.09 1.77-.73 2.02-1.43.25-.7.25-1.3.17-1.43-.07-.13-.27-.2-.57-.35z"/>
     </svg>
+    <span class="ed-icon-label">Share</span>
   </button>
-  <button class="btn-icon" title="Add to calendar" onclick="addToCalendar()">
+  <button class="ed-icon-btn" title="Add to calendar" onclick="addToCalendar()">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="4" width="18" height="18" rx="2.5"/>
       <line x1="16" y1="2" x2="16" y2="6"/>
       <line x1="8" y1="2" x2="8" y2="6"/>
       <line x1="3" y1="10" x2="21" y2="10"/>
     </svg>
+    <span class="ed-icon-label">Calendar</span>
   </button>
 </div>
 
@@ -564,7 +517,6 @@ async function loadEvent() {
 // ─── RENDER SINGLE EVENT ─────────────────────────────────────────
 function renderEvent(ev) {
   const root = document.getElementById('root');
-  const gradient = pickGradient(ev.activity_type);
 
   const dateLabel = fmtFullDate(ev.start_date);
   const timeStr   = fmtTime(ev.start_date);
@@ -587,13 +539,13 @@ function renderEvent(ev) {
   if (ev.venue_name) metaParts.push(`<span class="hero-meta-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(ev.venue_name)}</span>`);
   if (priceHtml) metaParts.push(priceHtml);
 
-  // Billboard hero
+  // Billboard hero with Design B style
   const heroHtml = `
     <div class="hero-billboard">
       <div class="hero-content">
         <div class="hero-date">${esc(dateLabel)}</div>
         <span class="hero-category">${esc(category)}</span>
-        <h1 class="hero-title" style="background-image: ${gradient}">${esc(headline)}</h1>
+        <h1 class="hero-title">${esc(headline)}</h1>
         ${ev.editorial_headline ? `<div class="hero-organizer">${esc(ev.title)}</div>` : (ev.organizer_name ? `<div class="hero-organizer">by ${esc(ev.organizer_name)}</div>` : '')}
         ${metaParts.length ? `<div class="hero-meta">${metaParts.join('')}</div>` : ''}
       </div>
@@ -605,27 +557,33 @@ function renderEvent(ev) {
     <div class="section">
       <div class="section-label">What to expect</div>
       <p class="summary-text">${esc(ev.parent_summary || ev.description)}</p>
-      ${ev.practical_notes ? `<div class="practical-notes">${renderNotes(ev.practical_notes)}</div>` : ''}
+      ${ev.practical_notes ? `<div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);"><div class="section-label" style="margin-bottom:12px;">Good to know</div><div class="ed-notes">${renderNotes(ev.practical_notes)}</div></div>` : ''}
     </div>` : '';
 
-  // Plan your visit
-  const infoRows = [];
-  infoRows.push(`<div class="info-row"><span class="info-icon">📅</span><div class="info-body"><div class="info-label">Date</div><div class="info-value accent">${esc(dateLabel)}</div></div></div>`);
-  if (timeStr) infoRows.push(`<div class="info-row"><span class="info-icon">🕐</span><div class="info-body"><div class="info-label">Time</div><div class="info-value">${timeStr}${endTime ? ' – ' + endTime : ''}</div>${dur ? `<div class="info-sub">${dur}</div>` : ''}</div></div>`);
-  infoRows.push(`<div class="info-row"><span class="info-icon">📍</span><div class="info-body"><div class="info-label">Location</div><div class="info-value">${esc(ev.neighborhood || ev.venue_name || 'TBA')}</div>${ev.neighborhood && ev.venue_name ? `<div class="info-sub">${esc(ev.venue_name)}</div>` : ''}${(ev.address || ev.venue_name) ? `${ev.address ? `<div class="info-sub" style="margin-top:4px">${esc(ev.address)}</div>` : ''}<a class="map-link" href="${mapsUrl(ev)}" target="_blank" rel="noopener">Open in Maps →</a>` : ''}</div></div>`);
-  infoRows.push(`<div class="info-row"><span class="info-icon">💵</span><div class="info-body"><div class="info-label">Cost</div><div class="info-value ${ev.is_free ? 'green' : ''}">${esc(priceStr(ev))}</div></div></div>`);
-  const ageTxt = ageLabel(ev.age_min, ev.age_max);
-  infoRows.push(`<div class="info-row"><span class="info-icon">👶</span><div class="info-body"><div class="info-label">Ages</div><div class="info-value">${esc(ageTxt)}</div>${ev.activity_type ? `<div class="info-sub" style="text-transform:capitalize">${esc(ev.activity_type)}</div>` : ''}</div></div>`);
-  if (ev.indoor_outdoor) infoRows.push(`<div class="info-row"><span class="info-icon">${ev.indoor_outdoor === 'indoor' ? '🏠' : ev.indoor_outdoor === 'outdoor' ? '☀️' : '🔄'}</span><div class="info-body"><div class="info-label">Setting</div><div class="info-value" style="text-transform:capitalize">${esc(ev.indoor_outdoor)}</div></div></div>`);
+  // Plan your visit - Design B grid style
+  const gridItems = [];
+  gridItems.push(`<div class="ed-grid-item"><span class="ed-grid-label">Date & Time</span><span class="ed-grid-value">${esc(dateLabel)}${timeStr ? ' · ' + timeStr + (endTime ? ' – ' + endTime : '') : ''}</span></div>`);
+  if (ev.neighborhood && ev.venue_name) {
+    gridItems.push(`<div class="ed-grid-item"><span class="ed-grid-label">Location</span><span class="ed-grid-value">${esc(ev.venue_name)} · ${esc(ev.neighborhood)}</span></div>`);
+  } else if (ev.venue_name) {
+    gridItems.push(`<div class="ed-grid-item"><span class="ed-grid-label">Location</span><span class="ed-grid-value">${esc(ev.venue_name)}</span></div>`);
+  } else {
+    gridItems.push(`<div class="ed-grid-item"><span class="ed-grid-label">Location</span><span class="ed-grid-value">${esc(ev.neighborhood || 'TBA')}</span></div>`);
+  }
+  gridItems.push(`<div class="ed-grid-item"><span class="ed-grid-label">Cost</span><span class="ed-grid-value">${esc(priceStr(ev))}</span></div>`);
+  gridItems.push(`<div class="ed-grid-item"><span class="ed-grid-label">Ages</span><span class="ed-grid-value">${esc(ageLabel(ev.age_min, ev.age_max))}</span></div>`);
+  if (ev.indoor_outdoor) {
+    gridItems.push(`<div class="ed-grid-item"><span class="ed-grid-label">Setting</span><span class="ed-grid-value" style="text-transform:capitalize">${esc(ev.indoor_outdoor)}</span></div>`);
+  }
 
-  const infoSection = `<div class="section"><div class="section-label">Plan your visit</div><div class="info-rows">${infoRows.join('')}</div></div>`;
+  const infoSection = `<div class="section"><div class="section-label">Plan your visit</div><div class="ed-grid">${gridItems.join('')}</div></div>`;
 
   // About
   const fullDesc = ev.full_description || (ev.parent_summary ? ev.description : '') || '';
   const aboutSection = fullDesc ? `<div class="section"><div class="section-label">About this event</div><p class="description-text">${esc(fullDesc.trim())}</p></div>` : '';
 
   // Tags
-  const tagsSection = (ev.tags || []).length > 0 ? `<div class="section"><div class="tags-row">${ev.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div></div>` : '';
+  const tagsSection = (ev.tags || []).length > 0 ? `<div class="section"><div class="section-label">Tags</div><div class="tags-row">${ev.tags.map(t => `<span class="ed-tag">${esc(t)}</span>`).join('')}</div></div>` : '';
 
   root.innerHTML = `${heroHtml}<div class="page">${summarySection}${infoSection}${aboutSection}${tagsSection}</div>`;
 
@@ -661,7 +619,6 @@ function renderEvent(ev) {
 function renderGroup(events) {
   const root = document.getElementById('root');
   const rep  = events[0];
-  const gradient = pickGradient(rep.activity_type);
 
   const dateLabel = fmtFullDate(rep.start_date);
   const famMatch  = familyMatch(rep.title);
@@ -679,7 +636,7 @@ function renderGroup(events) {
       <div class="hero-content">
         <div class="hero-date">${esc(dateLabel)}</div>
         <span class="hero-category">${esc(category)}</span>
-        <h1 class="hero-title" style="background-image: ${gradient}">${esc(programTitle)}</h1>
+        <h1 class="hero-title">${esc(programTitle)}</h1>
         ${priceHtml ? `<div class="hero-meta">${priceHtml}</div>` : ''}
       </div>
       <span class="hero-ghost">${esc(programTitle)}</span>
@@ -705,21 +662,21 @@ function renderGroup(events) {
     const venue   = e.venue_name || e.neighborhood || '—';
     const timeStr = fmtTime(e.start_date) || '—';
     const label   = e.is_free ? 'Register' : 'Tickets';
-    return `<div class="session-row">${showProgram ? `<div class="session-program">${esc(progTxt)}</div>` : ''}${showAges ? `<div class="session-age">${esc(ageTxt)}</div>` : ''}<div class="session-venue">${esc(venue)}</div>${showTimes ? `<div class="session-time">${esc(timeStr)}</div>` : ''}<a class="session-link" href="${esc(e.source_url || '#')}" target="_blank" rel="noopener">${esc(label)} →</a></div>`;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);font-size:13.5px;">${showProgram ? `<div style="font-weight:600;color:var(--text-1);flex:0 1 130px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(progTxt)}</div>` : ''}${showAges ? `<div style="font-weight:600;color:var(--text-1);min-width:82px;flex-shrink:0;">${esc(ageTxt)}</div>` : ''}<div style="flex:1;color:var(--text-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(venue)}</div>${showTimes ? `<div style="color:var(--text-2);white-space:nowrap;flex-shrink:0;">${esc(timeStr)}</div>` : ''}<a style="color:var(--accent);font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;font-size:13px;margin-left:auto;" href="${esc(e.source_url || '#')}" target="_blank" rel="noopener">${esc(label)} →</a></div>`;
   }).join('');
 
-  const sessionsSection = `<div class="section"><div class="section-label">Sessions</div><div class="sessions-list"><div class="sessions-header">${showProgram ? '<div class="session-program sh-label">Program</div>' : ''}${showAges ? '<div class="session-age sh-label">Age group</div>' : ''}<div class="session-venue sh-label">Location</div>${showTimes ? '<div class="session-time sh-label">Time</div>' : ''}<div class="session-link sh-label"></div></div>${sessionRows}</div></div>`;
+  const sessionsSection = `<div class="section"><div class="section-label">Sessions</div><div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;"><div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:white;border-bottom:1px solid var(--border);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);">${showProgram ? '<div style="flex:0 1 130px;">Program</div>' : ''}${showAges ? '<div style="min-width:82px;flex-shrink:0;">Age group</div>' : ''}<div style="flex:1;">Location</div>${showTimes ? '<div style="flex-shrink:0;">Time</div>' : ''}<div style="margin-left:auto;"></div></div>${sessionRows}</div></div>`;
 
   // Plan your visit
   const locationNote = events.length === 1
     ? esc(rep.neighborhood || rep.venue_name || 'TBA')
     : `${events.length} Miami-Dade locations — see sessions above`;
 
-  const infoSection = `<div class="section"><div class="section-label">Plan your visit</div><div class="info-rows">
-    <div class="info-row"><span class="info-icon">📅</span><div class="info-body"><div class="info-label">Date</div><div class="info-value accent">${esc(dateLabel)}</div></div></div>
-    <div class="info-row"><span class="info-icon">📍</span><div class="info-body"><div class="info-label">Location</div><div class="info-value">${locationNote}</div></div></div>
-    <div class="info-row"><span class="info-icon">💵</span><div class="info-body"><div class="info-label">Cost</div><div class="info-value ${allFree ? 'green' : ''}">${allFree ? 'Free' : esc(priceStr(rep))}</div></div></div>
-    <div class="info-row"><span class="info-icon">👶</span><div class="info-body"><div class="info-label">Ages</div><div class="info-value">${(showAges || showProgram) ? 'Multiple age groups — see sessions above' : esc(ageLabel(rep.age_min, rep.age_max))}</div></div></div>
+  const infoSection = `<div class="section"><div class="section-label">Plan your visit</div><div class="ed-grid">
+    <div class="ed-grid-item"><span class="ed-grid-label">Date</span><span class="ed-grid-value">${esc(dateLabel)}</span></div>
+    <div class="ed-grid-item"><span class="ed-grid-label">Location</span><span class="ed-grid-value">${locationNote}</span></div>
+    <div class="ed-grid-item"><span class="ed-grid-label">Cost</span><span class="ed-grid-value">${allFree ? 'Free' : esc(priceStr(rep))}</span></div>
+    <div class="ed-grid-item"><span class="ed-grid-label">Ages</span><span class="ed-grid-value">${(showAges || showProgram) ? 'Multiple age groups — see sessions above' : esc(ageLabel(rep.age_min, rep.age_max))}</span></div>
   </div></div>`;
 
   root.innerHTML = `${heroHtml}<div class="page">${summarySection}${sessionsSection}${infoSection}</div>`;
@@ -831,9 +788,9 @@ function renderNotes(notes) {
   if (!notes) return '';
   try {
     const parsed = JSON.parse(notes);
-    if (Array.isArray(parsed)) return parsed.map(item => esc(item)).join('<br>');
+    if (Array.isArray(parsed)) return parsed.map(item => `<div class="ed-note-item">${esc(item)}</div>`).join('');
   } catch (e) {}
-  return esc(notes);
+  return `<div class="ed-note-item">${esc(notes)}</div>`;
 }
 
 // ─── PROGRAM FAMILIES ────────────────────────────────────────────
