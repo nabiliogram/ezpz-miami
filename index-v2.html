@@ -713,6 +713,14 @@
     }
     #contentWrapper > .tab-panel { flex: 1; overflow-y: auto; }
 
+    .zone-sticky-hdr {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--page-bg);
+      padding: 14px 20px 8px;
+      border-bottom: 1px solid var(--border-light);
+    }
     .explore-header {
       padding: 20px 20px 16px;
     }
@@ -2085,7 +2093,7 @@
 
       // Zone header
       html += `<div class="zone-section" style="margin-top:${isSelectedZone ? '0' : '24px'};">
-        <div style="padding:16px 20px 8px;">
+        <div class="zone-sticky-hdr">
           <div style="font-size:17px;font-weight:800;letter-spacing:-0.3px;color:var(--text-1);${isSelectedZone ? 'color:var(--accent);' : ''}">${zoneName}</div>
           <div style="font-size:11px;color:var(--text-3);margin-top:2px;">${zonePlaces.length} spot${zonePlaces.length !== 1 ? 's' : ''}</div>
         </div>`;
