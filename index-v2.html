@@ -3,8 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EZPZ Miami — The Play-Book for Miami Parents</title>
-  <meta name="description" content="The easiest way to find kid-friendly events in Miami this weekend." />
+  <title>EZPZ Miami — The Parent Cheat Sheet</title>
+  <meta name="description" content="The easiest way to find kid-friendly events and places in Miami. Curated for parents, updated daily." />
+  <!-- Open Graph / Social Share -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ezpz.miami" />
+  <meta property="og:title" content="EZPZ Miami — The Parent Cheat Sheet" />
+  <meta property="og:description" content="The easiest way to find kid-friendly events and places in Miami. Curated for parents, updated daily." />
+  <meta property="og:image" content="https://nabiliogram.github.io/ezpz-miami/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="EZPZ Miami — The Parent Cheat Sheet" />
+  <meta name="twitter:description" content="The easiest way to find kid-friendly events and places in Miami." />
+  <meta name="twitter:image" content="https://nabiliogram.github.io/ezpz-miami/og-image.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..150,100..900;1,9..150,100..900&display=swap" rel="stylesheet" />
@@ -290,13 +303,13 @@
       flex: 1;
       text-align: center;
       border-bottom: 2px solid transparent;
-      background: var(--accent-light);
-      border-radius: 8px 8px 0 0;
-      margin: 0 4px;
-      color: var(--text-2);
+      background: #FFF0F3;
+      border-radius: 0;
+      color: #C4809A;
+      font-weight: 700;
     }
     .nav-row2 .nav-tab.active {
-      background: var(--accent-tint);
+      background: #FFE0E9;
       color: var(--accent);
       border-bottom-color: var(--accent);
     }
@@ -603,6 +616,14 @@
     }
     .pill.fr { background: var(--teal-tint); color: var(--teal-deep); }
     .pill.dist { background: var(--gold-tint); color: #A08E10; }
+    .ec-map {
+      width: 100%;
+      height: 64px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: auto;
+    }
+    .ec-map img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .lib-card {
       background: var(--card-bg);
@@ -784,7 +805,8 @@
       margin-bottom: 4px;
       padding: 0 20px;
     }
-    @media (max-width: 540px) { .places-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 580px) { .places-grid { grid-template-columns: 1fr; } }
+    @media (min-width: 860px) { .places-grid { grid-template-columns: 1fr 1fr 1fr; } }
 
     .plc {
       background: var(--card-bg);
@@ -800,14 +822,14 @@
       transform: translateY(-1px);
     }
     .plc-bar {
-      height: 3px;
+      height: 4px;
       background: var(--accent);
     }
     .plc-bar.outdoor { background: var(--cat-outdoor); }
-    .plc-bar.arts { background: var(--cat-festival); }
+    .plc-bar.arts { background: var(--cat-storytime); }
     .plc-bar.rainy { background: var(--cat-museum); }
     .plc-bar.nature { background: var(--cat-outdoor); }
-    .plc-bar.eat { background: #E07830; }
+    .plc-bar.eat { background: var(--cat-craft); }
     .plc-body {
       padding: 13px 14px 12px;
     }
@@ -1131,7 +1153,7 @@
   <!-- NAVIGATION -->
   <nav class="top-nav">
     <div class="nav-row1">
-      <a href="#" class="nav-logo" onclick="return false;">
+      <a href="#" class="nav-logo" onclick="switchTab('events', null); selectDate(toDateKey(new Date())); window.scrollTo(0,0); return false;">
         <svg viewBox="0 0 287 52" xmlns="http://www.w3.org/2000/svg">
           <path d="M57 0V700H626V522H289V440H585V270H289V178H639V0Z" transform="translate(4.0,42.0) scale(0.048000,-0.048000)" fill="#FF4477"/>
           <path d="M32 0V145L352 517H42V700H659V555L339 183H675V0Z" transform="translate(33.8,42.0) scale(0.048000,-0.048000)" fill="#FF4477"/>
@@ -1318,6 +1340,17 @@
 
   // ─── HELPERS ──────────────────────────────────────────────────────────
   function esc(str) { return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function _truncateSentence(text, maxLen) {
+    if (!text) return '';
+    if (text.length <= maxLen) return text;
+    // Find last sentence boundary (. ! ?) within maxLen
+    const chunk = text.slice(0, maxLen);
+    const lastPeriod = Math.max(chunk.lastIndexOf('. '), chunk.lastIndexOf('! '), chunk.lastIndexOf('? '), chunk.lastIndexOf('.'), chunk.lastIndexOf('!'), chunk.lastIndexOf('?'));
+    if (lastPeriod > 40) return text.slice(0, lastPeriod + 1);
+    // No sentence end found — fallback to last space
+    const lastSpace = chunk.lastIndexOf(' ');
+    return lastSpace > 30 ? chunk.slice(0, lastSpace) + '…' : chunk + '…';
+  }
   function toDateKey(d) { return d.toISOString().slice(0, 10); }
   function parseDateKey(key) { return new Date(key + 'T00:00:00Z'); }
   function fmtDisplayDate(d) {
@@ -1612,7 +1645,18 @@
     _activeDate = key;
     document.querySelectorAll('.ds-pill').forEach(p => p.classList.remove('active'));
     document.querySelector(`.ds-pill[data-date="${key}"]`)?.classList.add('active');
-    renderContent();
+    // If the section exists in the current feed, scroll to it
+    const section = document.getElementById('section-' + key);
+    if (section) {
+      // Temporarily pause scroll observer to avoid it overwriting the active pill
+      if (_scrollObserver) _scrollObserver.disconnect();
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Re-enable observer after scroll settles
+      setTimeout(() => _initScrollSync(), 800);
+    } else {
+      // Section doesn't exist yet (no events for that day), re-render
+      renderContent();
+    }
   }
 
   function renderContent() {
@@ -1775,7 +1819,7 @@
     const time = fmtTimeRange(ev.start_date, ev.end_date);
     const price = priceLabel(ev);
     const desc = ev.parent_summary || ev.description || '';
-    const shortDesc = desc.length > 140 ? desc.slice(0, 140) + '…' : desc;
+    const shortDesc = _truncateSentence(desc, 160);
     const coords = _resolveCoords(ev);
     const distText = coords ? _distText(coords.lat, coords.lng) : '';
     const pattern = HERO_PATTERNS[cat] || HERO_PATTERNS.default;
@@ -1869,8 +1913,9 @@
     const price = priceLabel(ev);
     const ages = ageLabel(ev.age_min, ev.age_max);
     const desc = ev.parent_summary || ev.description || '';
-    const shortDesc = desc.length > 80 ? desc.slice(0, 80) + '...' : desc;
+    const shortDesc = _truncateSentence(desc, 120);
 
+    const mapHtml = coords ? `<div class="ec-map"><img src="https://maps.googleapis.com/maps/api/staticmap?center=${coords.lat},${coords.lng}&zoom=14&size=400x120&scale=2&maptype=roadmap&markers=size:small%7Ccolor:0xFF4477%7C${coords.lat},${coords.lng}&style=feature:poi%7Cvisibility:off&key=AIzaSyAF6ZPOU0k1Y1eEqDyphyIOWzA01VNeiQ8" alt="" loading="lazy"/></div>` : '';
     return `<div class="ec cat-${cat}" onclick="openEventDetail('${esc(ev.id)}')">
       <div class="ec-type">${catLabel}</div>
       <div class="ec-title">${esc(ev.editorial_headline || ev.title)}</div>
@@ -1884,6 +1929,7 @@
         ${dist}
         ${ages !== 'All ages' ? `<span class="pill" style="background:var(--accent-light);color:var(--accent-deep);">${ages}</span>` : ''}
       </div>
+      ${mapHtml}
     </div>`;
   }
 
