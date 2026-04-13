@@ -607,7 +607,9 @@
       border-radius: 10px;
       overflow: hidden;
       margin: 12px 0 16px;
+      cursor: pointer;
     }
+    .ed-map:hover { opacity: 0.9; }
     .ed-map img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .lib-card {
@@ -2246,7 +2248,7 @@
 
     const mapsQ = ev.address || (ev.venue_name ? ev.venue_name + ', Miami, FL' : '');
     const evCoords = _resolveCoords(ev);
-    const mapImg = evCoords ? `<div class="ed-map"><img src="https://maps.googleapis.com/maps/api/staticmap?center=${evCoords.lat},${evCoords.lng}&zoom=14&size=600x200&scale=2&maptype=roadmap&markers=size:small%7Ccolor:0xFF4477%7C${evCoords.lat},${evCoords.lng}&style=feature:poi%7Cvisibility:off&key=AIzaSyAF6ZPOU0k1Y1eEqDyphyIOWzA01VNeiQ8" alt="Map" loading="lazy"/></div>` : '';
+    const mapImg = evCoords ? `<a class="ed-map" href="https://maps.google.com/?q=${encodeURIComponent(mapsQ)}" target="_blank" rel="noopener"><img src="https://maps.googleapis.com/maps/api/staticmap?center=${evCoords.lat},${evCoords.lng}&zoom=14&size=600x200&scale=2&maptype=roadmap&markers=size:small%7Ccolor:0xFF4477%7C${evCoords.lat},${evCoords.lng}&style=feature:poi%7Cvisibility:off&key=AIzaSyAF6ZPOU0k1Y1eEqDyphyIOWzA01VNeiQ8" alt="Map" loading="lazy"/></a>` : '';
 
     return `<div class="ed-hero">
       <svg class="hero-pattern" viewBox="0 0 400 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${pattern}</svg>
@@ -2309,7 +2311,7 @@
   function renderPlaceDetail(place) {
     const distText = (place.lat && place.lng) ? _distText(place.lat, place.lng) : '';
     const mapsQ = place.address || (place.name + ', Miami, FL');
-    const placeMap = (place.lat && place.lng) ? `<div class="ed-map"><img src="https://maps.googleapis.com/maps/api/staticmap?center=${place.lat},${place.lng}&zoom=14&size=600x200&scale=2&maptype=roadmap&markers=size:small%7Ccolor:0x0D9488%7C${place.lat},${place.lng}&style=feature:poi%7Cvisibility:off&key=AIzaSyAF6ZPOU0k1Y1eEqDyphyIOWzA01VNeiQ8" alt="Map" loading="lazy"/></div>` : '';
+    const placeMap = (place.lat && place.lng) ? `<a class="ed-map" href="https://maps.google.com/?q=${encodeURIComponent(mapsQ)}" target="_blank" rel="noopener"><img src="https://maps.googleapis.com/maps/api/staticmap?center=${place.lat},${place.lng}&zoom=14&size=600x200&scale=2&maptype=roadmap&markers=size:small%7Ccolor:0x0D9488%7C${place.lat},${place.lng}&style=feature:poi%7Cvisibility:off&key=AIzaSyAF6ZPOU0k1Y1eEqDyphyIOWzA01VNeiQ8" alt="Map" loading="lazy"/></a>` : '';
     return `<div class="ed-hero" style="background:linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);">
       <svg class="hero-pattern" viewBox="0 0 400 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <circle cx="80" cy="50" r="30" fill="white" opacity=".07"/><circle cx="300" cy="120" r="40" fill="white" opacity=".05"/>
