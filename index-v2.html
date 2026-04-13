@@ -601,14 +601,14 @@
     }
     .pill.fr { background: var(--teal-tint); color: var(--teal-deep); }
     .pill.dist { background: var(--gold-tint); color: #A08E10; }
-    .ec-map {
+    .ed-map {
       width: 100%;
-      height: 64px;
-      border-radius: 8px;
+      height: 120px;
+      border-radius: 10px;
       overflow: hidden;
-      margin-top: auto;
+      margin: 12px 0 16px;
     }
-    .ec-map img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ed-map img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .lib-card {
       background: var(--card-bg);
@@ -770,6 +770,11 @@
       background: var(--accent);
       flex-shrink: 0;
     }
+    .cat-section[data-cat="outdoor_play"] .cat-section-hdr::before { background: var(--cat-outdoor); }
+    .cat-section[data-cat="arts_and_culture"] .cat-section-hdr::before { background: var(--cat-storytime); }
+    .cat-section[data-cat="rainy_day"] .cat-section-hdr::before { background: var(--cat-museum); }
+    .cat-section[data-cat="nature_and_adventure"] .cat-section-hdr::before { background: var(--cat-outdoor); }
+    .cat-section[data-cat="eat_and_treat"] .cat-section-hdr::before { background: var(--cat-craft); }
     .cat-section-name {
       font-size: 12px;
       font-weight: 800;
@@ -788,7 +793,6 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin-bottom: 4px;
-      padding: 0 20px;
     }
     @media (max-width: 580px) { .places-grid { grid-template-columns: 1fr; } }
     @media (min-width: 860px) { .places-grid { grid-template-columns: 1fr 1fr 1fr; } }
@@ -1900,7 +1904,6 @@
     const desc = ev.parent_summary || ev.description || '';
     const shortDesc = _truncateSentence(desc, 120);
 
-    const mapHtml = coords ? `<div class="ec-map"><img src="https://maps.googleapis.com/maps/api/staticmap?center=${coords.lat},${coords.lng}&zoom=14&size=400x120&scale=2&maptype=roadmap&markers=size:small%7Ccolor:0xFF4477%7C${coords.lat},${coords.lng}&style=feature:poi%7Cvisibility:off&key=AIzaSyAF6ZPOU0k1Y1eEqDyphyIOWzA01VNeiQ8" alt="" loading="lazy"/></div>` : '';
     return `<div class="ec cat-${cat}" onclick="openEventDetail('${esc(ev.id)}')">
       <div class="ec-type">${catLabel}</div>
       <div class="ec-title">${esc(ev.editorial_headline || ev.title)}</div>
@@ -1914,7 +1917,6 @@
         ${dist}
         ${ages !== 'All ages' ? `<span class="pill" style="background:var(--accent-light);color:var(--accent-deep);">${ages}</span>` : ''}
       </div>
-      ${mapHtml}
     </div>`;
   }
 
@@ -2124,8 +2126,11 @@
   function renderPlaceCard(place, barClass) {
     const distText = (place.lat && place.lng) ? _distText(place.lat, place.lng) : '';
     const isFree = (place.price_label || '').toLowerCase().includes('free');
+    // Map category to bar color class
+    const catBarMap = { outdoor_play: 'outdoor', arts_and_culture: 'arts', rainy_day: 'rainy', nature_and_adventure: 'nature', eat_and_treat: 'eat' };
+    const resolvedBar = catBarMap[place.category] || barClass || 'outdoor';
     return `<div class="plc" onclick="openPlaceDetail('${esc(place.id)}')">
-      <div class="plc-bar ${barClass || 'outdoor'}"></div>
+      <div class="plc-bar ${resolvedBar}"></div>
       <div class="plc-body">
         <div class="plc-name">${esc(place.name)}</div>
         <div class="plc-hood">${esc(place.neighborhood || '')}${distText ? ' · ' + distText : ''}</div>
@@ -2240,6 +2245,8 @@
     tags.push('Family');
 
     const mapsQ = ev.address || (ev.venue_name ? ev.venue_name + ', Miami, FL' : '');
+    const evCoords = _resolveCoords(ev);
+    const mapImg = evCoords ? `<div class="ed-map"><img src="https://maps.googleapis.com/maps/api/staticmap?center=${evCoords.lat},${evCoords.lng}&zoom=14&size=600x200&scale=2&maptype=roadmap&markers=size:small%7Ccolor:0xFF4477%7C${evCoords.lat},${evCoords.lng}&style=feature:poi%7Cvisibility:off&key=AIzaSyAF6ZPOU0k1Y1eEqDyphyIOWzA01VNeiQ8" alt="Map" loading="lazy"/></div>` : '';
 
     return `<div class="ed-hero">
       <svg class="hero-pattern" viewBox="0 0 400 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${pattern}</svg>
@@ -2256,6 +2263,7 @@
         <div class="ed-grid-item"><span class="ed-grid-label">Cost</span><span class="ed-grid-value">${esc(costStr)}</span></div>
         <div class="ed-grid-item"><span class="ed-grid-label">Ages</span><span class="ed-grid-value">${esc(agesStr)}</span></div>
       </div>
+      ${mapImg}
       ${notesHtml ? '<div class="ed-section-hdr">Good to know</div><div class="ed-notes">' + notesHtml + '</div>' : ''}
       <div class="ed-tags">${tags.map(t => '<span class="ed-tag">' + esc(t) + '</span>').join('')}</div>
       <div class="ed-actions">
@@ -2301,6 +2309,7 @@
   function renderPlaceDetail(place) {
     const distText = (place.lat && place.lng) ? _distText(place.lat, place.lng) : '';
     const mapsQ = place.address || (place.name + ', Miami, FL');
+    const placeMap = (place.lat && place.lng) ? `<div class="ed-map"><img src="https://maps.googleapis.com/maps/api/staticmap?center=${place.lat},${place.lng}&zoom=14&size=600x200&scale=2&maptype=roadmap&markers=size:small%7Ccolor:0x0D9488%7C${place.lat},${place.lng}&style=feature:poi%7Cvisibility:off&key=AIzaSyAF6ZPOU0k1Y1eEqDyphyIOWzA01VNeiQ8" alt="Map" loading="lazy"/></div>` : '';
     return `<div class="ed-hero" style="background:linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);">
       <svg class="hero-pattern" viewBox="0 0 400 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <circle cx="80" cy="50" r="30" fill="white" opacity=".07"/><circle cx="300" cy="120" r="40" fill="white" opacity=".05"/>
@@ -2319,6 +2328,7 @@
         ${place.age_label ? '<div class="ed-grid-item"><span class="ed-grid-label">Ages</span><span class="ed-grid-value">' + esc(place.age_label) + '</span></div>' : ''}
         ${place.indoor_outdoor ? '<div class="ed-grid-item"><span class="ed-grid-label">Setting</span><span class="ed-grid-value">' + esc(titleCase(place.indoor_outdoor)) + '</span></div>' : ''}
       </div>
+      ${placeMap}
       <div class="ed-actions">
         <a class="ed-icon-btn" href="https://maps.google.com/?q=${encodeURIComponent(mapsQ)}" target="_blank" rel="noopener" title="Directions"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="ed-icon-label">Directions</span></a>
         <button class="ed-icon-btn" onclick="sharePlace()" title="Share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span class="ed-icon-label">Share</span></button>
